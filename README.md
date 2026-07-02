@@ -2,7 +2,7 @@
 
 You talk, a fake Rick Sanchez insults you back — in his own cloned voice, with a face that actually moves when he talks. One HTML file. No backend except a 60-line proxy for the voice, and you don't even need that part.
 
-**[→ Open it and get roasted](#)** *(swap this for your live demo link before you ship)*
+**[→ Open it and get roasted](#)** *(https://dapper-semifreddo-b63957.netlify.app)*
 
 ![Rick.ai screenshot placeholder — replace with an actual GIF of the face talking](#)
 

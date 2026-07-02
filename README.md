@@ -9,7 +9,9 @@ You talk, a fake Rick Sanchez insults you back — in his own cloned voice,One H
 
 ---
 
-## The story, allegedly
+## The story, (allegedly)
+
+<img width="1461" height="825" alt="Screenshot 2026-07-03 at 3 58 03 AM" src="https://github.com/user-attachments/assets/12c09221-3ea9-4d7b-b017-42e105a18db7" />
 
 Rick went shopping for an AI. Browsed the whole market — every chatbot dressed up in a slightly different logo, every one of them polite, careful, and about as interesting as a Jerry. Not one had the nerve to just tell you the truth.
 

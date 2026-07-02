@@ -1,6 +1,6 @@
 # Sanchez-AI
 
-You talk, a fake Rick Sanchez insults you back — in his own cloned voice, with a face that actually moves when he talks. One HTML file. No backend except a 60-line proxy for the voice, and you don't even need that part.
+You talk, a fake Rick Sanchez insults you back — in his own cloned voice,One HTML file. No backend except a 60-line proxy for the voice, and you don't even need that part.
 
 **[→ Open it and get roasted](#)** *(https://dapper-semifreddo-b63957.netlify.app)*
 

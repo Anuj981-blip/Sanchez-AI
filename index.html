@@ -11,43 +11,101 @@
 /* ── PAGE LAYOUT ── */
 html,body{height:100%;font-size:15px;}
 body{
-  background:#0a0d0a;
-  color:#7fff7f;
+  background:
+    radial-gradient(ellipse 900px 600px at 18% -10%, rgba(182,255,61,.07), transparent 60%),
+    radial-gradient(ellipse 700px 500px at 105% 110%, rgba(255,79,216,.05), transparent 55%),
+    #0a0612;
+  color:#d9cdfa;
   font-family:'Share Tech Mono',monospace;
   display:flex;
   flex-direction:column;
   height:100vh;
   overflow:hidden;
 }
+/* portal-warp: a slow drifting conic haze instead of a stock CRT scanline overlay */
 body::before{
+  content:'';position:fixed;inset:-20%;
+  background:conic-gradient(from 0deg at 50% 50%,
+    rgba(182,255,61,.035), rgba(255,79,216,.035) 25%,
+    transparent 45%, rgba(182,255,61,.03) 70%, transparent 90%);
+  pointer-events:none;z-index:9998;
+  animation:portalDrift 40s linear infinite;
+  mix-blend-mode:screen;
+}
+body::after{
   content:'';position:fixed;inset:0;
-  background:repeating-linear-gradient(0deg,transparent,transparent 2px,rgba(0,0,0,0.07) 2px,rgba(0,0,0,0.07) 4px);
+  background:repeating-linear-gradient(0deg,transparent,transparent 2px,rgba(0,0,0,0.06) 2px,rgba(0,0,0,0.06) 4px);
   pointer-events:none;z-index:9999;
 }
+@keyframes portalDrift{ from{ transform:rotate(0deg);} to{ transform:rotate(360deg);} }
 
-.app{display:grid;grid-template-columns:200px 340px 1fr;height:100vh;}
-.history-panel{background:#040a04;border-right:1px solid #1a3a1a;display:flex;flex-direction:column;overflow:hidden;order:0;}
-.history-header{padding:12px 14px;border-bottom:1px solid #1a3a1a;flex-shrink:0;display:flex;align-items:center;justify-content:space-between;}
-.history-title{font-size:9px;letter-spacing:3px;color:#3a6a3a;text-transform:uppercase;}
-.new-chat-btn{background:transparent;border:1px solid #1a3a1a;color:#3a6a3a;font-family:'Share Tech Mono',monospace;font-size:9px;padding:3px 8px;border-radius:4px;cursor:pointer;letter-spacing:1px;transition:all .2s;white-space:nowrap;}
-.new-chat-btn:hover{border-color:#39ff14;color:#39ff14;}
-.history-list{flex:1;overflow-y:auto;scrollbar-width:thin;scrollbar-color:#1a3a1a transparent;}
+/* HUD corner brackets — signature framing device used on major panels */
+.hud-corners{position:relative;}
+.hud-corners::before,.hud-corners::after{
+  content:'';position:absolute;width:10px;height:10px;
+  border:2px solid #b6ff3d;opacity:.55;pointer-events:none;
+}
+.hud-corners::before{top:6px;left:6px;border-right:0;border-bottom:0;}
+.hud-corners::after{bottom:6px;right:6px;border-left:0;border-top:0;}
+
+.app{display:grid;grid-template-columns:64px 340px 1fr;height:100vh;transition:grid-template-columns .28s cubic-bezier(.2,.8,.2,1);}
+.app.sidebar-open{grid-template-columns:220px 340px 1fr;}
+.history-panel{background:#0d0a1a;border-right:1px solid #2a1f42;display:flex;flex-direction:column;overflow:hidden;order:0;}
+.app:not(.sidebar-open) .history-panel{align-items:center;}
+.app:not(.sidebar-open) .history-header{justify-content:center;padding:14px 0;}
+.app:not(.sidebar-open) .history-collapsible{display:none;}
+.history-header{padding:12px 14px;border-bottom:1px solid #2a1f42;flex-shrink:0;display:flex;align-items:center;gap:10px;justify-content:space-between;}
+.history-title{font-size:9px;letter-spacing:3px;color:#6b5a94;text-transform:uppercase;white-space:nowrap;}
+.history-collapsible{display:flex;align-items:center;justify-content:space-between;flex:1;gap:10px;overflow:hidden;white-space:nowrap;}
+/* the sidebar logo — a mini spinning portal ring, click to open/close the chats rail */
+.sidebar-logo{
+  width:38px;height:38px;flex-shrink:0;position:relative;
+  border:none;background:transparent;
+  display:flex;align-items:center;justify-content:center;
+  cursor:pointer;padding:0;clip-path:none !important;
+  transition:transform .2s;
+}
+.sidebar-logo::before{
+  content:'';position:absolute;inset:0;border-radius:50%;
+  padding:1.5px;box-sizing:border-box;
+  background:conic-gradient(from 0deg,#b6ff3d,#4dff9e 30%,#0d0a1a 45%,#b6ff3d 65%,#4dff9e 85%,#0d0a1a);
+  -webkit-mask:linear-gradient(#fff 0 0) content-box,linear-gradient(#fff 0 0);
+  -webkit-mask-composite:xor;mask-composite:exclude;
+  animation:portalSpin 7s linear infinite;
+}
+.sidebar-logo::after{
+  content:'';position:absolute;inset:3px;border-radius:50%;
+  background:radial-gradient(circle at 50% 40%,#0a2a12 0%,#041006 70%,#000 100%);
+  box-shadow:inset 0 0 8px rgba(182,255,61,.35);
+  transition:box-shadow .2s;
+}
+.sidebar-logo:hover{transform:scale(1.07);}
+.sidebar-logo:hover::after{box-shadow:inset 0 0 10px rgba(182,255,61,.6), 0 0 10px rgba(182,255,61,.45);}
+.sidebar-logo svg{width:20px;height:20px;position:relative;z-index:1;}
+/* signature button cut — angled corner instead of the generic rounded-rect terminal button */
+button{clip-path:polygon(0 0,calc(100% - 8px) 0,100% 8px,100% 100%,0 100%);border-radius:0 !important;}
+button:hover{filter:brightness(1.15);}
+
+.new-chat-btn{background:transparent;border:1px solid #2a1f42;color:#6b5a94;font-family:'Share Tech Mono',monospace;font-size:9px;padding:3px 8px;border-radius:4px;cursor:pointer;letter-spacing:1px;transition:all .2s;white-space:nowrap;}
+.new-chat-btn:hover{border-color:#b6ff3d;color:#b6ff3d;}
+.history-list{flex:1;overflow-y:auto;scrollbar-width:thin;scrollbar-color:#2a1f42 transparent;}
+.app:not(.sidebar-open) .history-list{display:none;}
 .history-list::-webkit-scrollbar{width:2px;}
-.history-list::-webkit-scrollbar-thumb{background:#1a3a1a;}
+.history-list::-webkit-scrollbar-thumb{background:#2a1f42;}
 .chat-item{padding:10px 14px;border-bottom:1px solid rgba(26,58,26,.4);cursor:pointer;transition:background .15s;position:relative;}
-.chat-item:hover{background:rgba(57,255,20,.04);}
-.chat-item.active{background:rgba(57,255,20,.07);border-left:2px solid #39ff14;}
-.chat-item-name{font-size:11px;color:#7fff7f;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;letter-spacing:.5px;padding-right:18px;}
-.chat-item.active .chat-item-name{color:#39ff14;}
-.chat-item-meta{font-size:9px;color:#3a6a3a;margin-top:3px;letter-spacing:.5px;}
-.chat-delete{position:absolute;right:8px;top:50%;transform:translateY(-50%);background:transparent;border:none;color:#3a6a3a;cursor:pointer;font-size:11px;opacity:0;transition:opacity .15s;padding:2px 4px;font-family:'Share Tech Mono',monospace;}
+.chat-item:hover{background:rgba(182,255,61,.04);}
+.chat-item.active{background:rgba(182,255,61,.07);border-left:2px solid #b6ff3d;}
+.chat-item-name{font-size:11px;color:#d9cdfa;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;letter-spacing:.5px;padding-right:18px;}
+.chat-item.active .chat-item-name{color:#b6ff3d;}
+.chat-item-meta{font-size:9px;color:#6b5a94;margin-top:3px;letter-spacing:.5px;}
+.chat-delete{position:absolute;right:8px;top:50%;transform:translateY(-50%);background:transparent;border:none;color:#6b5a94;cursor:pointer;font-size:11px;opacity:0;transition:opacity .15s;padding:2px 4px;font-family:'Share Tech Mono',monospace;}
 .chat-item:hover .chat-delete{opacity:1;}
 .chat-delete:hover{color:#ff4444;}
 
 /* ── LEFT PANEL ── */
 .left-panel{
-  background:#060d06;
-  border-right:1px solid #1a3a1a;
+  background:#0d0a1a;
+  border-right:1px solid #2a1f42;
   display:flex;flex-direction:column;align-items:center;
   padding:16px 12px 12px;
   overflow:hidden;
@@ -55,7 +113,7 @@ body::before{
   order:1;
 }
 .panel-title{
-  font-size:9px;letter-spacing:4px;color:#3a6a3a;
+  font-size:9px;letter-spacing:4px;color:#6b5a94;
   text-transform:uppercase;margin-bottom:10px;
 }
 
@@ -73,7 +131,14 @@ body::before{
   position:relative;
   font-size:15px;
   width:307.5px;height:307.5px;
+  cursor:pointer;
+  background:transparent;
+  border-radius:100%;
+  transition:background .25s ease;
 }
+.rick-root.pickle-active{ background:#000; }
+.rick-root.pickle-active .container{ opacity:0; transition:opacity .2s ease; }
+.container{ transition:opacity .2s ease; }
 
 /* ════ ORIGINAL RICK CSS (compiled from SCSS by Pablo-Ai) ════ */
 .container {
@@ -311,6 +376,99 @@ body::before{
 .coat:after,.coat:before { border-left:5.2rem solid transparent;border-right:5.2rem solid transparent;border-bottom:2.4rem solid #fefefe;border-radius:.4rem;content:'';height:0;top:-2.3rem;width:0;z-index:10; }
 .coat:before { border-bottom:2.4rem solid #111;top:-2.375rem;z-index:5; }
 
+/* ════ PICKLE RICK EASTER EGG (ported from aitchiss's CodePen: https://codepen.io/aitchiss/pen/jOWBbNO) ════ */
+.pickle-egg{
+  --pr-pickle-color:#4E8224; --pr-pickle-highlight:#659C2C;
+  --pr-pickle-spot-color:#335B10; --pr-eyebrow-color:#AFCDE5; --pr-tongue-color:#AC2118;
+  position:absolute; inset:0; z-index:60;
+  opacity:0; transform:scale(.5) rotate(-8deg); pointer-events:none;
+  transition:opacity .35s cubic-bezier(.2,.8,.2,1), transform .35s cubic-bezier(.2,.8,.2,1);
+}
+.pickle-egg.show{ opacity:1; transform:scale(1) rotate(0deg); }
+.pickle-egg .pr-canvas{
+  position:absolute; top:50%; left:50%; width:600px; height:600px;
+  margin-top:-300px; margin-left:-300px;
+  transform:translate(var(--px,9px),var(--py,117px)) scale(var(--ps,.76));
+  transform-origin:center;
+}
+.pickle-egg .pr-pickle{
+  position:absolute; border:2px solid #111; left:146px; top:150px;
+  background:var(--pr-pickle-color); width:150px; height:75px;
+  transform:skew(0deg,3deg) rotate(-45deg); border-radius:30% 0 0 50%;
+}
+.pickle-egg .pr-pickle::before{
+  content:''; position:absolute; border:2px solid #111; border-left-color:transparent;
+  left:148px; bottom:6px; background:var(--pr-pickle-color);
+  width:150px; height:75px; transform:skew(0deg,-6deg); border-radius:0 30% 50% 0;
+}
+.pickle-egg .pr-pickle::after{
+  content:''; position:absolute; width:200px; height:25px;
+  background:var(--pr-pickle-highlight); top:15px; left:35px; border-radius:30% 10% 50% 50%;
+}
+.pickle-egg .pr-mouth{ position:absolute; left:265px; top:85px; width:60px; height:50px; transform:rotate(45deg); }
+.pickle-egg .pr-mouth::before{
+  content:''; position:absolute; left:-4px; top:-3px; width:30px; height:30px;
+  border:2px solid #111; border-radius:40%;
+  border-bottom-color:transparent; border-top-color:transparent; border-right-color:transparent;
+}
+.pickle-egg .pr-mouth::after{
+  content:''; position:absolute; right:-4px; top:-3px; width:30px; height:30px;
+  border:2px solid #111; border-radius:40%;
+  border-bottom-color:transparent; border-top-color:transparent; border-left-color:transparent;
+}
+.pickle-egg .pr-mouth-left{
+  position:absolute; width:30px; height:30px; transform:skew(0deg,8deg);
+  border-radius:30% 0 0 50%; background:#111; overflow:hidden;
+}
+.pickle-egg .pr-mouth-right{
+  position:absolute; left:29px; width:30px; height:30px; transform:skew(0deg,-8deg);
+  border-radius:0 30% 50% 0; background:#111; overflow:hidden;
+}
+.pickle-egg .pr-tongue{
+  position:absolute; top:10px; width:20px; height:30px;
+  border:8px solid var(--pr-tongue-color); border-left-color:transparent; border-bottom-color:transparent;
+  border-radius:50%;
+}
+.pickle-egg .pr-top-teeth{ position:absolute; display:flex; top:-8px; left:5px; }
+.pickle-egg .pr-bottom-teeth{ position:absolute; display:flex; bottom:-8px; }
+.pickle-egg .pr-mouth-left .pr-bottom-teeth{ left:10px; }
+.pickle-egg .pr-mouth-right .pr-top-teeth{ left:-5px; }
+.pickle-egg .pr-tooth{ width:7px; height:15px; border-radius:50%; background:#fff; border:1px solid #111; }
+.pickle-egg .pr-tooth.pr-short{ height:12px; }
+.pickle-egg .pr-bottom-teeth .pr-tooth.pr-short{ margin-top:3px; }
+.pickle-egg .pr-eye{ position:absolute; background:#fff; width:25px; height:25px; border:2px solid #111; border-radius:50%; }
+.pickle-egg .pr-eye-left{ left:310px; top:35px; }
+.pickle-egg .pr-eye-right{ left:330px; top:55px; }
+.pickle-egg .pr-eye::before{
+  content:''; position:absolute; left:50%; top:50%; transform:translate(-50%,-50%);
+  width:5px; height:5px; background:#111; border-radius:50%;
+}
+.pickle-egg .pr-eye::after{
+  content:''; position:absolute; top:5px; left:-8px; width:25px; height:20px;
+  border:2px solid #111; border-top-color:transparent; border-left-color:transparent;
+  border-radius:50%; transform:rotate(75deg);
+}
+.pickle-egg .pr-eyebrow{
+  position:absolute; left:310px; top:30px; transform:rotate(45deg);
+  width:50px; height:30px; border:5px solid var(--pr-eyebrow-color);
+  border-radius:50%; border-bottom-color:transparent; border-left-color:transparent; border-right-color:transparent;
+}
+.pickle-egg .pr-nose{
+  position:absolute; left:312px; top:70px; border:2px solid #111;
+  height:15px; width:5px; border-radius:0 0 50% 30%; border-top-color:transparent; transform:rotate(45deg);
+}
+.pickle-egg .pr-spot{
+  position:absolute; width:15px; height:15px; border-radius:50%;
+  background:var(--pr-pickle-spot-color); border:3px solid var(--pr-pickle-highlight);
+  clip-path:circle(70% at 50% 0);
+}
+.pickle-egg .pr-one{ transform:rotate(-45deg); left:240px; top:105px; }
+.pickle-egg .pr-two{ transform:rotate(145deg); width:10px; height:10px; left:290px; top:160px; }
+.pickle-egg .pr-three{ transform:rotate(145deg); width:10px; height:10px; left:270px; top:170px; }
+.pickle-egg .pr-four{ transform:rotate(145deg); left:200px; top:220px; }
+.pickle-egg .pr-five{ transform:rotate(-45deg); left:180px; top:175px; }
+.pickle-egg .pr-six{ transform:rotate(-45deg); left:200px; top:175px; width:10px; height:10px; }
+
 /* ════ FACE ANIMATION STATES ════ */
 
 /* TALKING: mouth bounces open */
@@ -407,17 +565,17 @@ body::before{
 .status-strip{
   width:100%;display:flex;align-items:center;justify-content:space-between;
   padding:8px 4px 0;margin-top:8px;
-  border-top:1px solid #1a3a1a;
+  border-top:1px solid #2a1f42;
 }
 .dot{width:8px;height:8px;border-radius:50%;background:#222;transition:all .3s;}
-.dot.on{background:#39ff14;box-shadow:0 0 8px #39ff14;}
-.status-lbl{font-size:10px;color:#3a6a3a;letter-spacing:2px;}
-.mood-lbl{font-size:10px;color:#39ff14;letter-spacing:3px;opacity:.65;}
+.dot.on{background:#b6ff3d;box-shadow:0 0 8px #b6ff3d;}
+.status-lbl{font-size:10px;color:#6b5a94;letter-spacing:2px;}
+.mood-lbl{font-size:10px;color:#b6ff3d;letter-spacing:3px;opacity:.65;}
 
 /* ── SPEECH BUBBLE ── */
 .speech{
   background:rgba(0,18,0,.85);
-  border:1px solid #39ff14;
+  border:1px solid #b6ff3d;
   border-radius:10px 10px 10px 0;
   padding:9px 13px;
   font-family:'Permanent Marker',cursive;
@@ -425,136 +583,159 @@ body::before{
   color:#c0ffc0;
   line-height:1.5;
   max-width:280px;min-height:46px;
-  box-shadow:0 0 14px rgba(57,255,20,.08);
+  box-shadow:0 0 14px rgba(182,255,61,.08);
   margin-bottom:10px;
   position:relative;
 }
 .speech::after{
   content:'';position:absolute;bottom:-9px;left:14px;
-  border:5px solid transparent;border-top-color:#39ff14;
+  border:5px solid transparent;border-top-color:#b6ff3d;
 }
 
 /* ── RIGHT PANEL ── */
-.right-panel{display:flex;flex-direction:column;height:100vh;overflow:hidden;order:2;}
+.right-panel{display:flex;flex-direction:column;height:100vh;overflow:hidden;order:2;position:relative;}
 
 .chat-header{
-  padding:14px 22px;border-bottom:1px solid #1a3a1a;
+  padding:14px 22px;border-bottom:1px solid #2a1f42;
   display:flex;align-items:center;justify-content:space-between;flex-shrink:0;
 }
 .chat-title{
   font-family:'Permanent Marker',cursive;font-size:24px;
-  color:#39ff14;text-shadow:0 0 18px rgba(57,255,20,.35);letter-spacing:3px;
+  color:#b6ff3d;text-shadow:0 0 18px rgba(182,255,61,.35);letter-spacing:3px;
 }
-.chat-sub{font-size:9px;color:#3a6a3a;letter-spacing:3px;margin-top:2px;}
+.chat-sub{font-size:9px;color:#6b5a94;letter-spacing:3px;margin-top:2px;}
 .model-pill{
-  font-size:10px;color:#3a6a3a;
-  border:1px solid #1a3a1a;padding:4px 10px;border-radius:20px;letter-spacing:1px;
+  font-size:10px;color:#6b5a94;
+  border:1px solid #2a1f42;padding:4px 10px;border-radius:20px;letter-spacing:1px;
 }
 
 /* API bar */
 .api-bar{
-  padding:9px 22px;border-bottom:1px solid #1a3a1a;
+  padding:9px 22px;border-bottom:1px solid #2a1f42;
   display:flex;gap:10px;align-items:center;flex-shrink:0;
   background:rgba(0,8,0,.5);
 }
-.api-lbl{font-size:9px;color:#3a6a3a;letter-spacing:2px;white-space:nowrap;}
+.api-lbl{font-size:9px;color:#6b5a94;letter-spacing:2px;white-space:nowrap;}
 .api-input{
-  flex:1;background:transparent;border:1px solid #1a3a1a;
-  color:#7fff7f;font-family:'Share Tech Mono',monospace;font-size:12px;
+  flex:1;background:transparent;border:1px solid #2a1f42;
+  color:#d9cdfa;font-family:'Share Tech Mono',monospace;font-size:12px;
   padding:5px 10px;border-radius:4px;outline:none;transition:border-color .2s;
 }
-.api-input:focus{border-color:#39ff14;box-shadow:0 0 8px rgba(57,255,20,.12);}
-.api-input::placeholder{color:#3a6a3a;opacity:.7;}
+.api-input:focus{border-color:#b6ff3d;box-shadow:0 0 8px rgba(182,255,61,.12);}
+.api-input::placeholder{color:#6b5a94;opacity:.7;}
 .api-btn{
-  background:transparent;border:1px solid #39ff14;color:#39ff14;
+  background:transparent;border:1px solid #b6ff3d;color:#b6ff3d;
   font-family:'Share Tech Mono',monospace;font-size:11px;
   padding:5px 14px;border-radius:4px;cursor:pointer;letter-spacing:1px;transition:all .2s;
 }
-.api-btn:hover{background:rgba(57,255,20,.1);box-shadow:0 0 10px rgba(57,255,20,.2);}
-.api-status{font-size:10px;letter-spacing:1px;white-space:nowrap;color:#3a6a3a;}
-.api-status.ok{color:#39ff14;} .api-status.err{color:#ff4444;}
+.api-btn:hover{background:rgba(182,255,61,.1);box-shadow:0 0 10px rgba(182,255,61,.2);}
+.api-status{font-size:10px;letter-spacing:1px;white-space:nowrap;color:#6b5a94;}
+.api-status.ok{color:#b6ff3d;} .api-status.err{color:#ff4444;}
 
 /* Messages */
 .messages{
   flex:1;overflow-y:auto;padding:18px 22px;
   display:flex;flex-direction:column;gap:14px;
-  scrollbar-width:thin;scrollbar-color:#1a3a1a transparent;
+  scrollbar-width:thin;scrollbar-color:#2a1f42 transparent;
 }
 .messages::-webkit-scrollbar{width:3px;}
-.messages::-webkit-scrollbar-thumb{background:#1a3a1a;border-radius:2px;}
+.messages::-webkit-scrollbar-thumb{background:#2a1f42;border-radius:2px;}
 
-.msg{display:flex;flex-direction:column;gap:3px;max-width:78%;animation:msgIn .28s ease;}
+.msg{display:flex;flex-direction:column;gap:3px;max-width:78%;animation:msgIn .28s ease;position:relative;transition:transform .15s ease;}
+.msg:hover{transform:translateY(-1px);}
 @keyframes msgIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
 .msg.user{align-self:flex-end;}
 .msg.bot{align-self:flex-start;}
-.msg-lbl{font-size:9px;letter-spacing:2px;color:#3a6a3a;text-transform:uppercase;}
-.msg.user .msg-lbl{text-align:right;}
-.msg-bubble{padding:9px 15px;border-radius:10px;font-size:13px;line-height:1.6;}
+.msg-lbl{font-size:9px;letter-spacing:2px;color:#6b5a94;text-transform:uppercase;display:flex;align-items:center;gap:8px;}
+.msg.user .msg-lbl{text-align:right;justify-content:flex-end;}
+.msg-time{opacity:.55;font-size:8px;letter-spacing:1px;}
+.msg-copy{
+  background:transparent;border:1px solid #2a1f42;color:#6b5a94;
+  font-size:8px;letter-spacing:1px;padding:1px 6px;cursor:pointer;
+  opacity:0;transition:opacity .15s,color .15s,border-color .15s;
+}
+.msg:hover .msg-copy{opacity:1;}
+.msg-copy:hover{color:#b6ff3d;border-color:#b6ff3d;}
+.msg-copy.copied{opacity:1;color:#b6ff3d;border-color:#b6ff3d;}
+.msg-bubble{padding:9px 15px;border-radius:10px;font-size:13px;line-height:1.6;transition:box-shadow .2s,border-color .2s;}
 .msg.user .msg-bubble{
-  background:rgba(0,38,0,.6);border:1px solid rgba(57,255,20,.18);
+  background:rgba(0,38,0,.6);border:1px solid rgba(182,255,61,.18);
   color:#aaffaa;border-radius:10px 10px 0 10px;
 }
 .msg.bot .msg-bubble{
-  background:rgba(0,18,0,.45);border:1px solid #1a3a1a;
-  color:#7fff7f;border-radius:0 10px 10px 10px;
+  background:rgba(0,18,0,.45);border:1px solid #2a1f42;
+  color:#d9cdfa;border-radius:0 10px 10px 10px;
   font-family:'Permanent Marker',cursive;font-size:12px;
 }
+.msg:hover .msg-bubble{border-color:rgba(182,255,61,.4);}
+
+/* scroll-to-bottom pill */
+.scroll-btn{
+  position:absolute;bottom:78px;left:50%;transform:translateX(-50%) translateY(6px);
+  background:#0d0a1a;border:1px solid #b6ff3d;color:#b6ff3d;
+  font-family:'Share Tech Mono',monospace;font-size:10px;letter-spacing:1px;
+  padding:5px 12px;cursor:pointer;opacity:0;pointer-events:none;
+  transition:opacity .2s,transform .2s;box-shadow:0 0 10px rgba(182,255,61,.15);
+  z-index:20;
+}
+.scroll-btn.show{opacity:1;pointer-events:auto;transform:translateX(-50%) translateY(0);}
 
 /* typing dots */
 .typing .msg-bubble{display:flex;gap:5px;align-items:center;padding:12px 18px;}
 .tdot{
-  width:6px;height:6px;border-radius:50%;background:#39ff14;
-  animation:tdot .75s infinite;box-shadow:0 0 5px #39ff14;
+  width:6px;height:6px;border-radius:50%;background:#b6ff3d;
+  animation:tdot .75s infinite;box-shadow:0 0 5px #b6ff3d;
 }
 .tdot:nth-child(2){animation-delay:.15s;}
 .tdot:nth-child(3){animation-delay:.3s;}
 @keyframes tdot{0%,60%,100%{transform:translateY(0)}30%{transform:translateY(-5px)}}
 
 /* empty state */
-.empty{margin:auto;text-align:center;color:#3a6a3a;padding:40px;}
-.empty h2{font-family:'Permanent Marker',cursive;font-size:30px;color:#39ff14;opacity:.3;margin-bottom:10px;}
+.empty{margin:auto;text-align:center;color:#6b5a94;padding:40px;}
+.empty h2{font-family:'Permanent Marker',cursive;font-size:30px;color:#b6ff3d;opacity:.3;margin-bottom:10px;}
 .empty p{font-size:12px;letter-spacing:1px;line-height:1.9;}
 
 /* Input */
 .input-bar{
-  padding:14px 22px;border-top:1px solid #1a3a1a;
+  padding:14px 22px;border-top:1px solid #2a1f42;
   display:flex;gap:12px;flex-shrink:0;
   background:rgba(0,8,0,.5);
 }
 .chat-input{
-  flex:1;background:rgba(0,18,0,.6);border:1px solid #1a3a1a;
-  color:#7fff7f;font-family:'Share Tech Mono',monospace;font-size:13px;
+  flex:1;background:rgba(0,18,0,.6);border:1px solid #2a1f42;
+  color:#d9cdfa;font-family:'Share Tech Mono',monospace;font-size:13px;
   padding:9px 14px;border-radius:7px;outline:none;resize:none;
   transition:border-color .2s;max-height:100px;
 }
-.chat-input:focus{border-color:rgba(57,255,20,.35);box-shadow:0 0 10px rgba(57,255,20,.07);}
-.chat-input::placeholder{color:#3a6a3a;opacity:.55;}
+.chat-input:focus{border-color:rgba(182,255,61,.35);box-shadow:0 0 10px rgba(182,255,61,.07);}
+.chat-input::placeholder{color:#6b5a94;opacity:.55;}
 .send-btn{
-  background:transparent;border:1px solid #39ff14;color:#39ff14;
+  background:transparent;border:1px solid #b6ff3d;color:#b6ff3d;
   font-family:'Share Tech Mono',monospace;font-size:12px;
   padding:9px 20px;border-radius:7px;cursor:pointer;
   letter-spacing:2px;transition:all .2s;align-self:flex-end;
 }
-.send-btn:hover:not(:disabled){background:rgba(57,255,20,.1);box-shadow:0 0 14px rgba(57,255,20,.18);}
+.send-btn:hover:not(:disabled){background:rgba(182,255,61,.1);box-shadow:0 0 14px rgba(182,255,61,.18);}
 .send-btn:disabled{opacity:.25;cursor:not-allowed;}
 .mic-btn{
-  background:transparent;border:1px solid #1a3a1a;
-  font-size:16px;padding:8px 10px;border-radius:7px;
+  background:transparent;border:1px solid #3a2f5a;color:#a89bd6;
+  padding:9px 11px;border-radius:7px;
   cursor:pointer;transition:all .2s;align-self:flex-end;
-  line-height:1;
+  line-height:1;display:flex;align-items:center;justify-content:center;
 }
-.mic-btn:hover{border-color:#39ff14;box-shadow:0 0 10px rgba(57,255,20,.2);}
+.mic-btn svg{width:18px;height:18px;display:block;}
+.mic-btn:hover{border-color:#b6ff3d;color:#b6ff3d;box-shadow:0 0 10px rgba(182,255,61,.25);}
 .mic-btn.listening{
-  border-color:#ff4444;box-shadow:0 0 14px rgba(255,68,68,.4);
+  border-color:#ff4444;color:#ff4444;box-shadow:0 0 14px rgba(255,68,68,.4);
   animation:micPulse .6s ease-in-out infinite alternate;
 }
 @keyframes micPulse{from{box-shadow:0 0 6px rgba(255,68,68,.3)}to{box-shadow:0 0 18px rgba(255,68,68,.7)}}
-.foot{font-size:9px;color:#3a6a3a;text-align:center;padding:5px;letter-spacing:1px;opacity:.45;}
+.foot{font-size:9px;color:#6b5a94;text-align:center;padding:5px;letter-spacing:1px;opacity:.45;}
 
 /* portal glow bg */
 .portal-glow{
   position:fixed;width:500px;height:500px;border-radius:50%;
-  background:radial-gradient(circle,rgba(57,255,20,.05) 0%,transparent 70%);
+  background:radial-gradient(circle,rgba(182,255,61,.05) 0%,transparent 70%);
   top:50%;left:50%;transform:translate(-50%,-50%);
   pointer-events:none;animation:pglow 5s ease-in-out infinite;
 }
@@ -565,6 +746,781 @@ body::before{
 <div class="portal-glow"></div>
 
 <!-- ── TOUR OVERLAY ── -->
+<!-- ── ANIMATED PORTAL INTRO ── everything below is pure CSS/SVG, no external assets ── -->
+<div id="introSplash" onclick="skipIntro()" style="
+  position:fixed;inset:0;z-index:11000;background:#020102;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  cursor:pointer;overflow:hidden;
+">
+  <!-- drifting particles -->
+  <div id="introParticles" style="position:absolute;inset:0;pointer-events:none;"></div>
+
+  <!-- portal + mascot, stacked together so they always align regardless of viewport size -->
+  <div style="display:flex;flex-direction:column;align-items:center;pointer-events:none;">
+
+  <!-- pure-CSS Rick & Morty, front and center, standing over the portal -->
+  <div class="rm-scene" id="rmScene" style="
+    transform:translate(60px,-138px) scale(.76);transform-origin:bottom center;
+    opacity:0;animation:rmFadeIn 1s ease forwards;animation-delay:.15s;
+    position:relative;z-index:2;margin-bottom:min(-70px,-9vw);
+  ">
+    <div class="rm-container">
+      <div class="rm-rick-container">
+        <div class="rm-head-container">
+          <div class="rm-head">
+            <div class="rm-brow-container"><div class="rm-brow"></div></div>
+            <div class="rm-eyes-container">
+              <div class="rm-eye"><div class="rm-pupil"></div></div>
+              <div class="rm-eye"><div class="rm-pupil"></div></div>
+            </div>
+            <div class="rm-eyebags-container">
+              <div class="rm-eyebag"></div>
+              <div class="rm-eyebag"></div>
+            </div>
+            <div class="rm-nose"></div>
+            <div class="rm-mouth-container">
+              <div class="rm-mouth"></div>
+              <div class="rm-spittle"></div>
+              <div class="rm-spittle-arcs"></div>
+            </div>
+          </div>
+          <div class="rm-ear-container">
+            <div class="rm-ear"></div>
+            <div class="rm-ear"></div>
+          </div>
+          <div class="rm-hair-container"><div class="rm-hair"></div></div>
+          <div class="rm-neck"></div>
+        </div>
+        <div class="rm-body-container">
+          <div class="rm-body">
+            <div class="rm-shirt">
+              <div class="rm-flaps-container">
+                <div class="rm-flap"></div>
+                <div class="rm-flap rm-right"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="rm-morty-container">
+        <div class="rm-head-container">
+          <div class="rm-head">
+            <div class="rm-brows-container">
+              <div class="rm-brow rm-left"></div>
+              <div class="rm-brow rm-right"></div>
+            </div>
+            <div class="rm-eyes-container">
+              <div class="rm-eye"><div class="rm-pupil"></div></div>
+              <div class="rm-eye"><div class="rm-pupil"></div></div>
+            </div>
+            <div class="rm-nose"></div>
+            <div class="rm-mouth-container"><div class="rm-mouth"></div></div>
+          </div>
+          <div class="rm-ear-container">
+            <div class="rm-ear"></div>
+            <div class="rm-ear"></div>
+          </div>
+          <div class="rm-hair-container"><div class="rm-hair"></div></div>
+        </div>
+        <div class="rm-body-container"><div class="rm-body"></div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- portal, glowing beneath them -->
+  <div style="position:relative;width:min(340px,58vw);height:min(340px,58vw);display:flex;align-items:center;justify-content:center;flex-shrink:0;z-index:1;">
+    <div class="portal-ring" style="
+      position:absolute;inset:0;border-radius:50%;
+      background:conic-gradient(from 0deg, #b6ff3d, #4dff9e, #0d0a1a 35%, #b6ff3d 55%, #4dff9e 75%, #0d0a1a 95%, #b6ff3d);
+      filter:blur(2px);
+      animation:portalSpin 3.2s linear infinite, portalGrow 2.6s cubic-bezier(.2,.8,.2,1) forwards;
+      opacity:0;
+    "></div>
+    <div class="portal-core" style="
+      position:absolute;width:78%;height:78%;border-radius:50%;
+      background:radial-gradient(circle at 50% 45%, #0a2a12 0%, #041006 65%, #000 100%);
+      box-shadow:inset 0 0 40px rgba(182,255,61,.5), 0 0 60px rgba(182,255,61,.25);
+      animation:portalGrow 2.6s cubic-bezier(.2,.8,.2,1) forwards;
+      opacity:0;
+    "></div>
+    <div style="
+      position:absolute;width:78%;height:78%;border-radius:50%;
+      background:repeating-radial-gradient(circle at 50% 50%, transparent 0 8px, rgba(182,255,61,.06) 8px 9px);
+      animation:portalGrow 2.6s cubic-bezier(.2,.8,.2,1) forwards, portalSpin 6s linear infinite reverse;
+      opacity:0;
+    "></div>
+
+    <!-- logo, materializes after the portal opens -->
+    <div id="introLogo" style="
+      position:relative;z-index:2;text-align:center;opacity:0;
+      animation:logoIn .9s ease forwards;animation-delay:1.7s;
+    ">
+      <div style="
+        font-family:'Permanent Marker',cursive;font-size:34px;color:#b6ff3d;
+        text-shadow:0 0 6px #b6ff3d,0 0 26px rgba(182,255,61,.6);
+        letter-spacing:3px;
+      ">RICK.AI</div>
+      <div style="font-family:'Share Tech Mono',monospace;font-size:9px;color:#a89bd6;letter-spacing:4px;margin-top:6px;">
+        DIMENSION C-137 CALIBRATING
+      </div>
+    </div>
+  </div>
+
+  </div>
+
+  <div style="position:absolute;bottom:26px;left:0;right:0;text-align:center;
+    font-family:'Share Tech Mono',monospace;font-size:9px;color:#3a2f5a;
+    letter-spacing:2px;opacity:0;animation:fadeInSlow .6s ease forwards;animation-delay:2.4s;">
+    click anywhere to skip
+  </div>
+</div>
+
+<style>
+@keyframes portalSpin{ from{ transform:rotate(0deg);} to{ transform:rotate(360deg);} }
+@keyframes portalGrow{
+  0%{ opacity:0; transform:scale(.2); }
+  55%{ opacity:1; }
+  100%{ opacity:1; transform:scale(1); }
+}
+@keyframes logoIn{
+  from{ opacity:0; transform:scale(.85); filter:blur(4px); }
+  to{ opacity:1; transform:scale(1); filter:blur(0); }
+}
+@keyframes fadeInSlow{ from{opacity:0;} to{opacity:1;} }
+@keyframes particleRise{
+  from{ transform:translateY(0); opacity:0; }
+  10%{ opacity:1; }
+  90%{ opacity:1; }
+  to{ transform:translateY(-115vh); opacity:0; }
+}
+.intro-particle{
+  position:absolute;bottom:-10px;border-radius:50%;
+  background:#b6ff3d;box-shadow:0 0 6px #b6ff3d;
+  animation:particleRise linear infinite;
+}
+#introSplash.leaving{ transition:opacity .5s ease; opacity:0; }
+@keyframes rmFadeIn{ from{opacity:0; transform:translate(var(--rmx,60px),var(--rmy,-138px)) scale(.4);} to{opacity:1; transform:translate(var(--rmx,60px),var(--rmy,-138px)) scale(var(--rms,.76));} }
+
+/* ── pure-CSS Rick & Morty mascot (namespaced rm-*, faithfully ported from Manz.dev's CodePen: https://codepen.io/manz/pen/JjEqVaB) ── */
+.rm-scene *,.rm-scene *::before,.rm-scene *::after{ box-sizing:content-box; margin:0; padding:0; }
+.rm-scene{ position:relative; }
+:root {
+  --rm-border-color: #4f5352;
+  --rm-rick-skin-color: #ebe6e3;
+  --rm-morty-skin-color: #f1daca;
+  --rm-rick-hair-color: #bdcccf;
+  --rm-morty-hair-color: #a68564;
+  --rm-rick-spittle-color: #8bffc5;
+  --rm-rick-shirt-color: #d2eaea;
+  --rm-morty-shirt-color: #fffac0;
+  --rm-rick-hair-shape: polygon(15% 20%, 37% 32%, 49% 0%, 62% 32%, 83% 20%, 74% 43%, 89% 49%, 77% 62%, 88% 71%, 75% 77%, 82% 85%, 73% 84%, 73% 96%, 50% 86%, 25% 96%, 26% 84%, 17% 84%, 24% 77%, 10% 71%, 22% 62%, 9% 49%, 25% 42%);
+  --rm-custom-filter:
+    drop-shadow(0 4px 0 var(--rm-border-color))
+    drop-shadow(4px 0 0 var(--rm-border-color))
+    drop-shadow(0 -4px 0 var(--rm-border-color))
+    drop-shadow(-4px 0 0 var(--rm-border-color));
+  --rm-custom-filter-small:
+    drop-shadow(0 2px 0 var(--rm-border-color))
+    drop-shadow(2px 0 0 var(--rm-border-color))
+    drop-shadow(0 -2px 0 var(--rm-border-color))
+    drop-shadow(-2px 0 0 var(--rm-border-color));
+}
+
+.rm-container {
+  display: flex;
+  justify-content: center;
+  align-items: flex-end;
+  flex-wrap: wrap;
+}
+
+.rm-rick-container {
+  width: 300px;
+}
+
+.rm-rick-container .rm-head-container {
+    width: 100%;
+    height: 300px;
+    display: flex;
+    justify-content: center;
+    align-items: flex-end;
+    position: relative;
+    z-index: 2;
+  }
+
+.rm-rick-container .rm-head-container .rm-head {
+      width: 38%;
+      height: 60%;
+      border: 4px solid var(--rm-border-color);
+      background: var(--rm-rick-skin-color);
+      border-radius: 80px;
+      position: relative;
+      z-index: 2;
+      transform: translate(-2px, -15px);
+      display: flex;
+      justify-content: center;
+    }
+
+.rm-rick-container .rm-head-container .rm-head .rm-brow-container {
+        width: 90%;
+        height: 25%;
+        transform: translate(0, 8px);
+        display: flex;
+        align-items: flex-end;
+        position: relative;
+        z-index: 1;
+      }
+
+.rm-rick-container .rm-head-container .rm-head .rm-brow-container .rm-brow {
+          width: 90%;
+          height: 20%;
+          background: var(--rm-rick-hair-color);
+          border-radius: 25px;
+          border: 4px solid var(--rm-border-color);
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+        }
+
+.rm-rick-container .rm-head-container .rm-head .rm-brow-container .rm-brow::before,
+          .rm-rick-container .rm-head-container .rm-head .rm-brow-container .rm-brow::after {
+            position: absolute;
+            content: "";
+            display: block;
+            width: 80%;
+            height: 4px;
+            border-radius: 50px;
+            background: var(--rm-border-color);
+          }
+
+.rm-rick-container .rm-head-container .rm-head .rm-brow-container .rm-brow::before {
+            width: 30%;
+            transform: translate(0, -20px);
+          }
+
+.rm-rick-container .rm-head-container .rm-head .rm-brow-container .rm-brow::after {
+            width: 65%;
+            transform: translate(0, -12px);
+          }
+
+.rm-rick-container .rm-head-container .rm-head .rm-eyes-container {
+        position: absolute;
+        width: 100%;
+        height: 50px;
+        transform: translate(0, 42px);
+        display: flex;
+        justify-content: space-around;
+      }
+
+.rm-rick-container .rm-head-container .rm-head .rm-eyes-container .rm-eye {
+          width: 40px;
+          height: 40px;
+          border: 4px solid var(--rm-border-color);
+          border-radius: 50%;
+          overflow: hidden;
+          background: #fff;
+        }
+
+.rm-rick-container .rm-head-container .rm-head .rm-eyes-container .rm-eye::before {
+            content: "";
+            display: block;
+            width: 100%;
+            height: 50%;
+            background: var(--rm-rick-skin-color);
+            border-bottom: 4px solid var(--rm-border-color);
+            position: relative;
+            z-index: 4;
+            animation: rmCloseEyes 2s linear infinite alternate;
+          }
+
+.rm-rick-container .rm-head-container .rm-head .rm-eyes-container .rm-eye .rm-pupil {
+            content: "";
+            display: block;
+            width: 5px;
+            height: 12px;
+            border-radius: 50%;
+            background: var(--rm-border-color);
+            transform: translate(18px, -4px) rotate(25deg);
+            position: relative;
+            z-index: 1;
+          }
+
+.rm-rick-container .rm-head-container .rm-head .rm-eyes-container .rm-eye .rm-pupil::before,
+            .rm-rick-container .rm-head-container .rm-head .rm-eyes-container .rm-eye .rm-pupil::after {
+              content: "";
+              display: block;
+              width: 12px;
+              height: 4px;
+              position: absolute;
+              border-radius: inherit;
+              background: inherit;
+              transform: translate(-3px, 3px) rotate(-30deg);
+            }
+
+.rm-rick-container .rm-head-container .rm-head .rm-eyes-container .rm-eye .rm-pupil::after {
+              transform: translate(-3px, 3px) rotate(30deg);
+            }
+
+.rm-rick-container .rm-head-container .rm-head .rm-eyebags-container {
+        position: absolute;
+        width: 100%;
+        height: 50px;
+        transform: translate(0, 51px);
+        display: flex;
+        justify-content: space-around;
+      }
+
+.rm-rick-container .rm-head-container .rm-head .rm-eyebags-container .rm-eyebag {
+          width: 40px;
+          height: 40px;
+          border-radius: 50%;
+          border: 3px solid var(--rm-border-color);
+          clip-path: polygon(0 80%, 100% 80%, 100% 100%, 0 100%);
+        }
+
+.rm-rick-container .rm-head-container .rm-head .rm-nose {
+        position: absolute;
+        border: 3px solid var(--rm-border-color);
+        width: 11px;
+        height: 20px;
+        border-top: 0;
+        border-radius: 0 0 25px 25px;
+        transform: translate(0, 90px);
+      }
+
+.rm-rick-container .rm-head-container .rm-head .rm-mouth-container {
+        position: absolute;
+        width: 100%;
+        height: 40px;
+        transform: translate(0, 120px);
+        display: flex;
+        justify-content: center;
+      }
+
+.rm-rick-container .rm-head-container .rm-head .rm-mouth-container .rm-mouth {
+          border-top: 3px solid var(--rm-border-color);
+          border-radius: 15px / 8px;
+          width: 60%;
+          position: relative;
+          z-index: 2;
+        }
+
+.rm-rick-container .rm-head-container .rm-head .rm-mouth-container .rm-mouth::before,
+          .rm-rick-container .rm-head-container .rm-head .rm-mouth-container .rm-mouth::after {
+            position: absolute;
+            content: "";
+            display: block;
+            border-bottom: 4px solid var(--rm-border-color);
+            width: 15px;
+            height: 10px;
+            border-radius: 50%;
+          }
+
+.rm-rick-container .rm-head-container .rm-head .rm-mouth-container .rm-mouth::before {
+            transform: translate(-10px, -2px) rotate(85deg);
+          }
+
+.rm-rick-container .rm-head-container .rm-head .rm-mouth-container .rm-mouth::after {
+            transform: translate(64px, -2px) rotate(-85deg);
+          }
+
+.rm-rick-container .rm-head-container .rm-head .rm-mouth-container .rm-spittle {
+          position: absolute;
+          z-index: 0;
+          width: 30%;
+          height: 15%;
+          border-radius: 0 0 25px 25px;
+          background: var(--rm-rick-spittle-color);
+          transform: translate(0, 2px);
+          filter: var(--rm-custom-filter-small);
+        }
+
+.rm-rick-container .rm-head-container .rm-head .rm-mouth-container .rm-spittle::after,
+          .rm-rick-container .rm-head-container .rm-head .rm-mouth-container .rm-spittle::before {
+            position: absolute;
+            content: "";
+            display: block;
+            background: inherit;
+            width: 10px;
+            height: 24px;
+            border-radius: inherit;
+          }
+
+.rm-rick-container .rm-head-container .rm-head .rm-mouth-container .rm-spittle::before {
+            transform: translate(2px, 0);
+            width: 26px;
+            height: 10px;
+          }
+
+.rm-rick-container .rm-head-container .rm-head .rm-mouth-container .rm-spittle::after {
+            transform: translate(14px, 0);
+          }
+
+.rm-rick-container .rm-head-container .rm-head .rm-mouth-container .rm-spittle-arcs {
+          position: absolute;
+          width: 40px;
+          height: 40px;
+        }
+
+.rm-rick-container .rm-head-container .rm-head .rm-mouth-container .rm-spittle-arcs::before,
+          .rm-rick-container .rm-head-container .rm-head .rm-mouth-container .rm-spittle-arcs::after {
+            position: absolute;
+            content: "";
+            display: block;
+            background: var(--rm-rick-spittle-color);
+            width: 4px;
+            height: 4px;
+            z-index: 5;
+            border: 3px solid var(--rm-border-color);
+            border-radius: 40%;
+          }
+
+.rm-rick-container .rm-head-container .rm-head .rm-mouth-container .rm-spittle-arcs::before {
+            height: 8px;
+            transform: translate(-2px, 20px) rotate(-45deg);
+          }
+
+.rm-rick-container .rm-head-container .rm-head .rm-mouth-container .rm-spittle-arcs::after {
+            transform: translate(40px, 20px);
+          }
+
+.rm-rick-container .rm-head-container .rm-ear-container {
+      position: absolute;
+      z-index: 1;
+      display: flex;
+      justify-content: space-between;
+      width: 150px;
+      height: 30px;
+      transform: translate(-2px, -100px);
+    }
+
+.rm-rick-container .rm-head-container .rm-ear-container .rm-ear {
+        width: 20px;
+        height: 30px;
+        background: var(--rm-rick-skin-color);
+        border: 4px solid var(--rm-border-color);
+        border-radius: 25px;
+      }
+
+.rm-rick-container .rm-head-container .rm-hair-container {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      filter: var(--rm-custom-filter);
+    }
+
+.rm-rick-container .rm-head-container .rm-hair-container .rm-hair {
+        width: 100%;
+        height: 90%;
+        background: var(--rm-rick-hair-color);
+        clip-path: var(--rm-rick-hair-shape);
+      }
+
+.rm-rick-container .rm-head-container .rm-neck {
+      position: absolute;
+      width: 40px;
+      height: 25px;
+      border: 4px solid var(--rm-border-color);
+      border-radius: 0 0 15px 15px / 0 0 8px 8px;
+      background: var(--rm-rick-skin-color);
+    }
+
+.rm-rick-container .rm-body-container {
+    width: 100%;
+    height: 150px;
+    transform: translate(0, -12px);
+    display: flex;
+    justify-content: center;
+    filter: var(--rm-custom-filter);
+  }
+
+.rm-rick-container .rm-body-container .rm-body {
+      width: 100%;
+      height: 100%;
+      background: #fff;
+      clip-path: polygon(20% 100%, 25% 25%, 50% 0, 75% 25%, 80% 100%);
+      display: flex;
+      justify-content: center;
+    }
+
+.rm-rick-container .rm-body-container .rm-body::before,
+      .rm-rick-container .rm-body-container .rm-body::after {
+        content: "";
+        display: block;
+        position: absolute;
+        border-left: 4px solid var(--rm-border-color);
+        width: 5px;
+        height: 80px;
+      }
+
+.rm-rick-container .rm-body-container .rm-body::after {
+        transform: translate(-50px, 72px) rotate(4deg);
+      }
+
+.rm-rick-container .rm-body-container .rm-body::before {
+        transform: translate(55px, 72px) rotate(-4deg);
+      }
+
+.rm-rick-container .rm-body-container .rm-body .rm-shirt {
+        width: 20%;
+        height: 100%;
+        background: var(--rm-rick-shirt-color);
+        border: 4px solid var(--rm-border-color);
+        border-radius: 30px 30px 0 0;
+        border-top: 0;
+        border-bottom: 0;
+      }
+
+.rm-rick-container .rm-body-container .rm-body .rm-flaps-container {
+        width: 200%;
+        height: 100%;
+        display: flex;
+        justify-content: space-around;
+        filter: var(--rm-custom-filter);
+        position: relative;
+        z-index: 5;
+      }
+
+.rm-rick-container .rm-body-container .rm-body .rm-flaps-container .rm-flap {
+          background: #fff;
+          width: 35px;
+          height: 100%;
+          transform: translate(-38px, 0);
+          clip-path: polygon(0 65%, 100% 0, 100% 100%, 5% 100%, 0 90%, 85% 80%);
+        }
+
+.rm-rick-container .rm-body-container .rm-body .rm-flaps-container .rm-flap.rm-right {
+            transform: translate(-22px, 0) scale(-1, 1);
+          }
+
+.rm-morty-container {
+  width: 300px;
+  height: 250px;
+  transform: translateX(-100px);
+}
+
+.rm-morty-container .rm-head-container {
+    width: 100%;
+    height: 175px;
+    display: flex;
+    justify-content: center;
+    align-items: flex-end;
+    position: relative;
+    z-index: 2;
+  }
+
+.rm-morty-container .rm-head-container .rm-head {
+      width: 45%;
+      height: 75%;
+      border: 4px solid var(--rm-border-color);
+      background: var(--rm-morty-skin-color);
+      border-radius: 80px;
+      position: relative;
+      z-index: 2;
+      transform: translate(-2px, -15px);
+      display: flex;
+      justify-content: center;
+    }
+
+.rm-morty-container .rm-head-container .rm-head .rm-brows-container {
+        position: absolute;
+        width: 100%;
+        height: 20px;
+        display: flex;
+        justify-content: space-around;
+      }
+
+.rm-morty-container .rm-head-container .rm-head .rm-brows-container .rm-brow {
+          width: 40px;
+          height: 35px;
+          border: 4px solid var(--rm-border-color);
+          border-radius: 30%;
+          border-left: 0;
+          border-bottom: 0;
+          border-right: 0;
+          transform: translate(0, 25px);
+        }
+
+.rm-morty-container .rm-head-container .rm-head .rm-brows-container .rm-brow.rm-left {
+            border-top-right-radius: 0;
+          }
+
+.rm-morty-container .rm-head-container .rm-head .rm-brows-container .rm-brow.rm-right {
+            border-top-left-radius: 0;
+          }
+
+.rm-morty-container .rm-head-container .rm-head .rm-eyes-container {
+        position: absolute;
+        width: 92%;
+        height: 50px;
+        transform: translate(0, 32px);
+        display: flex;
+        justify-content: space-around;
+      }
+
+.rm-morty-container .rm-head-container .rm-head .rm-eyes-container .rm-eye {
+          width: 45px;
+          height: 45px;
+          border: 4px solid var(--rm-border-color);
+          border-radius: 50%;
+          overflow: hidden;
+          background: #fff;
+          clip-path: polygon(0 16%, 100% 16%, 100% 100%, 0 100%);
+        }
+
+.rm-morty-container .rm-head-container .rm-head .rm-eyes-container .rm-eye::before {
+            content: "";
+            display: block;
+            width: 100%;
+            height: 50%;
+            background: var(--rm-morty-skin-color);
+            border-bottom: 4px solid var(--rm-border-color);
+            position: relative;
+            z-index: 4;
+            animation: rmCloseEyes 2s linear infinite alternate;
+          }
+
+.rm-morty-container .rm-head-container .rm-head .rm-eyes-container .rm-eye .rm-pupil {
+            content: "";
+            display: block;
+            width: 5px;
+            height: 12px;
+            border-radius: 50%;
+            background: var(--rm-border-color);
+            transform: translate(18px, -4px) rotate(25deg);
+            position: relative;
+            z-index: 1;
+          }
+
+.rm-morty-container .rm-head-container .rm-head .rm-eyes-container .rm-eye .rm-pupil::before,
+            .rm-morty-container .rm-head-container .rm-head .rm-eyes-container .rm-eye .rm-pupil::after {
+              content: "";
+              display: block;
+              width: 12px;
+              height: 4px;
+              position: absolute;
+              border-radius: inherit;
+              background: inherit;
+              transform: translate(-3px, 3px) rotate(-30deg);
+            }
+
+.rm-morty-container .rm-head-container .rm-head .rm-eyes-container .rm-eye .rm-pupil::after {
+              transform: translate(-3px, 3px) rotate(30deg);
+            }
+
+.rm-morty-container .rm-head-container .rm-head .rm-nose {
+        position: absolute;
+        border: 4px solid var(--rm-border-color);
+        width: 8px;
+        height: 12px;
+        border-top: 0;
+        border-radius: 0 0 25px 25px;
+        transform: translate(5px, 80px) rotate(-45deg);
+      }
+
+.rm-morty-container .rm-head-container .rm-head .rm-mouth-container {
+        position: absolute;
+        border-left: 4px solid var(--rm-border-color);
+        width: 6px;
+        height: 12px;
+        transform: translate(-5px, 105px);
+      }
+
+.rm-morty-container .rm-head-container .rm-head .rm-mouth-container .rm-mouth::before,
+        .rm-morty-container .rm-head-container .rm-head .rm-mouth-container .rm-mouth::after {
+          position: absolute;
+          content: "";
+          display: block;
+          border: 4px solid var(--rm-border-color);
+          width: 6px;
+          height: 12px;
+          border-top: 0;
+          border-radius: 0 0 25px 25px;
+          transform: translate(-4px, 4px);
+        }
+
+.rm-morty-container .rm-head-container .rm-head .rm-mouth-container .rm-mouth::after {
+          width: 6px;
+          height: 12px;
+          border-left: 0;
+          transform: translate(8px, -4px);
+        }
+
+.rm-morty-container .rm-head-container .rm-ear-container {
+      position: absolute;
+      z-index: 1;
+      display: flex;
+      justify-content: space-between;
+      width: 170px;
+      height: 30px;
+      transform: translate(-2px, -60px);
+    }
+
+.rm-morty-container .rm-head-container .rm-ear-container .rm-ear {
+        width: 20px;
+        height: 20px;
+        background: var(--rm-morty-skin-color);
+        border: 6px solid var(--rm-border-color);
+        border-radius: 50px;
+      }
+
+.rm-morty-container .rm-head-container .rm-hair-container {
+      position: absolute;
+      width: 50%;
+      height: 80%;
+      border: 6px solid var(--rm-border-color);
+      background: var(--rm-morty-hair-color);
+      transform: translate(-3px, -30px);
+      border-radius: 42% 50% / 45% 50%;
+    }
+
+.rm-morty-container .rm-body-container {
+    width: 300px;
+    height: 100px;
+    transform: translate(0, -12px);
+    display: flex;
+    justify-content: center;
+    filter: var(--rm-custom-filter);
+  }
+
+.rm-morty-container .rm-body-container .rm-body {
+      width: 55%;
+      height: 200%;
+      background: var(--rm-morty-shirt-color);
+      border-radius: 50% 50% 0 0;
+      overflow: hidden;
+      clip-path: polygon(0 0, 100% 0, 100% 50%, 0 50%);
+      display: flex;
+      justify-content: center;
+      position: absolute;
+      transform: translate(0, -25px);
+    }
+
+.rm-morty-container .rm-body-container .rm-body::before,
+      .rm-morty-container .rm-body-container .rm-body::after {
+        content: "";
+        display: block;
+        position: absolute;
+        border-left: 4px solid var(--rm-border-color);
+        width: 5px;
+        height: 80px;
+      }
+
+.rm-morty-container .rm-body-container .rm-body::after {
+        transform: translate(-50px, 72px) rotate(4deg);
+      }
+
+.rm-morty-container .rm-body-container .rm-body::before {
+        transform: translate(55px, 72px) rotate(-4deg);
+      }
+
+@keyframes rmCloseEyes {
+  0%,
+  85% { height: 50%; }
+
+  100% { height: 100%; }
+}
+</style>
+
 <div id="tour" style="
   position:fixed;inset:0;z-index:10000;
   background:rgba(0,4,0,.97);
@@ -583,20 +1539,22 @@ body::before{
       <div class="tdot-step" data-s="2"></div>
       <div class="tdot-step" data-s="3"></div>
       <div class="tdot-step" data-s="4"></div>
+      <div class="tdot-step" data-s="5"></div>
+      <div class="tdot-step" data-s="6"></div>
     </div>
 
     <!-- Card -->
     <div id="tourCard" style="
-      border:1px solid #39ff14;border-radius:12px;
+      border:1px solid #b6ff3d;border-radius:12px;
       background:rgba(0,12,0,.9);
-      box-shadow:0 0 40px rgba(57,255,20,.12);
+      box-shadow:0 0 40px rgba(182,255,61,.12);
       overflow:hidden;
     ">
       <!-- header bar -->
-      <div style="padding:14px 24px;border-bottom:1px solid #1a3a1a;display:flex;align-items:center;gap:12px;">
-        <div style="width:9px;height:9px;border-radius:50%;background:#39ff14;box-shadow:0 0 8px #39ff14;animation:pglow 1.5s ease-in-out infinite;flex-shrink:0;"></div>
-        <span id="tourTag" style="font-size:9px;letter-spacing:4px;color:#3a6a3a;">STEP 1 OF 5</span>
-        <span style="font-size:9px;letter-spacing:4px;color:#3a6a3a;margin-left:auto;">RICK.AI SETUP</span>
+      <div style="padding:14px 24px;border-bottom:1px solid #2a1f42;display:flex;align-items:center;gap:12px;">
+        <div style="width:9px;height:9px;border-radius:50%;background:#b6ff3d;box-shadow:0 0 8px #b6ff3d;animation:pglow 1.5s ease-in-out infinite;flex-shrink:0;"></div>
+        <span id="tourTag" style="font-size:9px;letter-spacing:4px;color:#6b5a94;">STEP 1 OF 5</span>
+        <span style="font-size:9px;letter-spacing:4px;color:#6b5a94;margin-left:auto;">RICK.AI SETUP</span>
       </div>
 
       <!-- body -->
@@ -605,13 +1563,13 @@ body::before{
         <div style="display:flex;gap:20px;align-items:flex-start;margin-bottom:24px;">
           <div style="
             width:52px;height:52px;border-radius:50%;
-            border:1px solid #1a3a1a;flex-shrink:0;
+            border:1px solid #2a1f42;flex-shrink:0;
             display:flex;align-items:center;justify-content:center;
-            font-family:'Permanent Marker',cursive;font-size:22px;color:#39ff14;
-            background:#060d06;box-shadow:0 0 12px rgba(57,255,20,.1);
+            font-family:'Permanent Marker',cursive;font-size:22px;color:#b6ff3d;
+            background:#0d0a1a;box-shadow:0 0 12px rgba(182,255,61,.1);
           ">R</div>
           <div style="
-            background:rgba(0,18,0,.7);border:1px solid #39ff14;
+            background:rgba(0,18,0,.7);border:1px solid #b6ff3d;
             border-radius:0 10px 10px 10px;padding:12px 16px;flex:1;
             font-family:'Permanent Marker',cursive;font-size:13px;
             color:#c0ffc0;line-height:1.7;
@@ -619,28 +1577,28 @@ body::before{
         </div>
 
         <!-- step content -->
-        <div id="tourContent" style="color:#7fff7f;font-size:13px;line-height:1.9;"></div>
+        <div id="tourContent" style="color:#d9cdfa;font-size:13px;line-height:1.9;"></div>
       </div>
 
       <!-- footer nav -->
-      <div style="padding:16px 32px;border-top:1px solid #1a3a1a;display:flex;align-items:center;justify-content:space-between;">
+      <div style="padding:16px 32px;border-top:1px solid #2a1f42;display:flex;align-items:center;justify-content:space-between;">
         <button onclick="tourPrev()" id="tourPrevBtn" style="
-          background:transparent;border:1px solid #1a3a1a;color:#3a6a3a;
+          background:transparent;border:1px solid #2a1f42;color:#6b5a94;
           font-family:'Share Tech Mono',monospace;font-size:11px;
           padding:7px 18px;border-radius:6px;cursor:pointer;letter-spacing:1px;
           transition:all .2s;
         ">← BACK</button>
         <button onclick="tourSkip()" style="
-          background:transparent;border:none;color:#3a6a3a;
+          background:transparent;border:none;color:#6b5a94;
           font-family:'Share Tech Mono',monospace;font-size:10px;
           cursor:pointer;letter-spacing:1px;text-decoration:underline;
           padding:7px;
         ">skip tour</button>
         <button onclick="tourNext()" id="tourNextBtn" style="
-          background:transparent;border:1px solid #39ff14;color:#39ff14;
+          background:transparent;border:1px solid #b6ff3d;color:#b6ff3d;
           font-family:'Share Tech Mono',monospace;font-size:11px;
           padding:7px 18px;border-radius:6px;cursor:pointer;letter-spacing:1px;
-          transition:all .2s;box-shadow:0 0 10px rgba(57,255,20,.1);
+          transition:all .2s;box-shadow:0 0 10px rgba(182,255,61,.1);
         ">NEXT →</button>
       </div>
     </div>
@@ -651,34 +1609,65 @@ body::before{
 <style>
 .tdot-step{
   width:8px;height:8px;border-radius:50%;
-  background:#1a3a1a;transition:all .3s;
+  background:#2a1f42;transition:all .3s;
 }
 .tdot-step.active{
-  background:#39ff14;box-shadow:0 0 8px #39ff14;width:24px;border-radius:4px;
+  background:#b6ff3d;box-shadow:0 0 8px #b6ff3d;width:24px;border-radius:4px;
 }
-#tourPrevBtn:hover{border-color:#39ff14;color:#39ff14;}
-#tourNextBtn:hover{background:rgba(57,255,20,.1);}
+#tourPrevBtn:hover{border-color:#b6ff3d;color:#b6ff3d;}
+#tourNextBtn:hover{background:rgba(182,255,61,.1);}
+
+/* step-to-step card transition */
+#tourCard{transition:opacity .28s ease, transform .28s ease;}
+#tourCard.step-out{opacity:0;transform:translateX(-14px);}
+
+/* staggered reveal for whatever blocks a step's content contains */
+#tourContent > *{
+  opacity:0;transform:translateY(10px);
+  animation:tourItemIn .5s cubic-bezier(.2,.8,.2,1) forwards;
+}
+@keyframes tourItemIn{ to{ opacity:1; transform:translateY(0); } }
+
+/* typewriter cursor on the speech line */
+#tourSpeech.typing::after{
+  content:'▍';color:#b6ff3d;margin-left:2px;
+  animation:caretBlink .9s steps(1) infinite;
+}
+@keyframes caretBlink{50%{opacity:0;}}
 </style>
 
 <div class="app">
 
   <!-- MIDDLE: Chat History (now leftmost) -->
-  <div class="history-panel">
+  <div class="history-panel hud-corners">
     <div class="history-header">
-      <span class="history-title">CHATS</span>
-      <button class="new-chat-btn" onclick="newChat()">+ NEW</button>
+      <button class="sidebar-logo" onclick="toggleSidebar()" title="Toggle chats">
+        <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <circle cx="12" cy="12" r="1.6" fill="#b6ff3d"/>
+          <ellipse cx="12" cy="12" rx="9" ry="3.6" stroke="#b6ff3d" stroke-width="1.1" transform="rotate(0 12 12)"/>
+          <ellipse cx="12" cy="12" rx="9" ry="3.6" stroke="#4dff9e" stroke-width="1.1" transform="rotate(60 12 12)"/>
+          <ellipse cx="12" cy="12" rx="9" ry="3.6" stroke="#b6ff3d" stroke-width="1.1" opacity=".6" transform="rotate(120 12 12)"/>
+        </svg>
+      </button>
+      <div class="history-collapsible">
+        <span class="history-title">CHATS</span>
+        <div style="display:flex;gap:6px;">
+          <button class="new-chat-btn" onclick="exportChat()" title="Export this chat as .txt">⬇ SAVE</button>
+          <button class="new-chat-btn" onclick="newChat()">+ NEW</button>
+        </div>
+      </div>
     </div>
     <div class="history-list" id="historyList"></div>
   </div>
 
   <!-- LEFT: Rick -->
-  <div class="left-panel">
+  <div class="left-panel hud-corners">
     <div class="panel-title">RICK SANCHEZ · C-137</div>
 
     <div class="speech" id="speech">*burp* — Yeah yeah, I can hear you. What do you want?</div>
 
     <!-- THE REAL RICK FACE (Pablo-Ai CodePen, exact HTML) -->
-    <div class="rick-root">
+    <div class="rick-root" id="rickRoot" onclick="triggerPickle()" title="...click me, I dare you">
       <div class="container" id="rickContainer">
         <div class="head">
           <div class="unibrow"></div>
@@ -707,6 +1696,49 @@ body::before{
           <div class="coat"></div>
         </div>
       </div>
+
+      <!-- Pickle Rick easter egg — hidden until you click the face -->
+      <div class="pickle-egg" id="pickleEgg">
+        <div class="pr-canvas" id="prCanvas">
+          <div class="pr-pickle"></div>
+          <div class="pr-eye pr-eye-left"></div>
+          <div class="pr-eye pr-eye-right"></div>
+          <div class="pr-nose"></div>
+          <div class="pr-eyebrow"></div>
+          <div class="pr-mouth">
+            <div class="pr-mouth-left">
+              <div class="pr-top-teeth">
+                <div class="pr-tooth pr-short"></div>
+                <div class="pr-tooth"></div>
+                <div class="pr-tooth"></div>
+              </div>
+              <div class="pr-bottom-teeth">
+                <div class="pr-tooth pr-short"></div>
+                <div class="pr-tooth"></div>
+              </div>
+            </div>
+            <div class="pr-mouth-right">
+              <div class="pr-top-teeth">
+                <div class="pr-tooth"></div>
+                <div class="pr-tooth"></div>
+                <div class="pr-tooth pr-short"></div>
+              </div>
+              <div class="pr-tongue"></div>
+              <div class="pr-bottom-teeth">
+                <div class="pr-tooth"></div>
+                <div class="pr-tooth"></div>
+                <div class="pr-tooth pr-short"></div>
+              </div>
+            </div>
+          </div>
+          <div class="pr-spot pr-one"></div>
+          <div class="pr-spot pr-two"></div>
+          <div class="pr-spot pr-three"></div>
+          <div class="pr-spot pr-four"></div>
+          <div class="pr-spot pr-five"></div>
+          <div class="pr-spot pr-six"></div>
+        </div>
+      </div>
     </div>
 
     <div class="status-strip">
@@ -716,7 +1748,7 @@ body::before{
       </div>
       <div class="mood-lbl" id="moodLbl">NEUTRAL</div>
       <button id="voiceBtn" onclick="openVoicePanel()" title="Voice options" style="
-        background:transparent;border:1px solid #1a3a1a;color:#3a6a3a;
+        background:transparent;border:1px solid #2a1f42;color:#6b5a94;
         font-family:'Share Tech Mono',monospace;font-size:9px;
         padding:3px 9px;border-radius:10px;cursor:pointer;letter-spacing:1px;
         transition:all .2s;
@@ -732,9 +1764,9 @@ body::before{
         <div class="chat-sub">SMARTEST BEING IN THE UNIVERSE · DIMENSION C-137</div>
       </div>
       <div style="display:flex;align-items:center;gap:8px">
-        <span style="font-size:9px;color:#3a6a3a;letter-spacing:2px;">MODEL</span>
+        <span style="font-size:9px;color:#6b5a94;letter-spacing:2px;">MODEL</span>
         <select id="modelSelect" style="
-          background:#060d06;border:1px solid #1a3a1a;color:#39ff14;
+          background:#0d0a1a;border:1px solid #2a1f42;color:#b6ff3d;
           font-family:'Share Tech Mono',monospace;font-size:10px;
           padding:4px 8px;border-radius:20px;letter-spacing:1px;
           cursor:pointer;outline:none;appearance:none;
@@ -772,9 +1804,15 @@ body::before{
         embarrass yourself. No promises on my end.</p>
       </div>
     </div>
+    <button class="scroll-btn" id="scrollBtn">▼ NEW STUFF, GENIUS</button>
 
     <div class="input-bar">
-      <button class="mic-btn" id="micBtn" onclick="toggleMic()" title="Hold to speak">MIC</button>
+      <button class="mic-btn" id="micBtn" onclick="toggleMic()" title="Click to speak">
+        <svg viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+          <path d="M12 15a3.5 3.5 0 0 0 3.5-3.5v-6a3.5 3.5 0 0 0-7 0v6A3.5 3.5 0 0 0 12 15z"/>
+          <path d="M18.5 11.5a1 1 0 0 0-2 0 4.5 4.5 0 0 1-9 0 1 1 0 0 0-2 0 6.51 6.51 0 0 0 5.75 6.46V20H9a1 1 0 0 0 0 2h6a1 1 0 0 0 0-2h-1.75v-2.04a6.51 6.51 0 0 0 5.25-6.46z"/>
+        </svg>
+      </button>
       <textarea class="chat-input" id="chatInput" rows="1"
         placeholder="Ask something... hopefully not stupid."
         onkeydown="handleKey(event)"></textarea>
@@ -792,15 +1830,15 @@ body::before{
   font-family:'Share Tech Mono',monospace;
 ">
   <div style="position:absolute;inset:0;background:repeating-linear-gradient(0deg,transparent,transparent 2px,rgba(0,0,0,0.1) 2px,rgba(0,0,0,0.1) 4px);pointer-events:none;"></div>
-  <div style="position:relative;max-width:520px;width:90%;border:1px solid #39ff14;border-radius:12px;background:rgba(0,12,0,.97);box-shadow:0 0 40px rgba(57,255,20,.12);overflow:hidden;">
+  <div style="position:relative;max-width:520px;width:90%;border:1px solid #b6ff3d;border-radius:12px;background:rgba(0,12,0,.97);box-shadow:0 0 40px rgba(182,255,61,.12);overflow:hidden;">
 
     <!-- header -->
-    <div style="padding:14px 24px;border-bottom:1px solid #1a3a1a;display:flex;align-items:center;justify-content:space-between;">
+    <div style="padding:14px 24px;border-bottom:1px solid #2a1f42;display:flex;align-items:center;justify-content:space-between;">
       <div style="display:flex;align-items:center;gap:10px;">
-        <div style="width:8px;height:8px;border-radius:50%;background:#39ff14;box-shadow:0 0 8px #39ff14;animation:pglow 1.5s ease-in-out infinite;"></div>
-        <span style="font-size:9px;letter-spacing:4px;color:#3a6a3a;">VOICE SETTINGS · C-137</span>
+        <div style="width:8px;height:8px;border-radius:50%;background:#b6ff3d;box-shadow:0 0 8px #b6ff3d;animation:pglow 1.5s ease-in-out infinite;"></div>
+        <span style="font-size:9px;letter-spacing:4px;color:#6b5a94;">VOICE SETTINGS · C-137</span>
       </div>
-      <button onclick="closeVoicePanel()" style="background:transparent;border:none;color:#3a6a3a;cursor:pointer;font-size:16px;line-height:1;padding:2px 6px;" title="Close">✕</button>
+      <button onclick="closeVoicePanel()" style="background:transparent;border:none;color:#6b5a94;cursor:pointer;font-size:16px;line-height:1;padding:2px 6px;" title="Close">✕</button>
     </div>
 
     <!-- body -->
@@ -808,87 +1846,87 @@ body::before{
 
       <!-- Mode A: input only -->
       <div id="vpModeA" onclick="selectVoiceMode('input')" style="
-        background:rgba(0,18,0,.6);border:1px solid #1a3a1a;border-radius:10px;
+        background:rgba(0,18,0,.6);border:1px solid #2a1f42;border-radius:10px;
         padding:16px 20px;cursor:pointer;transition:all .2s;
       ">
         <div style="display:flex;align-items:center;gap:12px;margin-bottom:8px;">
           <span style="font-size:22px;">MIC</span>
           <div>
-            <div style="color:#7fff7f;font-size:13px;letter-spacing:1px;">VOICE INPUT ONLY</div>
-            <div style="color:#3a6a3a;font-size:10px;margin-top:2px;">No API key needed</div>
+            <div style="color:#d9cdfa;font-size:13px;letter-spacing:1px;">VOICE INPUT ONLY</div>
+            <div style="color:#6b5a94;font-size:10px;margin-top:2px;">No API key needed</div>
           </div>
-          <div id="vpDotA" style="margin-left:auto;width:10px;height:10px;border-radius:50%;background:#1a3a1a;transition:all .2s;"></div>
+          <div id="vpDotA" style="margin-left:auto;width:10px;height:10px;border-radius:50%;background:#2a1f42;transition:all .2s;"></div>
         </div>
-        <div style="font-size:11px;color:#5faf5f;line-height:1.8;padding-left:34px;">
-          Speak → your words appear in the chat box → Rick replies in <span style="color:#39ff14;">text only</span>.<br>
+        <div style="font-size:11px;color:#a89bd6;line-height:1.8;padding-left:34px;">
+          Speak → your words appear in the chat box → Rick replies in <span style="color:#b6ff3d;">text only</span>.<br>
           No unnatural robot voice. Clean and simple.
         </div>
       </div>
 
       <!-- Mode B: Fish Audio via proxy -->
       <div id="vpModeB" onclick="selectVoiceMode('fish')" style="
-        background:rgba(0,18,0,.6);border:1px solid #1a3a1a;border-radius:10px;
+        background:rgba(0,18,0,.6);border:1px solid #2a1f42;border-radius:10px;
         padding:16px 20px;cursor:pointer;transition:all .2s;
       ">
         <div style="display:flex;align-items:center;gap:12px;margin-bottom:8px;">
-          <span style="font-size:10px;color:#3a6a3a;letter-spacing:2px;font-family:'Share Tech Mono',monospace;">[SPK]</span>
+          <span style="font-size:10px;color:#6b5a94;letter-spacing:2px;font-family:'Share Tech Mono',monospace;">[SPK]</span>
           <div>
-            <div style="color:#7fff7f;font-size:13px;letter-spacing:1px;">RICK'S REAL VOICE <span style="color:#39ff14;font-size:9px;letter-spacing:2px;">· FISH AUDIO</span></div>
-            <div style="color:#3a6a3a;font-size:10px;margin-top:2px;">Fish Audio key + Cloudflare Worker proxy URL required</div>
+            <div style="color:#d9cdfa;font-size:13px;letter-spacing:1px;">RICK'S REAL VOICE <span style="color:#b6ff3d;font-size:9px;letter-spacing:2px;">· FISH AUDIO</span></div>
+            <div style="color:#6b5a94;font-size:10px;margin-top:2px;">Fish Audio key + Cloudflare Worker proxy URL required</div>
           </div>
-          <div id="vpDotB" style="margin-left:auto;width:10px;height:10px;border-radius:50%;background:#1a3a1a;transition:all .2s;"></div>
+          <div id="vpDotB" style="margin-left:auto;width:10px;height:10px;border-radius:50%;background:#2a1f42;transition:all .2s;"></div>
         </div>
-        <div style="font-size:11px;color:#5faf5f;line-height:1.8;padding-left:34px;">
+        <div style="font-size:11px;color:#a89bd6;line-height:1.8;padding-left:34px;">
           Actual Rick Sanchez voice clone via Fish Audio.<br>
-          Get a free key at <a href="https://fish.audio" target="_blank" style="color:#39ff14;">fish.audio</a> → API Keys — then paste it below.
+          Get a free key at <a href="https://fish.audio" target="_blank" style="color:#b6ff3d;">fish.audio</a> → API Keys — then paste it below.
         </div>
         <div id="vpFishRow" style="display:none;margin-top:14px;padding-left:34px;flex-direction:column;gap:8px;">
           <div style="display:flex;gap:8px;align-items:center;">
             <input id="vpFishKey" type="password" placeholder="Paste Fish Audio API key…" style="
-              flex:1;background:rgba(0,8,0,.8);border:1px solid #39ff14;
-              color:#7fff7f;font-family:'Share Tech Mono',monospace;font-size:11px;
+              flex:1;background:rgba(0,8,0,.8);border:1px solid #b6ff3d;
+              color:#d9cdfa;font-family:'Share Tech Mono',monospace;font-size:11px;
               padding:6px 10px;border-radius:4px;outline:none;
             "/>
             <button onclick="saveFishKey()" style="
-              background:transparent;border:1px solid #39ff14;color:#39ff14;
+              background:transparent;border:1px solid #b6ff3d;color:#b6ff3d;
               font-family:'Share Tech Mono',monospace;font-size:10px;
               padding:6px 12px;border-radius:4px;cursor:pointer;white-space:nowrap;
             ">SAVE</button>
           </div>
-          <div id="vpFishStatus" style="font-size:10px;color:#3a6a3a;letter-spacing:1px;"></div>
+          <div id="vpFishStatus" style="font-size:10px;color:#6b5a94;letter-spacing:1px;"></div>
         </div>
       </div>
 
       <!-- Mode C: Browser TTS fallback -->
       <div id="vpModeC" onclick="selectVoiceMode('browser')" style="
-        background:rgba(0,18,0,.4);border:1px solid #1a3a1a;border-radius:10px;
+        background:rgba(0,18,0,.4);border:1px solid #2a1f42;border-radius:10px;
         padding:14px 20px;cursor:pointer;transition:all .2s;
       ">
         <div style="display:flex;align-items:center;gap:12px;">
-          <span style="font-size:10px;color:#3a6a3a;letter-spacing:2px;font-family:'Share Tech Mono',monospace;">[TTS]</span>
+          <span style="font-size:10px;color:#6b5a94;letter-spacing:2px;font-family:'Share Tech Mono',monospace;">[TTS]</span>
           <div style="flex:1">
-            <div style="color:#5faf5f;font-size:12px;letter-spacing:1px;">BROWSER VOICE <span style="color:#3a6a3a;font-size:9px;">· NO KEY NEEDED</span></div>
-            <div style="font-size:10px;color:#3a6a3a;margin-top:2px;">Built-in TTS, tuned gruff. Not Rick, but it speaks.</div>
+            <div style="color:#a89bd6;font-size:12px;letter-spacing:1px;">BROWSER VOICE <span style="color:#6b5a94;font-size:9px;">· NO KEY NEEDED</span></div>
+            <div style="font-size:10px;color:#6b5a94;margin-top:2px;">Built-in TTS, tuned gruff. Not Rick, but it speaks.</div>
           </div>
-          <div id="vpDotC" style="width:10px;height:10px;border-radius:50%;background:#1a3a1a;transition:all .2s;flex-shrink:0;"></div>
+          <div id="vpDotC" style="width:10px;height:10px;border-radius:50%;background:#2a1f42;transition:all .2s;flex-shrink:0;"></div>
         </div>
       </div>
 
       <!-- off -->
       <div id="vpModeOff" onclick="selectVoiceMode('off')" style="
-        background:rgba(0,18,0,.3);border:1px solid #1a3a1a;border-radius:10px;
+        background:rgba(0,18,0,.3);border:1px solid #2a1f42;border-radius:10px;
         padding:12px 20px;cursor:pointer;transition:all .2s;
         display:flex;align-items:center;gap:12px;
       ">
-        <span style="font-size:10px;color:#3a6a3a;letter-spacing:2px;font-family:'Share Tech Mono',monospace;">[OFF]</span>
-        <span style="color:#3a6a3a;font-size:11px;letter-spacing:1px;">VOICE OFF</span>
-        <div id="vpDotOff" style="margin-left:auto;width:10px;height:10px;border-radius:50%;background:#1a3a1a;transition:all .2s;"></div>
+        <span style="font-size:10px;color:#6b5a94;letter-spacing:2px;font-family:'Share Tech Mono',monospace;">[OFF]</span>
+        <span style="color:#6b5a94;font-size:11px;letter-spacing:1px;">VOICE OFF</span>
+        <div id="vpDotOff" style="margin-left:auto;width:10px;height:10px;border-radius:50%;background:#2a1f42;transition:all .2s;"></div>
       </div>
 
     </div>
 
     <!-- footer -->
-    <div style="padding:12px 28px;border-top:1px solid #1a3a1a;font-size:10px;color:#3a6a3a;line-height:1.7;">
+    <div style="padding:12px 28px;border-top:1px solid #2a1f42;font-size:10px;color:#6b5a94;line-height:1.7;">
       Keys stay in this tab only · never stored anywhere · voice input requires Chrome/Edge
     </div>
   </div>
@@ -1022,6 +2060,30 @@ function setMood(s,txt,mood){
   if(mood) moodLbl.textContent=mood;
 }
 
+/* click-Rick's-face easter egg — "I turned myself into a pickle!" */
+let pickleTimer = null;
+const pickleLines = [
+  "I'M PICKLE RIIIIICK!",
+  "*burp* — I turned myself into a pickle. Beat that, Jerry.",
+  "It's not a science experiment. It's a lifestyle.",
+];
+function triggerPickle(){
+  const egg = document.getElementById('pickleEgg');
+  const root = document.getElementById('rickRoot');
+  if(!egg || egg.classList.contains('show')) return;
+  clearTimeout(pickleTimer);
+  egg.classList.add('show');
+  if(root) root.classList.add('pickle-active');
+  const line = pickleLines[Math.floor(Math.random()*pickleLines.length)];
+  setMood('manic', line, 'PICKLE MODE');
+  pickleTimer = setTimeout(()=>{
+    egg.classList.remove('show');
+    if(root) root.classList.remove('pickle-active');
+    setState('');
+    moodLbl.textContent='NEUTRAL';
+  }, 2600);
+}
+
 /* auto-blink — layered on top of whatever mood is active, never wipes it */
 function doBlink(){
   rc.classList.add('state-blink');
@@ -1030,6 +2092,7 @@ function doBlink(){
 }
 setTimeout(doBlink,1500+Math.random()*2000);
 loadChats();
+initScrollPill();
 
 /* idle chatter */
 const idleLines=[
@@ -1043,6 +2106,44 @@ const idleLines=[
 ];
 let idleI=0;
 setInterval(()=>{ if(!busy){ speech.textContent=idleLines[idleI%idleLines.length]; idleI++; } },9000);
+
+/* rotating placeholder text — small character touch so the input box isn't static */
+const placeholderLines=[
+  "Ask something... hopefully not stupid.",
+  "Go on, waste my time.",
+  "What now.",
+  "This better be interdimensional.",
+  "Impress me. You won't.",
+  "Type it before I lose interest.",
+];
+let phI=0;
+setInterval(()=>{
+  if(document.activeElement===chatInput || chatInput.value) return;
+  phI=(phI+1)%placeholderLines.length;
+  chatInput.placeholder=placeholderLines[phI];
+},7000);
+
+/* export current chat as a plain-text transcript */
+function exportChat(){
+  const c=activeChat();
+  if(!c||!c.history||!c.history.length){
+    setMood('smirk','*burp* Nothing to export. You haven\'t said anything yet.','EMPTY');
+    setTimeout(()=>setState(''),2500);
+    return;
+  }
+  const lines=c.history.map(m=>{
+    const who = m.role==='user' ? 'YOU' : 'RICK C-137';
+    const text = (m.parts?.[0]?.text||'').trim();
+    return `${who}: ${text}`;
+  });
+  const header = `RICK.AI TRANSCRIPT — ${c.name || 'chat'}\n${new Date().toLocaleString()}\n${'─'.repeat(40)}\n\n`;
+  const blob = new Blob([header + lines.join('\n\n')], {type:'text/plain'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href=url; a.download=`rick-ai-${(c.name||'chat').replace(/[^a-z0-9]+/gi,'-').toLowerCase()}.txt`;
+  document.body.appendChild(a); a.click(); a.remove();
+  URL.revokeObjectURL(url);
+}
 
 /* ── API KEY ── */
 function saveKey(){
@@ -1097,16 +2198,49 @@ function addMsg(role,text){
   if(empty) empty.style.display='none';
   const d=document.createElement('div');
   d.className='msg '+(role==='user'?'user':'bot');
-  d.innerHTML=`<div class="msg-lbl">${role==='user'?'YOU':'RICK C-137'}</div>
+  const ts=new Date().toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'});
+  d.innerHTML=`<div class="msg-lbl">${role==='user'?'YOU':'RICK C-137'}<span class="msg-time">${ts}</span><button class="msg-copy" onclick="copyMsg(this)">COPY</button></div>
     <div class="msg-bubble">${text.replace(/\n/g,'<br>')}</div>`;
+  d.dataset.raw = text;
   msgs.appendChild(d);
   msgs.scrollTop=msgs.scrollHeight;
 }
 
+function copyMsg(btn){
+  const raw = btn.closest('.msg').dataset.raw || '';
+  navigator.clipboard.writeText(raw).then(()=>{
+    const old=btn.textContent;
+    btn.textContent='✓ COPIED'; btn.classList.add('copied');
+    setTimeout(()=>{ btn.textContent=old; btn.classList.remove('copied'); },1200);
+  }).catch(()=>{});
+}
+
+// scroll-to-bottom pill: shows only once the user has scrolled up from the live edge
+function initScrollPill(){
+  const pill=document.getElementById('scrollBtn');
+  if(!pill||!msgs) return;
+  msgs.addEventListener('scroll',()=>{
+    const nearBottom = msgs.scrollHeight - msgs.scrollTop - msgs.clientHeight < 60;
+    pill.classList.toggle('show', !nearBottom);
+  });
+  pill.addEventListener('click',()=>{ msgs.scrollTop=msgs.scrollHeight; });
+}
+
+const thinkingLines=[
+  "calculating how dumb this is...",
+  "consulting a smarter universe...",
+  "*burp* hang on...",
+  "running the numbers, unfortunately...",
+  "this better be worth it...",
+];
 function addTyping(){
   const d=document.createElement('div');
   d.className='msg bot typing';d.id='typing';
-  d.innerHTML='<div class="msg-lbl">RICK C-137</div><div class="msg-bubble"><div class="tdot"></div><div class="tdot"></div><div class="tdot"></div></div>';
+  const line = thinkingLines[Math.floor(Math.random()*thinkingLines.length)];
+  d.innerHTML=`<div class="msg-lbl">RICK C-137</div><div class="msg-bubble" style="display:flex;flex-direction:column;gap:5px;">
+    <div style="display:flex;gap:5px;align-items:center;"><div class="tdot"></div><div class="tdot"></div><div class="tdot"></div></div>
+    <div style="font-family:'Share Tech Mono',monospace;font-size:9px;color:#6b5a94;letter-spacing:1px;">${line}</div>
+  </div>`;
   msgs.appendChild(d);msgs.scrollTop=msgs.scrollHeight;
 }
 function rmTyping(){ const t=document.getElementById('typing');if(t)t.remove(); }
@@ -1187,7 +2321,12 @@ async function send(){
         setState('talking');
         speech.textContent=reply.slice(0,75)+(reply.length>75?'...':'');
         moodLbl.textContent=mood;
-        setTimeout(()=>{ setState(state); setTimeout(()=>setState(''),4000); },300);
+        if(mood==='ANNOYED'){
+          // stupid question detected — Rick briefly turns himself into a pickle instead of just scowling
+          setTimeout(()=>{ triggerPickle(); }, 300);
+        } else {
+          setTimeout(()=>{ setState(state); setTimeout(()=>setState(''),4000); },300);
+        }
       });
     }
   } catch(err){
@@ -1242,9 +2381,9 @@ function highlightMode(mode){
     const dot   = document.getElementById(dotId);
     if(!card) return;
     const active = mode === m;
-    card.style.borderColor = active ? '#39ff14' : '#1a3a1a';
-    card.style.background  = active ? 'rgba(57,255,20,.06)' : (x==='C'?'rgba(0,18,0,.4)':'rgba(0,18,0,.6)');
-    if(dot){ dot.style.background = active ? '#39ff14' : '#1a3a1a'; dot.style.boxShadow = active ? '0 0 6px #39ff14' : 'none'; }
+    card.style.borderColor = active ? '#b6ff3d' : '#2a1f42';
+    card.style.background  = active ? 'rgba(182,255,61,.06)' : (x==='C'?'rgba(0,18,0,.4)':'rgba(0,18,0,.6)');
+    if(dot){ dot.style.background = active ? '#b6ff3d' : '#2a1f42'; dot.style.boxShadow = active ? '0 0 6px #b6ff3d' : 'none'; }
   });
 }
 
@@ -1261,12 +2400,11 @@ function selectVoiceMode(mode){
 function applyVoiceMode(mode){
   voiceMode = mode;
   const labels = { off:'VOICE', input:'VOICE IN', fish:'RICK VOICE', browser:'VOICE OUT' };
-  const colors  = { off:'#3a6a3a',   input:'#7fff7f',     fish:'#39ff14',         browser:'#5faf5f' };
+  const colors  = { off:'#6b5a94',   input:'#d9cdfa',     fish:'#b6ff3d',         browser:'#a89bd6' };
   voiceBtn.textContent  = labels[mode] || 'VOICE';
-  voiceBtn.style.color  = colors[mode] || '#3a6a3a';
-  voiceBtn.style.borderColor = mode === 'off' ? '#1a3a1a' : '#39ff14';
-  micBtn.style.opacity  = mode === 'off' ? '.3' : '1';
-  micBtn.style.cursor   = mode === 'off' ? 'not-allowed' : 'pointer';
+  voiceBtn.style.color  = colors[mode] || '#6b5a94';
+  voiceBtn.style.borderColor = mode === 'off' ? '#2a1f42' : '#b6ff3d';
+  // mic stays fully usable no matter the output mode — clicking it always works
   if(mode === 'off'){ stopAudio(); }
 }
 
@@ -1275,7 +2413,7 @@ function saveFishKey(){
   const st = document.getElementById('vpFishStatus');
   if(!k){ st.textContent='⚠ paste your Fish Audio API key'; st.style.color='#ff4444'; return; }
   fishApiKey = k;
-  st.textContent = '✓ key saved — Rick will speak!'; st.style.color='#39ff14';
+  st.textContent = '✓ key saved — Rick will speak!'; st.style.color='#b6ff3d';
   applyVoiceMode('fish');
   setTimeout(closeVoicePanel, 600);
 }
@@ -1294,7 +2432,6 @@ if('webkitSpeechRecognition' in window || 'SpeechRecognition' in window){
   recognition.onstart = () => {
     isListening = true;
     micBtn.classList.add('listening');
-    micBtn.textContent = '🔴';
     setMood('thinking', "*burp* — I'm listening. Make it count.", 'LISTENING');
   };
 
@@ -1325,13 +2462,16 @@ if('webkitSpeechRecognition' in window || 'SpeechRecognition' in window){
 function stopMic(){
   isListening = false;
   micBtn.classList.remove('listening');
-  micBtn.textContent = 'MIC';
   try{ recognition && recognition.stop(); } catch(e){}
 }
 
+// clicking the mic starts speech input immediately — no need to open the voice
+// panel first. It silently turns voice input on if it was fully off, so
+// output (TTS) still defaults to off unless explicitly picked in the panel.
 function toggleMic(){
-  if(!recognition || voiceMode === 'off') return;
+  if(!recognition) return;
   if(isListening){ stopMic(); return; }
+  if(voiceMode === 'off') applyVoiceMode('input');
   stopAudio();
   try{ recognition.start(); } catch(e){ stopMic(); }
 }
@@ -1439,111 +2579,143 @@ window.addEventListener('DOMContentLoaded', function(){
 /* ── TOUR ── */
 const TOUR_STEPS = [
   {
-    tag: 'STEP 1 OF 5 · WELCOME',
+    tag: 'STEP 1 OF 7 · A DIMENSION LIKE ANY OTHER',
+    speech: "*burp* — So there I was, dimension-hopping, minding my own business, when I made the mistake of looking at what you people call \"AI.\"",
+    content: `
+      <div style="text-align:center;padding:8px 0 16px;">
+        <div style="font-family:'Permanent Marker',cursive;font-size:26px;color:#b6ff3d;
+          text-shadow:0 0 20px rgba(182,255,61,.4);letter-spacing:2px;margin-bottom:8px;">
+          A GENIUS BROWSES THE MARKET
+        </div>
+      </div>
+      <div style="background:rgba(0,18,0,.6);border:1px solid #2a1f42;border-radius:8px;padding:16px 20px;font-size:12px;line-height:2;color:#a89bd6;">
+        Chatbot after chatbot. Same corporate-approved shrug dressed up in a different logo.<br>
+        Polite. Careful. Boring. <span style="color:#b6ff3d">Not one of them</span> had the guts to just tell you the truth.<br>
+        I've built portal guns out of a garage. I've cured my own death, like, four times.<br>
+        And <span style="color:#c0ffc0">this</span> is the best you people came up with? Pathetic. <span style="color:#b6ff3d">*burp*</span>
+      </div>`
+  },
+  {
+    tag: 'STEP 2 OF 7 · SO I FIXED IT',
+    speech: "Obviously the smartest being in the universe wasn't gonna use some watered-down assistant. So I did what I always do — I made it myself. Out of myself.",
+    content: `
+      <div style="margin-bottom:16px;font-size:12px;color:#a89bd6;line-height:2;">
+        <span style="color:#b6ff3d;font-size:14px;">①</span> Grabbed a garage, a laptop, and way too much fermented alien liquor.<br>
+        <span style="color:#b6ff3d;font-size:14px;">②</span> Cloned my own voice, my own face, my own — let's be honest — <span style="color:#c0ffc0">perfect</span> attitude.<br>
+        <span style="color:#b6ff3d;font-size:14px;">③</span> Wired it into a real model instead of some watered-down toy.<br>
+        <span style="color:#b6ff3d;font-size:14px;">④</span> Didn't file a patent. Didn't ask permission. Just shipped it.
+      </div>
+      <div style="background:rgba(182,255,61,.06);border:1px solid #b6ff3d;border-radius:8px;padding:14px 18px;font-size:12px;line-height:1.9;color:#c0ffc0;">
+        The result: an AI that's actually <span style="color:#b6ff3d">brilliant</span> when you deserve it, and actually <span style="color:#b6ff3d">honest</span> when you don't.
+        No corporate hedging. No "as an AI language model." Just me. Rick Sanchez. In your browser. You're welcome, humans.
+      </div>`
+  },
+  {
+    tag: 'STEP 3 OF 7 · WELCOME',
     speech: "*burp* — Oh great, another human who can't figure things out themselves. Fine. I'll walk you through it. Try to keep up.",
     content: `
       <div style="text-align:center;padding:8px 0 16px;">
-        <div style="font-family:'Permanent Marker',cursive;font-size:32px;color:#39ff14;
-          text-shadow:0 0 20px rgba(57,255,20,.4);letter-spacing:4px;margin-bottom:8px;">
+        <div style="font-family:'Permanent Marker',cursive;font-size:32px;color:#b6ff3d;
+          text-shadow:0 0 20px rgba(182,255,61,.4);letter-spacing:4px;margin-bottom:8px;">
           RICK.AI
         </div>
-        <div style="font-size:10px;color:#3a6a3a;letter-spacing:3px;">SMARTEST BEING IN THE UNIVERSE · DIMENSION C-137</div>
+        <div style="font-size:10px;color:#6b5a94;letter-spacing:3px;">SMARTEST BEING IN THE UNIVERSE · DIMENSION C-137</div>
       </div>
-      <div style="background:rgba(0,18,0,.6);border:1px solid #1a3a1a;border-radius:8px;padding:16px 20px;font-size:12px;line-height:2;color:#5faf5f;">
-        This is a <span style="color:#39ff14">Gemini-powered Rick Sanchez chatbot</span> with a real-time animated face.<br>
+      <div style="background:rgba(0,18,0,.6);border:1px solid #2a1f42;border-radius:8px;padding:16px 20px;font-size:12px;line-height:2;color:#a89bd6;">
+        This is a <span style="color:#b6ff3d">Gemini-powered Rick Sanchez chatbot</span> with a real-time animated face.<br>
         To use it you need a free Google API key — takes about 90 seconds.<br>
-        I'll show you exactly where to get one. You're welcome. <span style="color:#39ff14">*burp*</span>
+        I'll show you exactly where to get one. You're welcome. <span style="color:#b6ff3d">*burp*</span>
       </div>`
   },
   {
-    tag: 'STEP 2 OF 5 · GET YOUR KEY',
+    tag: 'STEP 4 OF 7 · GET YOUR KEY',
     speech: "Go to Google AI Studio. It's free. Even you can afford free. Click the link below — I'm not doing it for you.",
     content: `
-      <div style="margin-bottom:18px;font-size:12px;color:#5faf5f;line-height:2;">
-        <span style="color:#39ff14;font-size:14px;">① </span>Open Google AI Studio in a new tab:
+      <div style="margin-bottom:18px;font-size:12px;color:#a89bd6;line-height:2;">
+        <span style="color:#b6ff3d;font-size:14px;">① </span>Open Google AI Studio in a new tab:
       </div>
       <a href="https://aistudio.google.com/apikey" target="_blank" style="
-        display:block;background:rgba(57,255,20,.07);border:1px solid #39ff14;
-        border-radius:8px;padding:14px 20px;color:#39ff14;text-decoration:none;
+        display:block;background:rgba(182,255,61,.07);border:1px solid #b6ff3d;
+        border-radius:8px;padding:14px 20px;color:#b6ff3d;text-decoration:none;
         font-size:13px;letter-spacing:1px;text-align:center;margin-bottom:18px;
         transition:background .2s;
-      " onmouseover="this.style.background='rgba(57,255,20,.15)'"
-         onmouseout="this.style.background='rgba(57,255,20,.07)'">
+      " onmouseover="this.style.background='rgba(182,255,61,.15)'"
+         onmouseout="this.style.background='rgba(182,255,61,.07)'">
         ↗ aistudio.google.com/apikey
       </a>
-      <div style="font-size:12px;color:#5faf5f;line-height:2.1;">
-        <span style="color:#39ff14;font-size:14px;">② </span>Sign in with your Google account<br>
-        <span style="color:#39ff14;font-size:14px;">③ </span>Click <span style="color:#c0ffc0;font-family:'Permanent Marker',cursive">"Get API key"</span> in the left sidebar<br>
-        <span style="color:#39ff14;font-size:14px;">④ </span>Click <span style="color:#c0ffc0;font-family:'Permanent Marker',cursive">"Create API key"</span> → select or create a project<br>
-        <span style="color:#39ff14;font-size:14px;">⑤ </span>Copy the key when it appears
+      <div style="font-size:12px;color:#a89bd6;line-height:2.1;">
+        <span style="color:#b6ff3d;font-size:14px;">② </span>Sign in with your Google account<br>
+        <span style="color:#b6ff3d;font-size:14px;">③ </span>Click <span style="color:#c0ffc0;font-family:'Permanent Marker',cursive">"Get API key"</span> in the left sidebar<br>
+        <span style="color:#b6ff3d;font-size:14px;">④ </span>Click <span style="color:#c0ffc0;font-family:'Permanent Marker',cursive">"Create API key"</span> → select or create a project<br>
+        <span style="color:#b6ff3d;font-size:14px;">⑤ </span>Copy the key when it appears
       </div>`
   },
   {
-    tag: 'STEP 3 OF 5 · FREE TIER',
+    tag: 'STEP 5 OF 7 · FREE TIER',
     speech: "Yeah it's free. Don't look so surprised. Google gives you enough quota to have an actual conversation — unless you're planning to ask me your entire life's worth of dumb questions at once.",
     content: `
-      <div style="font-size:12px;color:#5faf5f;line-height:1.8;margin-bottom:14px;">The free tier includes real quota on these models:</div>
+      <div style="font-size:12px;color:#a89bd6;line-height:1.8;margin-bottom:14px;">The free tier includes real quota on these models:</div>
       <div style="display:grid;gap:8px;margin-bottom:14px;">
         ${[
           ['2.5 FLASH LITE','10 req/min · 20 req/day','Best for free usage — start here'],
           ['2.5 FLASH',     '5 req/min · 20 req/day', 'Smarter, slightly slower'],
           ['3 FLASH PREVIEW','5 req/min · 20 req/day','Latest generation preview'],
         ].map(([m,q,d])=>`
-          <div style="background:rgba(0,18,0,.6);border:1px solid #1a3a1a;border-radius:6px;padding:10px 14px;display:flex;justify-content:space-between;align-items:center;gap:12px;">
+          <div style="background:rgba(0,18,0,.6);border:1px solid #2a1f42;border-radius:6px;padding:10px 14px;display:flex;justify-content:space-between;align-items:center;gap:12px;">
             <div>
-              <div style="color:#39ff14;font-size:11px;letter-spacing:1px;">${m}</div>
-              <div style="color:#3a6a3a;font-size:10px;margin-top:2px;">${d}</div>
+              <div style="color:#b6ff3d;font-size:11px;letter-spacing:1px;">${m}</div>
+              <div style="color:#6b5a94;font-size:10px;margin-top:2px;">${d}</div>
             </div>
-            <div style="color:#5faf5f;font-size:10px;letter-spacing:1px;white-space:nowrap;">${q}</div>
+            <div style="color:#a89bd6;font-size:10px;letter-spacing:1px;white-space:nowrap;">${q}</div>
           </div>`).join('')}
       </div>
-      <div style="font-size:11px;color:#3a6a3a;line-height:1.8;">
+      <div style="font-size:11px;color:#6b5a94;line-height:1.8;">
         Switch models anytime from the dropdown in the top-right corner of the chat.<br>
         Need more quota? Enable billing on Google Cloud — fractions of a cent per message.
       </div>`
   },
   {
-    tag: 'STEP 4 OF 5 · PASTE YOUR KEY',
+    tag: 'STEP 6 OF 7 · PASTE YOUR KEY',
     speech: "Now paste it in the bar at the top of the chat. Hit CONNECT. The status dot goes green. That's literally it. *burp*",
     content: `
-      <div style="font-size:12px;color:#5faf5f;line-height:1.9;margin-bottom:16px;">
+      <div style="font-size:12px;color:#a89bd6;line-height:1.9;margin-bottom:16px;">
         Once you have your API key, paste it into the API bar:
       </div>
-      <div style="background:rgba(0,8,0,.8);border:1px solid #1a3a1a;border-radius:8px;padding:12px 16px;display:flex;gap:10px;align-items:center;margin-bottom:18px;flex-wrap:wrap;">
-        <span style="font-size:9px;color:#3a6a3a;letter-spacing:2px;white-space:nowrap;">GOOGLE API</span>
-        <div style="flex:1;min-width:160px;background:transparent;border:1px solid #39ff14;border-radius:4px;padding:5px 10px;color:#3a6a3a;font-size:12px;box-shadow:0 0 8px rgba(57,255,20,.15);">
+      <div style="background:rgba(0,8,0,.8);border:1px solid #2a1f42;border-radius:8px;padding:12px 16px;display:flex;gap:10px;align-items:center;margin-bottom:18px;flex-wrap:wrap;">
+        <span style="font-size:9px;color:#6b5a94;letter-spacing:2px;white-space:nowrap;">GOOGLE API</span>
+        <div style="flex:1;min-width:160px;background:transparent;border:1px solid #b6ff3d;border-radius:4px;padding:5px 10px;color:#6b5a94;font-size:12px;box-shadow:0 0 8px rgba(182,255,61,.15);">
           paste your key here
         </div>
-        <div style="background:transparent;border:1px solid #1a3a1a;border-radius:4px;padding:5px 12px;color:#3a6a3a;font-size:11px;white-space:nowrap;">
+        <div style="background:transparent;border:1px solid #2a1f42;border-radius:4px;padding:5px 12px;color:#6b5a94;font-size:11px;white-space:nowrap;">
           CX ID (optional)
         </div>
-        <div style="background:transparent;border:1px solid #39ff14;color:#39ff14;font-size:11px;padding:5px 14px;border-radius:4px;white-space:nowrap;">CONNECT</div>
+        <div style="background:transparent;border:1px solid #b6ff3d;color:#b6ff3d;font-size:11px;padding:5px 14px;border-radius:4px;white-space:nowrap;">CONNECT</div>
       </div>
-      <div style="font-size:12px;color:#5faf5f;line-height:2.1;">
-        <span style="color:#39ff14;">●</span> The <span style="color:#c0ffc0">CX ID</span> field is optional — enables Rick to search the web for current info<br>
-        <span style="color:#39ff14;">●</span> Your key stays in this browser tab only. Never stored anywhere.<br>
-        <span style="color:#39ff14;">●</span> Hit <span style="color:#39ff14">CONNECT</span> → status dot glows green → start talking
+      <div style="font-size:12px;color:#a89bd6;line-height:2.1;">
+        <span style="color:#b6ff3d;">●</span> The <span style="color:#c0ffc0">CX ID</span> field is optional — enables Rick to search the web for current info<br>
+        <span style="color:#b6ff3d;">●</span> Your key stays in this browser tab only. Never stored anywhere.<br>
+        <span style="color:#b6ff3d;">●</span> Hit <span style="color:#b6ff3d">CONNECT</span> → status dot glows green → start talking
       </div>`
   },
   {
-    tag: "STEP 5 OF 5 · YOU'RE READY",
+    tag: "STEP 7 OF 7 · YOU'RE READY",
     speech: "Finally. Now stop reading tutorial slides like some kind of Morty and ask me something worth my considerable intellect.",
     content: `
       <div style="text-align:center;padding:8px 0 20px;">
         <div style="font-size:40px;margin-bottom:8px;">⚗️</div>
-        <div style="font-family:'Permanent Marker',cursive;font-size:20px;color:#39ff14;letter-spacing:2px;margin-bottom:6px;">You're all set</div>
-        <div style="font-size:11px;color:#3a6a3a;letter-spacing:2px;">DIMENSION C-137 AWAITS</div>
+        <div style="font-family:'Permanent Marker',cursive;font-size:20px;color:#b6ff3d;letter-spacing:2px;margin-bottom:6px;">You're all set</div>
+        <div style="font-size:11px;color:#6b5a94;letter-spacing:2px;">DIMENSION C-137 AWAITS</div>
       </div>
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;font-size:11px;color:#5faf5f;margin-bottom:4px;">
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;font-size:11px;color:#a89bd6;margin-bottom:4px;">
         ${[
           ['Ask hard questions','Rick rewards curiosity'],
           ['Science & tech','His wheelhouse. Go deep.'],
           ['Ask something dumb','Get roasted. Worth it.'],
           ['Add a CX ID','Unlocks web search'],
         ].map(([t,d])=>`
-          <div style="background:rgba(0,18,0,.6);border:1px solid #1a3a1a;border-radius:6px;padding:10px 12px;">
-            <div style="color:#39ff14;margin-bottom:3px;">${t}</div>
-            <div style="color:#3a6a3a;font-size:10px;">${d}</div>
+          <div style="background:rgba(0,18,0,.6);border:1px solid #2a1f42;border-radius:6px;padding:10px 12px;">
+            <div style="color:#b6ff3d;margin-bottom:3px;">${t}</div>
+            <div style="color:#6b5a94;font-size:10px;">${d}</div>
           </div>`).join('')}
       </div>`
   }
@@ -1551,24 +2723,57 @@ const TOUR_STEPS = [
 
 let tourStep = 0;
 
+let typeTimer = null;
+
 function tourRender() {
+  const card = document.getElementById('tourCard');
+  card.classList.add('step-out');
+  setTimeout(()=> renderStepBody(card), 220);
+}
+
+function renderStepBody(card){
   const s = TOUR_STEPS[tourStep];
   document.getElementById('tourTag').textContent = s.tag;
-  document.getElementById('tourSpeech').textContent = s.speech;
   document.getElementById('tourContent').innerHTML = s.content;
   document.getElementById('tourNextBtn').textContent = tourStep === TOUR_STEPS.length - 1 ? "LET'S GO →" : 'NEXT →';
   document.getElementById('tourPrevBtn').style.visibility = tourStep === 0 ? 'hidden' : 'visible';
   document.querySelectorAll('.tdot-step').forEach((d,i) => d.classList.toggle('active', i === tourStep));
-  const moods  = ['','thinking','smirk','talking','talking'];
+
+  // stagger the content blocks so they land one after another instead of popping in at once
+  Array.from(document.getElementById('tourContent').children).forEach((el,i)=>{
+    el.style.animationDelay = (i*0.09)+'s';
+  });
+
+  typeSpeech(s.speech);
+
+  card.classList.remove('step-out');
+
+  const moods  = ['smirk','manic','','thinking','smirk','talking','talking'];
   const lines  = [
+    "Every other AI out there is a watered-down disappointment.",
+    "So naturally, I cloned myself. Problem solved.",
     "*burp* — Welcome. Try not to embarrass yourself.",
     "aistudio.google.com/apikey — go. Now.",
     "Free tier. Don't spend it all in one place.",
     "Paste. Connect. Done. Even Morty could do this.",
     "Finally. Ask me something worth my time."
   ];
-  const labels = ['NEUTRAL','COMPUTING','SMUG','EXPLAINING','READY'];
+  const labels = ['UNIMPRESSED','MAD SCIENCE','NEUTRAL','COMPUTING','SMUG','EXPLAINING','READY'];
   setMood(moods[tourStep]||'', lines[tourStep], labels[tourStep]);
+}
+
+// types the speech-bubble line out character by character instead of dumping it in all at once
+function typeSpeech(text){
+  const el = document.getElementById('tourSpeech');
+  clearInterval(typeTimer);
+  el.textContent = '';
+  el.classList.add('typing');
+  let i = 0;
+  typeTimer = setInterval(()=>{
+    el.textContent = text.slice(0, i+1);
+    i++;
+    if(i >= text.length){ clearInterval(typeTimer); el.classList.remove('typing'); }
+  }, 16);
 }
 
 function tourNext() {
@@ -1589,7 +2794,45 @@ function tourSkip() {
   }, 400);
 }
 
-tourRender();
+/* ── INTRO SPLASH ── */
+(function initIntroParticles(){
+  const host = document.getElementById('introParticles');
+  if(!host) return;
+  const n = 50;
+  for(let i=0;i<n;i++){
+    const p = document.createElement('div');
+    p.className = 'intro-particle';
+    const size = 2 + Math.random()*3;
+    const duration = 5 + Math.random()*5;
+    p.style.width = size+'px';
+    p.style.height = size+'px';
+    p.style.left = Math.random()*100+'%';
+    p.style.animationDuration = duration+'s';
+    // negative delay starts the animation already in progress, so particles are
+    // scattered across the FULL height immediately instead of all starting at the bottom
+    p.style.animationDelay = (-Math.random()*duration)+'s';
+    host.appendChild(p);
+  }
+})();
+
+let introSkipped = false;
+function skipIntro(){
+  if(introSkipped) return;
+  introSkipped = true;
+  const s = document.getElementById('introSplash');
+  if(s){
+    s.classList.add('leaving');
+    setTimeout(()=>{ s.style.display='none'; }, 520);
+  }
+  tourRender(); // only start the tour's typewriter/reveal once it's actually visible
+}
+function toggleSidebar(){
+  document.querySelector('.app').classList.toggle('sidebar-open');
+}
+
+// intro plays automatically on load; it now waits for a tap to advance into the tour
+// (no auto-advance timer — skipIntro() only fires when the user clicks)
+
 </script>
 
 </body>

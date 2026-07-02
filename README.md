@@ -2,14 +2,28 @@
 
 You talk, a fake Rick Sanchez insults you back — in his own cloned voice, with a face that actually moves when he talks. One HTML file. No backend except a 60-line proxy for the voice, and you don't even need that part.
 
+**[→ Open it and get roasted](#)** *(swap this for your live demo link before you ship)*
+
+![Rick.ai screenshot placeholder — replace with an actual GIF of the face talking](#)
 
 ---
+
+## The story, allegedly
+
+Rick went shopping for an AI. Browsed the whole market — every chatbot dressed up in a slightly different logo, every one of them polite, careful, and about as interesting as a Jerry. Not one had the nerve to just tell you the truth.
+
+So he did what he always does when the universe disappoints him: built a better one himself, out of himself. Cloned his own voice, his own face, his own opinions about how dumb most questions are — and skipped every step a responsible person would've taken, like testing it or asking permission.
+
+What's left is this. Now you get to use it too. Try not to waste it.
+
+*(Open the app and you'll get the full version, delivered by the man himself, before he walks you through getting a key.)*
 
 Yeah I built a chatbot. Big deal, everyone's built a chatbot. *This* one has a CSS-only face — no images, no canvas, no video, just div soup and math — that blinks on its own, opens its mouth when it's actually speaking, and pulls a different expression depending on whether it thinks your question is fascinating or whether it thinks you're an idiot. Which, statistically, is more often the second one.
 
 ## What it actually does
 
 - **A face made entirely of borders and border-radius.** Pure CSS/HTML, zero images. It blinks unprompted, and its mouth animation is driven by real audio playback timing, not a canned loop — so lip movement roughly tracks what's actually coming out of the speaker.
+- **A 7-slide intro** that opens with Rick's origin story — why he thinks every other AI on the market is garbage and why he built this one out of himself — before sliding into the actual setup walkthrough. Skippable, but it's the whole pitch in under a minute.
 - **Nine expressions**, picked automatically by reading Rick's own reply: `talking`, `angry`, `smirk`, `thinking`, `sleep`, `surprised`, `manic`, `disgust`, `exasperated`. He decides how annoyed to look at you; you don't get a vote.
 - **Gemini under the hood**, prompted to actually be Rick — brilliant and useful when your question deserves it, dismissive when it doesn't.
 - **Optional live web results** via Google Custom Search, so he's not just guessing about anything time-sensitive.

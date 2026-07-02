@@ -1,67 +1,67 @@
-# Sanchez-Ai
+# Sanchez-AI
 
-A single-file, Gemini-powered Rick Sanchez chatbot with a real-time animated CSS face, multi-chat history, and optional Rick Sanchez voice cloning via Fish Audio.
+You talk, a fake Rick Sanchez insults you back — in his own cloned voice, with a face that actually moves when he talks. One HTML file. No backend except a 60-line proxy for the voice, and you don't even need that part.
 
-No build step, no backend (aside from an optional voice proxy) — open the HTML file and go.
-
-**Note**- There are limitations to the free API on both gemini and fish audio , especially with fish audio where  the audio may stop mid sentence because the limits are reached,and sometimes the gemini free  API migh be busy or down
 
 ---
 
-## Features
+Yeah I built a chatbot. Big deal, everyone's built a chatbot. *This* one has a CSS-only face — no images, no canvas, no video, just div soup and math — that blinks on its own, opens its mouth when it's actually speaking, and pulls a different expression depending on whether it thinks your question is fascinating or whether it thinks you're an idiot. Which, statistically, is more often the second one.
 
-- **Animated Rick face** — pure CSS/HTML portrait (no images, no canvas) that blinks on its own and reacts with expressions (`talking`, `angry`, `smirk`, `thinking`, `sleep`, `surprised`, `manic`, `disgust`, `exasperated`) driven by the content of Rick's replies.
-- **Multi-chat history** — create, switch between, and delete separate conversations, saved to `localStorage`.
-- **Gemini-powered responses** — Rick is fully in-character: brilliant and helpful for genuinely interesting questions, dismissive and insulting for trivial ones.
-- **Optional Google Search grounding** — add a Custom Search Engine (CX) ID alongside your API key and Rick will pull in live results for time-sensitive questions before answering.
-- **Voice** — three modes: browser speech-to-text for input, browser text-to-speech for output (no key needed), or Rick's actual cloned voice via Fish Audio through a small Cloudflare Worker proxy.
-- **Guided setup tour** — walks first-time users through getting a free Gemini API key.
+## What it actually does
 
-## Getting started
+- **A face made entirely of borders and border-radius.** Pure CSS/HTML, zero images. It blinks unprompted, and its mouth animation is driven by real audio playback timing, not a canned loop — so lip movement roughly tracks what's actually coming out of the speaker.
+- **Nine expressions**, picked automatically by reading Rick's own reply: `talking`, `angry`, `smirk`, `thinking`, `sleep`, `surprised`, `manic`, `disgust`, `exasperated`. He decides how annoyed to look at you; you don't get a vote.
+- **Gemini under the hood**, prompted to actually be Rick — brilliant and useful when your question deserves it, dismissive when it doesn't.
+- **Optional live web results** via Google Custom Search, so he's not just guessing about anything time-sensitive.
+- **Three voice modes**: type-only, browser TTS pitched down to something Rick-adjacent (free, no key), or his real cloned voice through Fish Audio (needs a key + a tiny proxy, described below).
+- **Multiple chats**, saved to your browser, because apparently you want a *paper trail* of him being rude to you.
+- **A setup tour** for the one person on Stardance who's never touched a Gemini API key before.
 
-1. Open `rick-ai.html` in a browser (Chrome or Edge recommended for voice input).
-2. Follow the on-screen tour, or skip it and get a free key yourself at [aistudio.google.com/apikey](https://aistudio.google.com/apikey).
-3. Paste the key into the **GOOGLE API** field at the top of the chat and hit **CONNECT**.
-4. Start typing. That's it.
+## Get it running
 
-Your API key is only ever held in memory in that browser tab — it's never sent anywhere except directly to Google, and it's never stored.
+1. Open the HTML file. Chrome or Edge if you want voice input.
+2. No key yet? Tour walks you through grabbing a free one at [aistudio.google.com/apikey](https://aistudio.google.com/apikey) — thirty seconds, no card.
+3. Paste it in the box up top, hit **CONNECT**.
+4. Say something. Regret it.
 
-## Model selection
+Your key lives in that browser tab and nowhere else — never stored, never sent anywhere but straight to Google.
 
-The model dropdown in the top-right defaults to **Gemini 2.5 Flash** and includes the full current Gemini lineup available on the free tier, plus a few paid-only options for anyone with billing enabled:
+Three steps, one file, zero installs. If you were expecting a `git clone` and a `.env`, this isn't that kind of project.
+
+## Picking a brain
+
+Dropdown top-right, defaults to Gemini 2.5 Flash. Free tier covers most of the lineup:
 
 | Model | Free tier |
 |---|---|
 | Gemini 2.5 Flash *(default)* | 5 RPM |
 | Gemini 2.5 Flash Lite | 10 RPM |
-| Gemini 2 Flash | paid only |
-| Gemini 2 Flash Lite | paid only |
-| Gemini 2.5 Pro | paid only |
 | Gemini 3 Flash | 5 RPM |
-| Gemini 3.1 Pro | paid only |
 | Gemini 3.1 Flash Lite | 15 RPM |
 | Gemini 3.5 Flash | 5 RPM |
+| Gemini 2 Flash / Lite, Gemini 2.5 Pro, Gemini 3.1 Pro | paid tier only |
 
-Switch models any time from the dropdown — no reconnect needed.
+Swap models mid-conversation. No reconnect, no drama.
 
-## Voice setup (optional)
+## Giving him a real voice
 
-Click **VOICE** in the left panel to choose a mode:
+Click **VOICE** on the left.
 
-- **Voice input only** — speech-to-text into the chat box, no key required.
-- **Rick's real voice (Fish Audio)** — requires a free [Fish Audio](https://fish.audio) API key and the Cloudflare Worker proxy described below.
-- **Browser voice** — built-in TTS, pitched down and slowed to approximate Rick. No key required.
+- **Voice in only** — your mic, speech-to-text, no key. Works out of the box.
+- **His actual cloned voice** — needs a free [Fish Audio](https://fish.audio) key. Fish Audio's API is server-only and blocks direct browser calls, so there's a ~60-line Cloudflare Worker sitting in between: browser hits the Worker on a domain that isn't Fish Audio's, Worker forwards your key server-side, streams the mp3 back with open CORS. Free tier on Cloudflare's dashboard, deploys in a couple minutes.
+- **Browser TTS** — built-in synthesis, pitched and slowed toward Rick-ish. No key, noticeably less Rick.
 
-### Why the proxy?
+The mouth is timed to when the audio *actually* starts and stops, not a guess — so even on a slow network the face doesn't start flapping before there's any sound to go with it.
 
-Fish Audio's API is server-to-server only — it doesn't allow direct browser calls (CORS blocks any cross-origin request carrying an `Authorization` header). The fix is a ~60-line Cloudflare Worker that sits between the browser and Fish Audio: the browser calls the Worker on your own domain (no CORS issue), the Worker forwards the request to Fish Audio with your key, and streams the audio back with open CORS headers. Deploys free from the Cloudflare dashboard in a couple of minutes.
+## Why it's one file
 
-## File structure
+Because the whole point was: no install, no build, no "clone this and run `npm i`." You open an HTML file in a browser and it works. That constraint shaped everything — the face is CSS instead of sprites, state lives in `localStorage` instead of a database, and the only server-side code that exists at all is the Fish Audio proxy, which is optional and about as small as a proxy gets.
 
-Everything lives in one file: `rick-ai.html`. HTML, CSS, and JavaScript are all inline — nothing to install, nothing to build.
+## The fine print
 
-## Known limitations
+- Both free tiers *will* run out on you. Gemini gets busy or 429s you; Fish Audio can cut a sentence off mid-word once you hit its ceiling. Not a bug, just what "free" costs.
+- Voice input needs a Chromium browser (`webkitSpeechRecognition` isn't standard yet).
+- Everything's per-browser via `localStorage` — no accounts, no sync, no cloud.
+- Search grounding needs its own Google Custom Search Engine ID on top of the Gemini key.
 
-- Voice input requires a Chromium-based browser (`webkitSpeechRecognition`).
-- Chat history and voice mode are stored in `localStorage`, so they're per-browser, not synced across devices.
-- Web search grounding requires a separate Google Custom Search Engine ID in addition to the Gemini key.
+Built for Stardance. Get schwifty.

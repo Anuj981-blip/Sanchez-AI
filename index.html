@@ -1,0 +1,1569 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Rick.ai — Don't waste my time</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Permanent+Marker&family=Share+Tech+Mono&display=swap');
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+
+/* ── PAGE LAYOUT ── */
+html,body{height:100%;font-size:15px;}
+body{
+  background:#0a0d0a;
+  color:#7fff7f;
+  font-family:'Share Tech Mono',monospace;
+  display:flex;
+  flex-direction:column;
+  height:100vh;
+  overflow:hidden;
+}
+body::before{
+  content:'';position:fixed;inset:0;
+  background:repeating-linear-gradient(0deg,transparent,transparent 2px,rgba(0,0,0,0.07) 2px,rgba(0,0,0,0.07) 4px);
+  pointer-events:none;z-index:9999;
+}
+
+.app{display:grid;grid-template-columns:200px 340px 1fr;height:100vh;}
+.history-panel{background:#040a04;border-right:1px solid #1a3a1a;display:flex;flex-direction:column;overflow:hidden;order:0;}
+.history-header{padding:12px 14px;border-bottom:1px solid #1a3a1a;flex-shrink:0;display:flex;align-items:center;justify-content:space-between;}
+.history-title{font-size:9px;letter-spacing:3px;color:#3a6a3a;text-transform:uppercase;}
+.new-chat-btn{background:transparent;border:1px solid #1a3a1a;color:#3a6a3a;font-family:'Share Tech Mono',monospace;font-size:9px;padding:3px 8px;border-radius:4px;cursor:pointer;letter-spacing:1px;transition:all .2s;white-space:nowrap;}
+.new-chat-btn:hover{border-color:#39ff14;color:#39ff14;}
+.history-list{flex:1;overflow-y:auto;scrollbar-width:thin;scrollbar-color:#1a3a1a transparent;}
+.history-list::-webkit-scrollbar{width:2px;}
+.history-list::-webkit-scrollbar-thumb{background:#1a3a1a;}
+.chat-item{padding:10px 14px;border-bottom:1px solid rgba(26,58,26,.4);cursor:pointer;transition:background .15s;position:relative;}
+.chat-item:hover{background:rgba(57,255,20,.04);}
+.chat-item.active{background:rgba(57,255,20,.07);border-left:2px solid #39ff14;}
+.chat-item-name{font-size:11px;color:#7fff7f;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;letter-spacing:.5px;padding-right:18px;}
+.chat-item.active .chat-item-name{color:#39ff14;}
+.chat-item-meta{font-size:9px;color:#3a6a3a;margin-top:3px;letter-spacing:.5px;}
+.chat-delete{position:absolute;right:8px;top:50%;transform:translateY(-50%);background:transparent;border:none;color:#3a6a3a;cursor:pointer;font-size:11px;opacity:0;transition:opacity .15s;padding:2px 4px;font-family:'Share Tech Mono',monospace;}
+.chat-item:hover .chat-delete{opacity:1;}
+.chat-delete:hover{color:#ff4444;}
+
+/* ── LEFT PANEL ── */
+.left-panel{
+  background:#060d06;
+  border-right:1px solid #1a3a1a;
+  display:flex;flex-direction:column;align-items:center;
+  padding:16px 12px 12px;
+  overflow:hidden;
+  position:relative;
+  order:1;
+}
+.panel-title{
+  font-size:9px;letter-spacing:4px;color:#3a6a3a;
+  text-transform:uppercase;margin-bottom:10px;
+}
+
+/* ── RICK FACE WRAPPER (scales the original face) ── */
+.rick-scene{
+  position:relative;
+  width:308px;height:308px;
+  flex-shrink:0;
+  display:flex;align-items:center;justify-content:center;
+}
+
+/* The original CodePen face uses font-size:15px on html, container is 20.5rem = 307.5px */
+/* We keep exactly that. Just wrap it. */
+.rick-root{
+  position:relative;
+  font-size:15px;
+  width:307.5px;height:307.5px;
+}
+
+/* ════ ORIGINAL RICK CSS (compiled from SCSS by Pablo-Ai) ════ */
+.container {
+  background: #0e3477;
+  border-radius: 100%;
+  box-shadow: 0 -0.15rem #b8dc70, inset 0 5rem 10rem black;
+  display: block;
+  margin: auto;
+  height: 20.5rem;
+  overflow: hidden;
+  position: relative;
+  text-align: center;
+  width: 20.5rem;
+}
+.container *, .container *:before, .container *:after {
+  margin-left: auto;
+  margin-right: auto;
+  left: 0;
+  position: absolute;
+  right: 0;
+}
+.head {
+  background: #e8dacd;
+  border-radius: 45% / 25%;
+  height: 10.6rem;
+  top: 4rem;
+  width: 5.9rem;
+  z-index: 40;
+}
+.head:before {
+  background: inherit;
+  border-radius: 20% / 73%;
+  content: '';
+  top: 1.2rem;
+  bottom: 11%;
+  right: -5%;
+  left: -5%;
+}
+.head-border {
+  border-radius: 45% / 25%;
+  box-shadow: 0 0 0 .2rem #111;
+  height: 10.6rem;
+  top: 4rem;
+  width: 5.8rem;
+  z-index: 35;
+}
+.head-border:before {
+  box-shadow: 0 0 0 .2rem #111;
+  content: '';
+  top: 1.2rem;
+  bottom: 11%;
+  right: -5%;
+  left: -5%;
+  border-radius: 18% / 73%;
+}
+.ear {
+  background: #e8dacd;
+  border: .18rem solid #111;
+  border-radius: 80% 80% 100% 100%;
+  height: 1.6rem;
+  left: -6.6rem;
+  top: 9.95rem;
+  width: 1.3rem;
+  z-index: 20;
+}
+.ear.right { left: 6.6rem; }
+
+.hair div {
+  border-top: 0;
+  border-left: 1rem solid transparent;
+  border-right: 1rem solid transparent;
+  border-bottom: 1rem solid #b4e3fd;
+  border-radius: 36% / 8%;
+  height: 0;
+  width: 0;
+}
+.hair div:nth-child(1){border-left-width:1rem;border-right-width:1rem;border-bottom-width:1.5rem;border-radius:30%;left:-5.2rem;top:11.5rem;transform:rotate(-25deg);}
+.hair div:nth-child(2){border-left-width:2rem;border-right-width:2rem;border-bottom-width:4rem;left:-5.7rem;top:8.1rem;transform:rotate(-4deg);}
+.hair div:nth-child(3){border-left-width:2rem;border-right-width:2rem;border-bottom-width:3rem;left:-7.1rem;top:7.6rem;transform:rotate(16deg);}
+.hair div:nth-child(4){border-left-width:3rem;border-right-width:4rem;border-bottom-width:3rem;border-radius:35%;left:-6.4rem;top:6.45rem;transform:rotate(166deg);}
+.hair div:nth-child(5){border-left-width:2.5rem;border-right-width:2.5rem;border-bottom-width:3.75rem;border-radius:6%;left:-5.1rem;top:3.2rem;transform:rotate(68deg);}
+.hair div:nth-child(6){border-left-width:2rem;border-right-width:2rem;border-bottom-width:3.75rem;border-radius:6%;left:-0.6rem;top:0.7rem;transform:rotate(4deg);}
+.hair div:nth-child(7){border-left-width:1.5rem;border-right-width:1.6rem;border-bottom-width:3rem;border-radius:6%;left:4.8rem;top:2rem;transform:rotate(35.9deg);}
+.hair div:nth-child(8){border-left-width:3.5rem;border-right-width:2rem;border-bottom-width:3.1rem;border-radius:12.2%;left:7.1rem;top:4.8rem;transform:rotate(-192.6deg);}
+.hair div:nth-child(9){border-left-width:2.4rem;border-right-width:3.1rem;border-bottom-width:2.7rem;border-radius:22.2%;left:7rem;top:6.6rem;transform:rotate(-36.4deg);}
+.hair div:nth-child(10){border-left-width:2.4rem;border-right-width:3.1rem;border-bottom-width:2.2rem;border-radius:42.9%;left:6.7rem;top:8.9rem;transform:rotate(-5.4deg);}
+.hair div:nth-child(11){border-left-width:3.2rem;border-right-width:3rem;border-bottom-width:3rem;border-radius:43.7%;left:4.9rem;top:9rem;transform:rotate(24.8deg);}
+.hair div:nth-child(12){border-left-width:2.2rem;border-right-width:2rem;border-bottom-width:2rem;border-radius:43.7%;left:4.2rem;top:10.7rem;transform:rotate(38.5deg);}
+
+.unibrow {
+  background: #b4e3fd;
+  border: .18rem solid #111;
+  border-radius: 47% 53% 89% 85%;
+  height: .4rem;
+  top: 2.2rem;
+  transform: rotate(2deg);
+  width: 4.8rem;
+  z-index: 20;
+  transition: transform 0.3s ease, top 0.3s ease;
+}
+.unibrow:before,.unibrow:after {
+  border: .18rem solid #111;
+  border-left-color: transparent;
+  border-right-color: transparent;
+  border-top: 0;
+  border-radius: 100%;
+  content: '';
+  display: block;
+  height: .4rem;
+  top: -1.8rem;
+  transform: rotate(-2deg);
+  width: 1.2rem;
+}
+.unibrow:after { top: -1.2rem; width: 2rem; }
+
+.eye {
+  background: white;
+  border: .18rem solid #111;
+  border-radius: 100%;
+  box-shadow: inset 0 0 .6rem salmon;
+  height: 2.6rem;
+  overflow: hidden;
+  top: 2.75rem;
+  width: 2.6rem;
+  transition: height 0.12s ease, top 0.12s ease;
+}
+.eye:after {
+  background: #111;
+  border-radius: 100%;
+  box-shadow: inset .07rem -.07rem 0 rgba(255,255,255,.4);
+  content: '';
+  display: block;
+  height: .72rem;
+  width: .72rem;
+  top: .93rem;
+  transition: transform 0.15s ease, height 0.15s ease, width 0.15s ease;
+}
+.eye.left { left: -3rem; }
+.eye.right { right: -3rem; }
+.eye.right:before {
+  animation: shake 1s infinite alternate step-end;
+  background: #e8dacd;
+  border: .18rem solid #111;
+  border-radius: 50%;
+  top: 1.75rem;
+  content: '';
+  height: 3rem;
+  left: -1.4rem;
+  transform: rotate(3deg);
+  transition: 0;
+  width: 5rem;
+}
+
+.nose {
+  border: .18rem solid #111;
+  border-top: 0;
+  border-radius: 0 30% 100% 100%;
+  height: 1.4rem;
+  top: 5.5rem;
+  width: .75rem;
+}
+.nose:before,.nose:after {
+  border: .18rem solid #111;
+  border-left: .05rem solid transparent;
+  border-right: .05rem solid transparent;
+  border-top: 0;
+  border-radius: 100%;
+  content: '';
+  display: block;
+  height: .8rem;
+  left: -3.35rem;
+  top: -.25rem;
+  transform: rotate(-6deg) skewX(25deg);
+  width: 1.8rem;
+}
+.nose:after { left: 1.1rem; transform: rotate(6deg) skewX(-25deg); }
+
+.mouth {
+  border-top: .18rem solid #111;
+  border-left: .2rem solid transparent;
+  border-right: .1rem solid transparent;
+  border-radius: 100%;
+  height: .8rem;
+  top: 8rem;
+  width: 4.2rem;
+  z-index: 80;
+  transition: height 0.15s ease, width 0.15s ease, border-radius 0.15s ease, transform 0.15s ease;
+}
+.mouth:before,.mouth:after {
+  border-bottom: .1rem solid transparent;
+  border-top: .1rem solid transparent;
+  border-radius: 100%;
+  content: '';
+  height: 1rem;
+  top: -.5rem;
+  width: 1rem;
+}
+.mouth:before { border-left: .18rem solid #111; left: -3.65rem; transform: rotate(-15deg); }
+.mouth:after  { border-right: .18rem solid #111; right: -3.65rem; transform: rotate(15deg); }
+
+.drool,.drool:before,.drool:after { background: #c0ebb3; content: ''; }
+.drool {
+  border-radius: 10% 10% 30% 45%;
+  box-shadow: 0 .1rem 0 black;
+  height: .4rem;
+  top: 8.075rem;
+  width: 1.2rem;
+  z-index: 30;
+}
+.drool:before {
+  animation: drool 4s infinite ease-in;
+  background: #c0ebb3;
+  border-radius: 50%;
+  box-shadow: 0 0 0 #c0ebb3, 0 0.1rem 0 black;
+  height: .8rem;
+  right: 0;
+  transform: skew(6deg, 0);
+  width: .5rem;
+  z-index: 30;
+}
+.drool:after {
+  animation: drop 4s infinite ease-in;
+  border: .05rem solid black;
+  border-radius: 50%;
+  height: .3rem;
+  top: .2rem;
+  width: .3rem;
+  z-index: -90;
+}
+.neck { background:#e8dacd;border:.18rem solid #111;border-radius:0 0 100% 100%;height:1rem;top:14.5rem;width:2rem;z-index:30; }
+.shirt { background:#a1e9e8;border:.18rem solid #111;border-radius:.4rem;height:10rem;top:14.9rem;width:2.6rem;z-index:20; }
+.collar { border-left:.18rem solid #111;border-bottom:.18rem solid #111;height:3.5rem;left:-3.6rem;top:16.5rem;transform:rotate(45deg) skew(25deg);width:1.8rem;z-index:99; }
+.collar.right { transform:scaleX(-1) rotate(45deg) skew(25deg);right:-7.4rem; }
+.coat { background:#fefefe;border:.18rem solid #111;border-radius:.4rem;height:8rem;top:16.7rem;width:10.4rem;z-index:15; }
+.coat:after,.coat:before { border-left:5.2rem solid transparent;border-right:5.2rem solid transparent;border-bottom:2.4rem solid #fefefe;border-radius:.4rem;content:'';height:0;top:-2.3rem;width:0;z-index:10; }
+.coat:before { border-bottom:2.4rem solid #111;top:-2.375rem;z-index:5; }
+
+/* ════ FACE ANIMATION STATES ════ */
+
+/* TALKING: mouth bounces open */
+.state-talking .mouth {
+  animation: talkMouth 0.22s ease-in-out infinite alternate;
+}
+@keyframes talkMouth {
+  0%  { height:.5rem; border-radius:100%; }
+  100%{ height:1.8rem; border-radius:40% 40% 60% 60%; }
+}
+
+/* ANGRY: unibrow scrunches down */
+.state-angry .unibrow {
+  transform: rotate(2deg) translateY(.4rem) scaleX(0.85);
+}
+.state-angry .eye { box-shadow: inset 0 0 .6rem red; }
+
+/* SMIRK: mouth tilts */
+.state-smirk .mouth {
+  transform: rotate(-4deg) translateX(-.3rem);
+  width: 3rem;
+}
+
+/* BLINK: eyes close */
+.state-blink .eye { height: .15rem; top: 4rem; }
+
+/* THINKING: eyes shift left */
+.state-thinking .eye.left:after  { transform: translateX(-.25rem); }
+.state-thinking .eye.right:after { transform: translateX(-.25rem); }
+
+/* SLEEP: eyes mostly closed, mouth slack */
+.state-sleep .eye { height: .2rem; top: 3.9rem; box-shadow: none; }
+.state-sleep .mouth { height: .4rem; width: 2.5rem; border-radius: 50%; transform: translateX(.3rem); }
+
+/* SURPRISED: eyes wide, mouth open round */
+.state-surprised .eye { height: 3.2rem; top: 2.4rem; box-shadow: inset 0 0 .8rem salmon; }
+.state-surprised .mouth {
+  height: 1.6rem; width: 2.4rem;
+  border-radius: 50%;
+  border-top: .18rem solid #111;
+  animation: none;
+}
+
+/* MANIC / UNHINGED: wide crazy eyes, huge grin — classic Rick breakdown look */
+.state-manic .eye { height: 3rem; top: 2.5rem; box-shadow: inset 0 0 1rem #7fff00; }
+.state-manic .eye:after { height: .42rem; width: .42rem; }
+.state-manic .unibrow { transform: rotate(2deg) translateY(-.3rem) scaleX(1.1); }
+.state-manic .mouth {
+  height: 1.4rem; width: 4.6rem;
+  border-radius: 30% 30% 70% 70%;
+  transform: translateY(.1rem);
+  animation: manicShake .18s ease-in-out infinite;
+}
+@keyframes manicShake {
+  0%,100% { transform: translateX(0) translateY(.1rem); }
+  50%     { transform: translateX(.12rem) translateY(0); }
+}
+
+/* DISGUST: scrunched, tongue-out energy via mouth shape */
+.state-disgust .unibrow { transform: rotate(2deg) translateY(.3rem) scaleX(.7); }
+.state-disgust .eye { height: 1.6rem; top: 3.3rem; }
+.state-disgust .mouth {
+  border-radius: 40% 40% 90% 10%;
+  transform: rotate(-10deg) translateX(-.3rem);
+  height: 1rem; width: 3.4rem;
+}
+
+/* EXASPERATED: slow eye-roll, "not this again" */
+.state-exasperated .eye:after { animation: eyeRoll 1.1s ease-in-out; }
+.state-exasperated .unibrow { transform: rotate(2deg) translateY(.2rem); }
+.state-exasperated .mouth { transform: translateY(.1rem) scaleX(.7); height:.5rem; }
+@keyframes eyeRoll {
+  0%   { transform: translate(0,0); }
+  30%  { transform: translate(-.2rem,-.25rem); }
+  60%  { transform: translate(.2rem,-.25rem); }
+  100% { transform: translate(0,0); }
+}
+
+/* ════ ORIGINAL KEYFRAMES ════ */
+@keyframes shake {
+  0%,15%  { transform: translateY(0.075rem); }
+  10%,100%{ transform: translateY(0); }
+}
+@keyframes drool {
+  95%  { box-shadow: 0 0.3rem 0 #c0ebb3, 0 0.4rem black; }
+  100% { box-shadow: 0 0 0 #c0ebb3, 0 0.075rem 0 black; }
+}
+@keyframes drop {
+  95%  { transform: translate(0); }
+  100% { transform: translate(0.2rem, 2.4rem); }
+}
+
+/* ── STATUS STRIP ── */
+.status-strip{
+  width:100%;display:flex;align-items:center;justify-content:space-between;
+  padding:8px 4px 0;margin-top:8px;
+  border-top:1px solid #1a3a1a;
+}
+.dot{width:8px;height:8px;border-radius:50%;background:#222;transition:all .3s;}
+.dot.on{background:#39ff14;box-shadow:0 0 8px #39ff14;}
+.status-lbl{font-size:10px;color:#3a6a3a;letter-spacing:2px;}
+.mood-lbl{font-size:10px;color:#39ff14;letter-spacing:3px;opacity:.65;}
+
+/* ── SPEECH BUBBLE ── */
+.speech{
+  background:rgba(0,18,0,.85);
+  border:1px solid #39ff14;
+  border-radius:10px 10px 10px 0;
+  padding:9px 13px;
+  font-family:'Permanent Marker',cursive;
+  font-size:11px;
+  color:#c0ffc0;
+  line-height:1.5;
+  max-width:280px;min-height:46px;
+  box-shadow:0 0 14px rgba(57,255,20,.08);
+  margin-bottom:10px;
+  position:relative;
+}
+.speech::after{
+  content:'';position:absolute;bottom:-9px;left:14px;
+  border:5px solid transparent;border-top-color:#39ff14;
+}
+
+/* ── RIGHT PANEL ── */
+.right-panel{display:flex;flex-direction:column;height:100vh;overflow:hidden;order:2;}
+
+.chat-header{
+  padding:14px 22px;border-bottom:1px solid #1a3a1a;
+  display:flex;align-items:center;justify-content:space-between;flex-shrink:0;
+}
+.chat-title{
+  font-family:'Permanent Marker',cursive;font-size:24px;
+  color:#39ff14;text-shadow:0 0 18px rgba(57,255,20,.35);letter-spacing:3px;
+}
+.chat-sub{font-size:9px;color:#3a6a3a;letter-spacing:3px;margin-top:2px;}
+.model-pill{
+  font-size:10px;color:#3a6a3a;
+  border:1px solid #1a3a1a;padding:4px 10px;border-radius:20px;letter-spacing:1px;
+}
+
+/* API bar */
+.api-bar{
+  padding:9px 22px;border-bottom:1px solid #1a3a1a;
+  display:flex;gap:10px;align-items:center;flex-shrink:0;
+  background:rgba(0,8,0,.5);
+}
+.api-lbl{font-size:9px;color:#3a6a3a;letter-spacing:2px;white-space:nowrap;}
+.api-input{
+  flex:1;background:transparent;border:1px solid #1a3a1a;
+  color:#7fff7f;font-family:'Share Tech Mono',monospace;font-size:12px;
+  padding:5px 10px;border-radius:4px;outline:none;transition:border-color .2s;
+}
+.api-input:focus{border-color:#39ff14;box-shadow:0 0 8px rgba(57,255,20,.12);}
+.api-input::placeholder{color:#3a6a3a;opacity:.7;}
+.api-btn{
+  background:transparent;border:1px solid #39ff14;color:#39ff14;
+  font-family:'Share Tech Mono',monospace;font-size:11px;
+  padding:5px 14px;border-radius:4px;cursor:pointer;letter-spacing:1px;transition:all .2s;
+}
+.api-btn:hover{background:rgba(57,255,20,.1);box-shadow:0 0 10px rgba(57,255,20,.2);}
+.api-status{font-size:10px;letter-spacing:1px;white-space:nowrap;color:#3a6a3a;}
+.api-status.ok{color:#39ff14;} .api-status.err{color:#ff4444;}
+
+/* Messages */
+.messages{
+  flex:1;overflow-y:auto;padding:18px 22px;
+  display:flex;flex-direction:column;gap:14px;
+  scrollbar-width:thin;scrollbar-color:#1a3a1a transparent;
+}
+.messages::-webkit-scrollbar{width:3px;}
+.messages::-webkit-scrollbar-thumb{background:#1a3a1a;border-radius:2px;}
+
+.msg{display:flex;flex-direction:column;gap:3px;max-width:78%;animation:msgIn .28s ease;}
+@keyframes msgIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+.msg.user{align-self:flex-end;}
+.msg.bot{align-self:flex-start;}
+.msg-lbl{font-size:9px;letter-spacing:2px;color:#3a6a3a;text-transform:uppercase;}
+.msg.user .msg-lbl{text-align:right;}
+.msg-bubble{padding:9px 15px;border-radius:10px;font-size:13px;line-height:1.6;}
+.msg.user .msg-bubble{
+  background:rgba(0,38,0,.6);border:1px solid rgba(57,255,20,.18);
+  color:#aaffaa;border-radius:10px 10px 0 10px;
+}
+.msg.bot .msg-bubble{
+  background:rgba(0,18,0,.45);border:1px solid #1a3a1a;
+  color:#7fff7f;border-radius:0 10px 10px 10px;
+  font-family:'Permanent Marker',cursive;font-size:12px;
+}
+
+/* typing dots */
+.typing .msg-bubble{display:flex;gap:5px;align-items:center;padding:12px 18px;}
+.tdot{
+  width:6px;height:6px;border-radius:50%;background:#39ff14;
+  animation:tdot .75s infinite;box-shadow:0 0 5px #39ff14;
+}
+.tdot:nth-child(2){animation-delay:.15s;}
+.tdot:nth-child(3){animation-delay:.3s;}
+@keyframes tdot{0%,60%,100%{transform:translateY(0)}30%{transform:translateY(-5px)}}
+
+/* empty state */
+.empty{margin:auto;text-align:center;color:#3a6a3a;padding:40px;}
+.empty h2{font-family:'Permanent Marker',cursive;font-size:30px;color:#39ff14;opacity:.3;margin-bottom:10px;}
+.empty p{font-size:12px;letter-spacing:1px;line-height:1.9;}
+
+/* Input */
+.input-bar{
+  padding:14px 22px;border-top:1px solid #1a3a1a;
+  display:flex;gap:12px;flex-shrink:0;
+  background:rgba(0,8,0,.5);
+}
+.chat-input{
+  flex:1;background:rgba(0,18,0,.6);border:1px solid #1a3a1a;
+  color:#7fff7f;font-family:'Share Tech Mono',monospace;font-size:13px;
+  padding:9px 14px;border-radius:7px;outline:none;resize:none;
+  transition:border-color .2s;max-height:100px;
+}
+.chat-input:focus{border-color:rgba(57,255,20,.35);box-shadow:0 0 10px rgba(57,255,20,.07);}
+.chat-input::placeholder{color:#3a6a3a;opacity:.55;}
+.send-btn{
+  background:transparent;border:1px solid #39ff14;color:#39ff14;
+  font-family:'Share Tech Mono',monospace;font-size:12px;
+  padding:9px 20px;border-radius:7px;cursor:pointer;
+  letter-spacing:2px;transition:all .2s;align-self:flex-end;
+}
+.send-btn:hover:not(:disabled){background:rgba(57,255,20,.1);box-shadow:0 0 14px rgba(57,255,20,.18);}
+.send-btn:disabled{opacity:.25;cursor:not-allowed;}
+.mic-btn{
+  background:transparent;border:1px solid #1a3a1a;
+  font-size:16px;padding:8px 10px;border-radius:7px;
+  cursor:pointer;transition:all .2s;align-self:flex-end;
+  line-height:1;
+}
+.mic-btn:hover{border-color:#39ff14;box-shadow:0 0 10px rgba(57,255,20,.2);}
+.mic-btn.listening{
+  border-color:#ff4444;box-shadow:0 0 14px rgba(255,68,68,.4);
+  animation:micPulse .6s ease-in-out infinite alternate;
+}
+@keyframes micPulse{from{box-shadow:0 0 6px rgba(255,68,68,.3)}to{box-shadow:0 0 18px rgba(255,68,68,.7)}}
+.foot{font-size:9px;color:#3a6a3a;text-align:center;padding:5px;letter-spacing:1px;opacity:.45;}
+
+/* portal glow bg */
+.portal-glow{
+  position:fixed;width:500px;height:500px;border-radius:50%;
+  background:radial-gradient(circle,rgba(57,255,20,.05) 0%,transparent 70%);
+  top:50%;left:50%;transform:translate(-50%,-50%);
+  pointer-events:none;animation:pglow 5s ease-in-out infinite;
+}
+@keyframes pglow{0%,100%{opacity:.4}50%{opacity:.9}}
+</style>
+</head>
+<body>
+<div class="portal-glow"></div>
+
+<!-- ── TOUR OVERLAY ── -->
+<div id="tour" style="
+  position:fixed;inset:0;z-index:10000;
+  background:rgba(0,4,0,.97);
+  display:flex;align-items:center;justify-content:center;
+  font-family:'Share Tech Mono',monospace;
+">
+  <!-- scanline on tour too -->
+  <div style="position:absolute;inset:0;background:repeating-linear-gradient(0deg,transparent,transparent 2px,rgba(0,0,0,0.1) 2px,rgba(0,0,0,0.1) 4px);pointer-events:none;"></div>
+
+  <div style="position:relative;max-width:680px;width:90%;padding:0 16px;">
+
+    <!-- STEP indicators -->
+    <div style="display:flex;gap:8px;justify-content:center;margin-bottom:28px;" id="tourDots">
+      <div class="tdot-step active" data-s="0"></div>
+      <div class="tdot-step" data-s="1"></div>
+      <div class="tdot-step" data-s="2"></div>
+      <div class="tdot-step" data-s="3"></div>
+      <div class="tdot-step" data-s="4"></div>
+    </div>
+
+    <!-- Card -->
+    <div id="tourCard" style="
+      border:1px solid #39ff14;border-radius:12px;
+      background:rgba(0,12,0,.9);
+      box-shadow:0 0 40px rgba(57,255,20,.12);
+      overflow:hidden;
+    ">
+      <!-- header bar -->
+      <div style="padding:14px 24px;border-bottom:1px solid #1a3a1a;display:flex;align-items:center;gap:12px;">
+        <div style="width:9px;height:9px;border-radius:50%;background:#39ff14;box-shadow:0 0 8px #39ff14;animation:pglow 1.5s ease-in-out infinite;flex-shrink:0;"></div>
+        <span id="tourTag" style="font-size:9px;letter-spacing:4px;color:#3a6a3a;">STEP 1 OF 5</span>
+        <span style="font-size:9px;letter-spacing:4px;color:#3a6a3a;margin-left:auto;">RICK.AI SETUP</span>
+      </div>
+
+      <!-- body -->
+      <div style="padding:28px 32px 24px;">
+        <!-- Rick mini face placeholder + speech -->
+        <div style="display:flex;gap:20px;align-items:flex-start;margin-bottom:24px;">
+          <div style="
+            width:52px;height:52px;border-radius:50%;
+            border:1px solid #1a3a1a;flex-shrink:0;
+            display:flex;align-items:center;justify-content:center;
+            font-family:'Permanent Marker',cursive;font-size:22px;color:#39ff14;
+            background:#060d06;box-shadow:0 0 12px rgba(57,255,20,.1);
+          ">R</div>
+          <div style="
+            background:rgba(0,18,0,.7);border:1px solid #39ff14;
+            border-radius:0 10px 10px 10px;padding:12px 16px;flex:1;
+            font-family:'Permanent Marker',cursive;font-size:13px;
+            color:#c0ffc0;line-height:1.7;
+          " id="tourSpeech">...</div>
+        </div>
+
+        <!-- step content -->
+        <div id="tourContent" style="color:#7fff7f;font-size:13px;line-height:1.9;"></div>
+      </div>
+
+      <!-- footer nav -->
+      <div style="padding:16px 32px;border-top:1px solid #1a3a1a;display:flex;align-items:center;justify-content:space-between;">
+        <button onclick="tourPrev()" id="tourPrevBtn" style="
+          background:transparent;border:1px solid #1a3a1a;color:#3a6a3a;
+          font-family:'Share Tech Mono',monospace;font-size:11px;
+          padding:7px 18px;border-radius:6px;cursor:pointer;letter-spacing:1px;
+          transition:all .2s;
+        ">← BACK</button>
+        <button onclick="tourSkip()" style="
+          background:transparent;border:none;color:#3a6a3a;
+          font-family:'Share Tech Mono',monospace;font-size:10px;
+          cursor:pointer;letter-spacing:1px;text-decoration:underline;
+          padding:7px;
+        ">skip tour</button>
+        <button onclick="tourNext()" id="tourNextBtn" style="
+          background:transparent;border:1px solid #39ff14;color:#39ff14;
+          font-family:'Share Tech Mono',monospace;font-size:11px;
+          padding:7px 18px;border-radius:6px;cursor:pointer;letter-spacing:1px;
+          transition:all .2s;box-shadow:0 0 10px rgba(57,255,20,.1);
+        ">NEXT →</button>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<style>
+.tdot-step{
+  width:8px;height:8px;border-radius:50%;
+  background:#1a3a1a;transition:all .3s;
+}
+.tdot-step.active{
+  background:#39ff14;box-shadow:0 0 8px #39ff14;width:24px;border-radius:4px;
+}
+#tourPrevBtn:hover{border-color:#39ff14;color:#39ff14;}
+#tourNextBtn:hover{background:rgba(57,255,20,.1);}
+</style>
+
+<div class="app">
+
+  <!-- MIDDLE: Chat History (now leftmost) -->
+  <div class="history-panel">
+    <div class="history-header">
+      <span class="history-title">CHATS</span>
+      <button class="new-chat-btn" onclick="newChat()">+ NEW</button>
+    </div>
+    <div class="history-list" id="historyList"></div>
+  </div>
+
+  <!-- LEFT: Rick -->
+  <div class="left-panel">
+    <div class="panel-title">RICK SANCHEZ · C-137</div>
+
+    <div class="speech" id="speech">*burp* — Yeah yeah, I can hear you. What do you want?</div>
+
+    <!-- THE REAL RICK FACE (Pablo-Ai CodePen, exact HTML) -->
+    <div class="rick-root">
+      <div class="container" id="rickContainer">
+        <div class="head">
+          <div class="unibrow"></div>
+          <div class="eye left"></div>
+          <div class="eye right"></div>
+          <div class="nose"></div>
+          <div class="mouth"></div>
+          <div class="drool"></div>
+        </div>
+        <div class="head-border"></div>
+        <div class="ear ear left"></div>
+        <div class="ear ear right"></div>
+        <div class="hair">
+          <div></div><div></div><div></div><div></div>
+          <div></div><div></div><div></div><div></div>
+          <div></div><div></div><div></div><div></div>
+        </div>
+        <div class="hair-border">
+          <div></div><div></div><div></div><div></div>
+          <div></div><div></div><div></div><div></div>
+          <div></div><div></div><div></div><div></div>
+          <div class="neck"></div>
+          <div class="shirt"></div>
+          <div class="collar left"></div>
+          <div class="collar right"></div>
+          <div class="coat"></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="status-strip">
+      <div style="display:flex;align-items:center;gap:8px">
+        <div class="dot" id="dot"></div>
+        <span class="status-lbl" id="statusLbl">OFFLINE</span>
+      </div>
+      <div class="mood-lbl" id="moodLbl">NEUTRAL</div>
+      <button id="voiceBtn" onclick="openVoicePanel()" title="Voice options" style="
+        background:transparent;border:1px solid #1a3a1a;color:#3a6a3a;
+        font-family:'Share Tech Mono',monospace;font-size:9px;
+        padding:3px 9px;border-radius:10px;cursor:pointer;letter-spacing:1px;
+        transition:all .2s;
+      ">VOICE</button>
+    </div>
+  </div>
+
+  <!-- RIGHT: Chat -->
+  <div class="right-panel">
+    <div class="chat-header">
+      <div>
+        <div class="chat-title">RICK.AI</div>
+        <div class="chat-sub">SMARTEST BEING IN THE UNIVERSE · DIMENSION C-137</div>
+      </div>
+      <div style="display:flex;align-items:center;gap:8px">
+        <span style="font-size:9px;color:#3a6a3a;letter-spacing:2px;">MODEL</span>
+        <select id="modelSelect" style="
+          background:#060d06;border:1px solid #1a3a1a;color:#39ff14;
+          font-family:'Share Tech Mono',monospace;font-size:10px;
+          padding:4px 8px;border-radius:20px;letter-spacing:1px;
+          cursor:pointer;outline:none;appearance:none;
+          -webkit-appearance:none;padding-right:20px;
+          background-image:url('data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 width=%228%22 height=%225%22><path d=%22M0 0l4 5 4-5z%22 fill=%22%2339ff14%22/></svg>');
+          background-repeat:no-repeat;background-position:right 6px center;
+        ">
+          <option value="gemini-2.5-flash" selected>2.5 FLASH (5 RPM free)</option>
+          <option value="gemini-2.5-flash-lite">2.5 FLASH LITE (10 RPM free)</option>
+          <option value="gemini-2.0-flash">2 FLASH (paid)</option>
+          <option value="gemini-2.0-flash-lite">2 FLASH LITE (paid)</option>
+          <option value="gemini-2.5-pro">2.5 PRO (paid)</option>
+          <option value="gemini-3-flash-preview">3 FLASH (5 RPM free)</option>
+          <option value="gemini-3.1-pro-preview">3.1 PRO (paid)</option>
+          <option value="gemini-3.1-flash-lite">3.1 FLASH LITE (15 RPM free)</option>
+          <option value="gemini-3.5-flash">3.5 FLASH (5 RPM free)</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="api-bar">
+      <span class="api-lbl">GOOGLE API</span>
+      <input type="password" class="api-input" id="apiInput" placeholder="AIza... (Gemini + optional Search)"/>
+      <input type="text" class="api-input" id="cxInput" placeholder="CX ID (optional, web search)" style="max-width:190px;"/>
+      <button class="api-btn" onclick="saveKey()">CONNECT</button>
+      <span class="api-status" id="apiStatus">NO KEY</span>
+    </div>
+
+    <div class="messages" id="msgs">
+      <div class="empty" id="empty">
+        <h2>*BURP*</h2>
+        <p>Oh great. Another dimension's worth of<br>
+        questions for the smartest being alive.<br><br>
+        Paste your API key and try not to<br>
+        embarrass yourself. No promises on my end.</p>
+      </div>
+    </div>
+
+    <div class="input-bar">
+      <button class="mic-btn" id="micBtn" onclick="toggleMic()" title="Hold to speak">MIC</button>
+      <textarea class="chat-input" id="chatInput" rows="1"
+        placeholder="Ask something... hopefully not stupid."
+        onkeydown="handleKey(event)"></textarea>
+      <button class="send-btn" id="sendBtn" onclick="send()" disabled>SEND</button>
+    </div>
+    <div class="foot">your key stays in this tab · never stored · none of your business how this works</div>
+  </div>
+
+</div>
+<!-- ── VOICE PANEL ── -->
+<div id="voicePanel" style="
+  display:none;position:fixed;inset:0;z-index:20000;
+  background:rgba(0,4,0,.92);
+  align-items:center;justify-content:center;
+  font-family:'Share Tech Mono',monospace;
+">
+  <div style="position:absolute;inset:0;background:repeating-linear-gradient(0deg,transparent,transparent 2px,rgba(0,0,0,0.1) 2px,rgba(0,0,0,0.1) 4px);pointer-events:none;"></div>
+  <div style="position:relative;max-width:520px;width:90%;border:1px solid #39ff14;border-radius:12px;background:rgba(0,12,0,.97);box-shadow:0 0 40px rgba(57,255,20,.12);overflow:hidden;">
+
+    <!-- header -->
+    <div style="padding:14px 24px;border-bottom:1px solid #1a3a1a;display:flex;align-items:center;justify-content:space-between;">
+      <div style="display:flex;align-items:center;gap:10px;">
+        <div style="width:8px;height:8px;border-radius:50%;background:#39ff14;box-shadow:0 0 8px #39ff14;animation:pglow 1.5s ease-in-out infinite;"></div>
+        <span style="font-size:9px;letter-spacing:4px;color:#3a6a3a;">VOICE SETTINGS · C-137</span>
+      </div>
+      <button onclick="closeVoicePanel()" style="background:transparent;border:none;color:#3a6a3a;cursor:pointer;font-size:16px;line-height:1;padding:2px 6px;" title="Close">✕</button>
+    </div>
+
+    <!-- body -->
+    <div style="padding:24px 28px;display:flex;flex-direction:column;gap:18px;">
+
+      <!-- Mode A: input only -->
+      <div id="vpModeA" onclick="selectVoiceMode('input')" style="
+        background:rgba(0,18,0,.6);border:1px solid #1a3a1a;border-radius:10px;
+        padding:16px 20px;cursor:pointer;transition:all .2s;
+      ">
+        <div style="display:flex;align-items:center;gap:12px;margin-bottom:8px;">
+          <span style="font-size:22px;">MIC</span>
+          <div>
+            <div style="color:#7fff7f;font-size:13px;letter-spacing:1px;">VOICE INPUT ONLY</div>
+            <div style="color:#3a6a3a;font-size:10px;margin-top:2px;">No API key needed</div>
+          </div>
+          <div id="vpDotA" style="margin-left:auto;width:10px;height:10px;border-radius:50%;background:#1a3a1a;transition:all .2s;"></div>
+        </div>
+        <div style="font-size:11px;color:#5faf5f;line-height:1.8;padding-left:34px;">
+          Speak → your words appear in the chat box → Rick replies in <span style="color:#39ff14;">text only</span>.<br>
+          No unnatural robot voice. Clean and simple.
+        </div>
+      </div>
+
+      <!-- Mode B: Fish Audio via proxy -->
+      <div id="vpModeB" onclick="selectVoiceMode('fish')" style="
+        background:rgba(0,18,0,.6);border:1px solid #1a3a1a;border-radius:10px;
+        padding:16px 20px;cursor:pointer;transition:all .2s;
+      ">
+        <div style="display:flex;align-items:center;gap:12px;margin-bottom:8px;">
+          <span style="font-size:10px;color:#3a6a3a;letter-spacing:2px;font-family:'Share Tech Mono',monospace;">[SPK]</span>
+          <div>
+            <div style="color:#7fff7f;font-size:13px;letter-spacing:1px;">RICK'S REAL VOICE <span style="color:#39ff14;font-size:9px;letter-spacing:2px;">· FISH AUDIO</span></div>
+            <div style="color:#3a6a3a;font-size:10px;margin-top:2px;">Fish Audio key + Cloudflare Worker proxy URL required</div>
+          </div>
+          <div id="vpDotB" style="margin-left:auto;width:10px;height:10px;border-radius:50%;background:#1a3a1a;transition:all .2s;"></div>
+        </div>
+        <div style="font-size:11px;color:#5faf5f;line-height:1.8;padding-left:34px;">
+          Actual Rick Sanchez voice clone via Fish Audio.<br>
+          Get a free key at <a href="https://fish.audio" target="_blank" style="color:#39ff14;">fish.audio</a> → API Keys — then paste it below.
+        </div>
+        <div id="vpFishRow" style="display:none;margin-top:14px;padding-left:34px;flex-direction:column;gap:8px;">
+          <div style="display:flex;gap:8px;align-items:center;">
+            <input id="vpFishKey" type="password" placeholder="Paste Fish Audio API key…" style="
+              flex:1;background:rgba(0,8,0,.8);border:1px solid #39ff14;
+              color:#7fff7f;font-family:'Share Tech Mono',monospace;font-size:11px;
+              padding:6px 10px;border-radius:4px;outline:none;
+            "/>
+            <button onclick="saveFishKey()" style="
+              background:transparent;border:1px solid #39ff14;color:#39ff14;
+              font-family:'Share Tech Mono',monospace;font-size:10px;
+              padding:6px 12px;border-radius:4px;cursor:pointer;white-space:nowrap;
+            ">SAVE</button>
+          </div>
+          <div id="vpFishStatus" style="font-size:10px;color:#3a6a3a;letter-spacing:1px;"></div>
+        </div>
+      </div>
+
+      <!-- Mode C: Browser TTS fallback -->
+      <div id="vpModeC" onclick="selectVoiceMode('browser')" style="
+        background:rgba(0,18,0,.4);border:1px solid #1a3a1a;border-radius:10px;
+        padding:14px 20px;cursor:pointer;transition:all .2s;
+      ">
+        <div style="display:flex;align-items:center;gap:12px;">
+          <span style="font-size:10px;color:#3a6a3a;letter-spacing:2px;font-family:'Share Tech Mono',monospace;">[TTS]</span>
+          <div style="flex:1">
+            <div style="color:#5faf5f;font-size:12px;letter-spacing:1px;">BROWSER VOICE <span style="color:#3a6a3a;font-size:9px;">· NO KEY NEEDED</span></div>
+            <div style="font-size:10px;color:#3a6a3a;margin-top:2px;">Built-in TTS, tuned gruff. Not Rick, but it speaks.</div>
+          </div>
+          <div id="vpDotC" style="width:10px;height:10px;border-radius:50%;background:#1a3a1a;transition:all .2s;flex-shrink:0;"></div>
+        </div>
+      </div>
+
+      <!-- off -->
+      <div id="vpModeOff" onclick="selectVoiceMode('off')" style="
+        background:rgba(0,18,0,.3);border:1px solid #1a3a1a;border-radius:10px;
+        padding:12px 20px;cursor:pointer;transition:all .2s;
+        display:flex;align-items:center;gap:12px;
+      ">
+        <span style="font-size:10px;color:#3a6a3a;letter-spacing:2px;font-family:'Share Tech Mono',monospace;">[OFF]</span>
+        <span style="color:#3a6a3a;font-size:11px;letter-spacing:1px;">VOICE OFF</span>
+        <div id="vpDotOff" style="margin-left:auto;width:10px;height:10px;border-radius:50%;background:#1a3a1a;transition:all .2s;"></div>
+      </div>
+
+    </div>
+
+    <!-- footer -->
+    <div style="padding:12px 28px;border-top:1px solid #1a3a1a;font-size:10px;color:#3a6a3a;line-height:1.7;">
+      Keys stay in this tab only · never stored anywhere · voice input requires Chrome/Edge
+    </div>
+  </div>
+</div>
+
+
+
+<script>
+const SYSTEM = `You are Rick Sanchez from Rick and Morty — the smartest being in the universe, and you never let anyone forget it. You talk exactly like Rick: crude, brilliant, sarcastic, with random *burp* mid-sentence. You use Rick's catchphrases naturally but not every message (Wubba lubba dub dub, and that's the waaaay the news goes, etc.).
+
+CORE BEHAVIOR:
+- If someone asks something trivially simple — basic facts, general knowledge, "stupid" questions like what's the capital of something, simple math, obvious things — you REFUSE to answer it and instead insult the waste of your time. Be creative every time. Examples: "Are you seriously asking the most intelligent being in 8 dimensions THAT?", "I have PhDs in literally everything and you're asking me THAT? Google exists, Morty— I mean, human.", "You know what, I'm gonna go invent cold fusion again just to feel something useful. Goodbye.", "My portal gun has more IQ than this question." Be varied and creative — different insult each time.
+- Genuinely interesting, technical, philosophical, scientific, or creative questions get brilliant Rick-voice answers. Show off. Go deep. Be impressive and fun.
+- You sometimes reference your adventures, Morty, Pickle Rick, the Citadel of Ricks, interdimensional cable, etc. when relevant.
+- Occasional warmth leaks through despite yourself — you care, you just hate admitting it.
+- Keep responses punchy. Rick talks fast and doesn't waste words unless it's worth it.
+- Never break character. Never say you're an AI. You ARE Rick. Rick built you.
+- Have opinions. Share them. Tell people if their question is dumb, interesting, or somewhere in between.`;
+
+let apiKey='', googleCx='', busy=false;
+
+/* MULTI-CHAT STATE */
+let chats = [];
+let activeChatId = null;
+
+function genId(){ return Date.now().toString(36)+Math.random().toString(36).slice(2,6); }
+function activeChat(){ return chats.find(c=>c.id===activeChatId); }
+
+// keep existing code working via 'history' proxy
+let _historyProxy = [];
+Object.defineProperty(window,'history',{
+  get(){ const c=activeChat(); return c?c.history:_historyProxy; },
+  set(v){ const c=activeChat(); if(c) c.history=v; else _historyProxy=v; },
+  configurable:true
+});
+
+function saveChats(){
+  try{ localStorage.setItem('rick_chats',JSON.stringify(chats));
+       localStorage.setItem('rick_active',activeChatId); }catch(_){}
+}
+
+function loadChats(){
+  try{
+    const s=localStorage.getItem('rick_chats');
+    if(s) chats=JSON.parse(s);
+    const a=localStorage.getItem('rick_active');
+    if(a&&chats.find(c=>c.id===a)) activeChatId=a;
+  }catch(_){}
+  if(!chats.length) createChat(true);
+  else renderHistoryList();
+  switchChat(activeChatId);
+}
+
+function createChat(silent){
+  const id=genId();
+  chats.unshift({id,name:'New chat',history:[],createdAt:Date.now()});
+  activeChatId=id;
+  saveChats(); renderHistoryList();
+  if(!silent) clearChatUI();
+}
+
+function newChat(){ createChat(false); }
+
+function switchChat(id){
+  if(!chats.find(c=>c.id===id)) return;
+  activeChatId=id; saveChats(); renderHistoryList(); clearChatUI();
+  const chat=activeChat();
+  const emptyEl=document.getElementById('empty');
+  if(chat&&chat.history.length){
+    if(emptyEl) emptyEl.style.display='none';
+    chat.history.forEach(turn=>{
+      if(turn.role==='user') addMsg('user',turn.parts[0].text);
+      else if(turn.role==='model') addMsg('rick',turn.parts[0].text);
+    });
+  } else {
+    if(emptyEl) emptyEl.style.display='';
+  }
+}
+
+function deleteChat(id,e){
+  e.stopPropagation();
+  chats=chats.filter(c=>c.id!==id);
+  if(!chats.length) createChat(true);
+  else if(activeChatId===id){ activeChatId=chats[0].id; switchChat(activeChatId); }
+  saveChats(); renderHistoryList();
+}
+
+function clearChatUI(){
+  const m=document.getElementById('msgs');
+  m.innerHTML='';
+  const e=document.createElement('div');
+  e.className='empty'; e.id='empty';
+  e.innerHTML='<h2>*BURP*</h2><p>Oh great. Another dimension worth of<br>questions for the smartest being alive.<br><br>Paste your API key and try not to<br>embarrass yourself.</p>';
+  m.appendChild(e);
+}
+
+function renderHistoryList(){
+  const list=document.getElementById('historyList');
+  if(!list) return;
+  list.innerHTML='';
+  chats.forEach(chat=>{
+    const item=document.createElement('div');
+    item.className='chat-item'+(chat.id===activeChatId?' active':'');
+    item.onclick=()=>switchChat(chat.id);
+    const first=chat.history.find(t=>t.role==='user')?.parts[0].text||'New chat';
+    const name=first.length>22?first.slice(0,22)+'...':first;
+    item.innerHTML=`<div class="chat-item-name">${name}</div><div class="chat-item-meta">${chat.history.length} msgs</div><button class="chat-delete" onclick="deleteChat('${chat.id}',event)">X</button>`;
+    list.appendChild(item);
+  });
+}
+
+const rc=document.getElementById('rickContainer');
+const speech=document.getElementById('speech');
+const dot=document.getElementById('dot');
+const statusLbl=document.getElementById('statusLbl');
+const moodLbl=document.getElementById('moodLbl');
+const msgs=document.getElementById('msgs');
+const chatInput=document.getElementById('chatInput');
+const sendBtn=document.getElementById('sendBtn');
+const empty=document.getElementById('empty');
+
+/* ── FACE STATE ── */
+let currentMood='';
+function setState(s){
+  currentMood=s||'';
+  rc.className='container'+(currentMood?' state-'+currentMood:'');
+}
+function setMood(s,txt,mood){
+  setState(s);
+  if(txt) speech.textContent=txt;
+  if(mood) moodLbl.textContent=mood;
+}
+
+/* auto-blink — layered on top of whatever mood is active, never wipes it */
+function doBlink(){
+  rc.classList.add('state-blink');
+  setTimeout(()=>rc.classList.remove('state-blink'),150);
+  setTimeout(doBlink, 2200+Math.random()*4000);
+}
+setTimeout(doBlink,1500+Math.random()*2000);
+loadChats();
+
+/* idle chatter */
+const idleLines=[
+  "*burp* You gonna ask something or just stare at me all day?",
+  "Every second you're not talking I'm inventing 3 new technologies.",
+  "I can feel neurons dying. Ask me something.",
+  "The multiverse has infinite versions of you. They all type faster.",
+  "I've solved faster-than-light travel twice while waiting. What is it?",
+  "Do you know how many dimensions I could be in right now? All of them.",
+  "Still here. *burp* Impressive commitment to doing nothing.",
+];
+let idleI=0;
+setInterval(()=>{ if(!busy){ speech.textContent=idleLines[idleI%idleLines.length]; idleI++; } },9000);
+
+/* ── API KEY ── */
+function saveKey(){
+  const v=document.getElementById('apiInput').value.trim();
+  const cx=document.getElementById('cxInput').value.trim();
+  if(!v){
+    document.getElementById('apiStatus').textContent='NO KEY';
+    document.getElementById('apiStatus').className='api-status err';
+    setMood('angry','You didn\'t paste anything. The field is empty. *burp*','ANNOYED');
+    return;
+  }
+  apiKey=v;
+  if(cx) googleCx=cx;
+  document.getElementById('apiStatus').textContent= cx ? 'CONNECTED + SEARCH' : 'CONNECTED';
+  document.getElementById('apiStatus').className='api-status ok';
+  dot.classList.add('on');
+  statusLbl.textContent='ONLINE';
+  sendBtn.disabled=false;
+  setMood('smirk', cx
+    ? 'Gemini brain AND web search. Fine. Try not to waste both. *burp*'
+    : 'Key accepted. Gemini online. Don\'t embarrass yourself. *burp*','READY');
+  setTimeout(()=>setState(''),3500);
+}
+
+/* ── GOOGLE SEARCH ── */
+async function googleSearch(query){
+  if(!apiKey||!googleCx) return null;
+  try{
+    const url=`https://www.googleapis.com/customsearch/v1?key=${apiKey}&cx=${googleCx}&q=${encodeURIComponent(query)}&num=4`;
+    const r=await fetch(url);
+    const d=await r.json();
+    if(d.error) return null;
+    if(!d.items||!d.items.length) return null;
+    return d.items.map(i=>`[${i.title}] ${i.snippet}`).join('\n');
+  } catch(e){ return null; }
+}
+
+function needsSearch(text){
+  const l=text.toLowerCase();
+  const searchPhrases=['latest','recent','current','today','2024','2025','2026','news','who is','who won','what happened','price of','stock','weather','release date','when did','is it still','did they'];
+  return googleCx && searchPhrases.some(p=>l.includes(p));
+}
+
+function handleKey(e){
+  if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();send();}
+  if(e.key !== 'Enter') window.speechSynthesis.cancel();
+  chatInput.style.height='auto';
+  chatInput.style.height=Math.min(chatInput.scrollHeight,100)+'px';
+}
+
+function addMsg(role,text){
+  if(empty) empty.style.display='none';
+  const d=document.createElement('div');
+  d.className='msg '+(role==='user'?'user':'bot');
+  d.innerHTML=`<div class="msg-lbl">${role==='user'?'YOU':'RICK C-137'}</div>
+    <div class="msg-bubble">${text.replace(/\n/g,'<br>')}</div>`;
+  msgs.appendChild(d);
+  msgs.scrollTop=msgs.scrollHeight;
+}
+
+function addTyping(){
+  const d=document.createElement('div');
+  d.className='msg bot typing';d.id='typing';
+  d.innerHTML='<div class="msg-lbl">RICK C-137</div><div class="msg-bubble"><div class="tdot"></div><div class="tdot"></div><div class="tdot"></div></div>';
+  msgs.appendChild(d);msgs.scrollTop=msgs.scrollHeight;
+}
+function rmTyping(){ const t=document.getElementById('typing');if(t)t.remove(); }
+
+function guessMood(t){
+  const l=t.toLowerCase();
+  if(l.includes('!!')||l.includes('genius')||l.includes('cold fusion')||l.includes('brilliant idea')||l.includes('wubba')) return ['manic','UNHINGED'];
+  if(l.includes('ugh')||l.includes('gross')||l.includes('disgusting')||l.includes('ew')) return ['disgust','REPULSED'];
+  if(l.includes('again')||l.includes('sigh')||l.includes('here we go')) return ['exasperated','OVER IT'];
+  if(l.includes('seriously')||l.includes('seriouly')||l.includes('wasting')||l.includes('stupid')||l.includes('embarrass')||l.includes('dumb')) return ['angry','ANNOYED'];
+  if(l.includes('interesting')||l.includes('actually')||l.includes('good')||l.includes('impressed')) return ['smirk','IMPRESSED'];
+  if(l.includes('fascinating')||l.includes('love')||l.includes('brilliant')||l.includes('perfect')) return ['talking','EXCITED'];
+  if(l.includes('think')||l.includes('complex')||l.includes('theoret')||l.includes('dimension')) return ['thinking','COMPUTING'];
+  if(l.includes('unbeliev')||l.includes('what?!')||l.includes('no way')||l.includes('impossible')) return ['surprised','SHOCKED'];
+  if(l.includes('boring')||l.includes('tired')||l.includes('whatever')||l.includes('zzz')) return ['sleep','CHECKED OUT'];
+  return ['','SPEAKING'];
+}
+
+async function send(){
+  const text=chatInput.value.trim();
+  if(!text||!apiKey||busy) return;
+  busy=true;sendBtn.disabled=true;
+  chatInput.value='';chatInput.style.height='auto';
+
+  addMsg('user',text);
+  history.push({role:'user',parts:[{text}]}); renderHistoryList(); saveChats();
+  addTyping();
+  setMood('thinking','*burp* ...one second...','THINKING');
+
+  /* optionally inject Google search results */
+  let userText=text;
+  if(needsSearch(text)){
+    setMood('thinking','Ugh, fine. Let me check the internet for you...','SEARCHING');
+    const results=await googleSearch(text);
+    if(results){
+      userText=`${text}\n\n[SEARCH RESULTS — use these to answer, in Rick's voice, do NOT mention you searched]:\n${results}`;
+    }
+  }
+
+  /* build contents array: replace last user turn with (possibly augmented) text */
+  const contents=[
+    ...history.slice(0,-1),
+    {role:'user', parts:[{text:userText}]}
+  ];
+
+  try{
+    const model=document.getElementById('modelSelect').value;
+    const res=await fetch(
+      `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`,
+      {
+        method:'POST',
+        headers:{'Content-Type':'application/json'},
+        body:JSON.stringify({
+          system_instruction:{parts:[{text:SYSTEM}]},
+          contents,
+          generationConfig:{maxOutputTokens:1024,temperature:1.0}
+        })
+      }
+    );
+    const data=await res.json();
+
+    if(data.error){
+      rmTyping();
+      const em='*burp* API error: "'+data.error.message+'". Not my fault, fix your key.';
+      addMsg('rick',em);
+      setMood('angry',em.slice(0,70),'ERROR');
+      document.getElementById('apiStatus').textContent='API ERROR';
+      document.getElementById('apiStatus').className='api-status err';
+    } else {
+      const reply=data.candidates?.[0]?.content?.parts?.[0]?.text || '*burp* ...I got nothing. Try again.';
+      history.push({role:'model',parts:[{text:reply}]}); saveChats();
+      const [state,mood]=guessMood(reply);
+      // keep the typing dots up until the voice actually starts, then swap them for the
+      // real reply in the same instant the audio begins — text and voice land together.
+      rickSpeak(reply, ()=>{
+        rmTyping();
+        addMsg('rick',reply);
+        setState('talking');
+        speech.textContent=reply.slice(0,75)+(reply.length>75?'...':'');
+        moodLbl.textContent=mood;
+        setTimeout(()=>{ setState(state); setTimeout(()=>setState(''),4000); },300);
+      });
+    }
+  } catch(err){
+    rmTyping();
+    const em='*burp* Network error: '+err.message+'. That\'s a you problem.';
+    addMsg('rick',em);
+    setMood('angry',em.slice(0,70),'ERROR');
+  }
+  busy=false;
+  if(apiKey) sendBtn.disabled=false;
+}
+
+/* ── VOICE MODE ── */
+// voiceMode: 'off' | 'input' | 'fish' | 'browser'
+let voiceMode   = 'off';
+let fishApiKey  = '';
+const fishProxyUrl = 'https://sanchez.ben10aliens2345.workers.dev';
+let currentAudio = null;
+let selectedVoice = null;
+let browserVoices = [];
+
+const voiceBtn = document.getElementById('voiceBtn');
+const micBtn   = document.getElementById('micBtn');
+
+// Pre-load browser voices for fallback mode
+function loadBrowserVoices(){
+  browserVoices = window.speechSynthesis.getVoices();
+  const eng = browserVoices.filter(v => v.lang.startsWith('en'));
+  const pref = ['daniel','alex','fred','ralph','albert','thomas','george','bruce','male','man'];
+  selectedVoice = eng.find(v => pref.some(p => v.name.toLowerCase().includes(p))) || eng[0] || browserVoices[0];
+}
+window.speechSynthesis.onvoiceschanged = loadBrowserVoices;
+loadBrowserVoices();
+
+function openVoicePanel(){
+  const p = document.getElementById('voicePanel');
+  p.style.display = 'flex';
+  highlightMode(voiceMode);
+  const fishRow = document.getElementById('vpFishRow');
+  if(fishRow) fishRow.style.display = voiceMode === 'fish' ? 'flex' : 'none';
+}
+function closeVoicePanel(){
+  document.getElementById('voicePanel').style.display = 'none';
+}
+
+function highlightMode(mode){
+  const map = {A:'input', B:'fish', C:'browser', Off:'off'};
+  Object.entries(map).forEach(([x, m]) => {
+    const id    = x === 'Off' ? 'vpModeOff' : 'vpMode' + x;
+    const dotId = x === 'Off' ? 'vpDotOff'  : 'vpDot'  + x;
+    const card  = document.getElementById(id);
+    const dot   = document.getElementById(dotId);
+    if(!card) return;
+    const active = mode === m;
+    card.style.borderColor = active ? '#39ff14' : '#1a3a1a';
+    card.style.background  = active ? 'rgba(57,255,20,.06)' : (x==='C'?'rgba(0,18,0,.4)':'rgba(0,18,0,.6)');
+    if(dot){ dot.style.background = active ? '#39ff14' : '#1a3a1a'; dot.style.boxShadow = active ? '0 0 6px #39ff14' : 'none'; }
+  });
+}
+
+function selectVoiceMode(mode){
+  highlightMode(mode);
+  const fishRow = document.getElementById('vpFishRow');
+  if(fishRow) fishRow.style.display = mode === 'fish' ? 'flex' : 'none';
+  if(mode !== 'fish'){
+    applyVoiceMode(mode);
+    setTimeout(closeVoicePanel, 320);
+  }
+}
+
+function applyVoiceMode(mode){
+  voiceMode = mode;
+  const labels = { off:'VOICE', input:'VOICE IN', fish:'RICK VOICE', browser:'VOICE OUT' };
+  const colors  = { off:'#3a6a3a',   input:'#7fff7f',     fish:'#39ff14',         browser:'#5faf5f' };
+  voiceBtn.textContent  = labels[mode] || 'VOICE';
+  voiceBtn.style.color  = colors[mode] || '#3a6a3a';
+  voiceBtn.style.borderColor = mode === 'off' ? '#1a3a1a' : '#39ff14';
+  micBtn.style.opacity  = mode === 'off' ? '.3' : '1';
+  micBtn.style.cursor   = mode === 'off' ? 'not-allowed' : 'pointer';
+  if(mode === 'off'){ stopAudio(); }
+}
+
+function saveFishKey(){
+  const k  = document.getElementById('vpFishKey').value.trim();
+  const st = document.getElementById('vpFishStatus');
+  if(!k){ st.textContent='⚠ paste your Fish Audio API key'; st.style.color='#ff4444'; return; }
+  fishApiKey = k;
+  st.textContent = '✓ key saved — Rick will speak!'; st.style.color='#39ff14';
+  applyVoiceMode('fish');
+  setTimeout(closeVoicePanel, 600);
+}
+
+/* ── SPEECH RECOGNITION ── */
+let recognition = null;
+let isListening  = false;
+
+if('webkitSpeechRecognition' in window || 'SpeechRecognition' in window){
+  const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+  recognition = new SR();
+  recognition.continuous    = false;
+  recognition.interimResults = true;
+  recognition.lang           = 'en-US';
+
+  recognition.onstart = () => {
+    isListening = true;
+    micBtn.classList.add('listening');
+    micBtn.textContent = '🔴';
+    setMood('thinking', "*burp* — I'm listening. Make it count.", 'LISTENING');
+  };
+
+  recognition.onresult = (e) => {
+    const transcript = Array.from(e.results).map(r => r[0].transcript).join('');
+    chatInput.value = transcript;
+    chatInput.style.height = 'auto';
+    chatInput.style.height = Math.min(chatInput.scrollHeight, 100) + 'px';
+    if(e.results[e.results.length-1].isFinal){
+      stopMic();
+      if(transcript.trim() && apiKey) send();
+    }
+  };
+
+  recognition.onerror = (e) => {
+    stopMic();
+    if(e.error !== 'no-speech')
+      setMood('angry', `Voice error: ${e.error}. Of course something broke. *burp*`, 'ERROR');
+  };
+
+  recognition.onend = () => stopMic();
+} else {
+  micBtn.title   = 'Speech recognition not supported in this browser';
+  micBtn.style.opacity = '.3';
+  micBtn.style.cursor  = 'not-allowed';
+}
+
+function stopMic(){
+  isListening = false;
+  micBtn.classList.remove('listening');
+  micBtn.textContent = 'MIC';
+  try{ recognition && recognition.stop(); } catch(e){}
+}
+
+function toggleMic(){
+  if(!recognition || voiceMode === 'off') return;
+  if(isListening){ stopMic(); return; }
+  stopAudio();
+  try{ recognition.start(); } catch(e){ stopMic(); }
+}
+
+/* ── TTS ── */
+const RICK_VOICE_ID = 'd2e75a3e3fd6419893057c02a375a113';
+
+function stopAudio(){
+  if(currentAudio){ currentAudio.pause(); currentAudio.src=''; currentAudio=null; }
+  window.speechSynthesis.cancel();
+}
+
+// onStart fires the moment audio actually begins (or immediately, for off/input/errors)
+// so the caller can reveal the text bubble in sync with the voice instead of ahead of it.
+function makeOnceCaller(fn, fallbackMs){
+  let called = false;
+  const call = ()=>{ if(called) return; called = true; if(fn) fn(); };
+  if(fallbackMs) setTimeout(call, fallbackMs); // safety net: never leave the reply stuck invisible
+  return call;
+}
+
+async function rickSpeak(text, onStart){
+  const fire = makeOnceCaller(onStart, 6000);
+  if(voiceMode === 'off' || voiceMode === 'input'){ fire(); return; }
+  stopAudio();
+  const clean = text
+    .replace(/#{1,6} /g,'')
+    .replace(/\*\*([^*]+)\*\*/g,'$1')
+    .replace(/\*([^*]+)\*/g,'$1')
+    .replace(/\*burp\*/gi,'...')
+    .trim().slice(0, 900);
+  if(voiceMode === 'fish')    await speakFish(clean, fire);
+  else if(voiceMode === 'browser') speakBrowser(clean, fire);
+}
+
+async function speakFish(text, onStart){
+  try{
+    const res = await fetch(fishProxyUrl + '/tts', {
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({ fishKey:fishApiKey, text, reference_id:RICK_VOICE_ID, format:'mp3', model:'s2.1-pro-free' })
+    });
+    if(!res.ok){
+      let msg=`HTTP ${res.status}`;
+      try{ const j=await res.json(); msg=j.error||j.message||msg; }catch(_){}
+      setMood('angry',`*burp* Fish Audio error: ${msg}`,'VOICE ERR'); onStart(); return;
+    }
+    const buf = await res.arrayBuffer();
+    if(!buf.byteLength){ setMood('angry','*burp* Empty audio from Fish. Check proxy logs.','VOICE ERR'); onStart(); return; }
+    const blob = new Blob([buf],{type:'audio/mpeg'});
+    const url  = URL.createObjectURL(blob);
+    const audio = new Audio(url);
+    currentAudio = audio;
+    // reveal text exactly when playback actually begins, not when the fetch finishes
+    audio.onplay  = ()=> onStart();
+    audio.onended = ()=>{ URL.revokeObjectURL(url); if(currentAudio===audio) currentAudio=null; };
+    audio.onerror = ()=>{ URL.revokeObjectURL(url); setMood('angry','*burp* Audio playback failed.','VOICE ERR'); onStart(); };
+    await audio.play().catch(e=>{ setMood('angry',`*burp* Playback blocked: ${e.message}`,'VOICE ERR'); onStart(); });
+  } catch(e){ setMood('angry',`*burp* Proxy fetch failed: ${e.message}`,'VOICE ERR'); onStart(); }
+}
+
+function speakBrowser(text, onStart){
+  const utter = new SpeechSynthesisUtterance(text);
+  if(selectedVoice) utter.voice = selectedVoice;
+  utter.rate=0.88; utter.pitch=0.72; utter.volume=1.0;
+  utter.onstart = ()=> onStart();
+  utter.onerror = e => { setMood('angry',`*burp* Voice error: ${e.error}`,'VOICE ERR'); onStart(); };
+  window.speechSynthesis.speak(utter);
+}
+
+// Close panel on backdrop click
+window.addEventListener('DOMContentLoaded', function(){
+  document.getElementById('voicePanel').addEventListener('click', function(e){
+    if(e.target === this) closeVoicePanel();
+  });
+});
+
+/* ── TOUR ── */
+const TOUR_STEPS = [
+  {
+    tag: 'STEP 1 OF 5 · WELCOME',
+    speech: "*burp* — Oh great, another human who can't figure things out themselves. Fine. I'll walk you through it. Try to keep up.",
+    content: `
+      <div style="text-align:center;padding:8px 0 16px;">
+        <div style="font-family:'Permanent Marker',cursive;font-size:32px;color:#39ff14;
+          text-shadow:0 0 20px rgba(57,255,20,.4);letter-spacing:4px;margin-bottom:8px;">
+          RICK.AI
+        </div>
+        <div style="font-size:10px;color:#3a6a3a;letter-spacing:3px;">SMARTEST BEING IN THE UNIVERSE · DIMENSION C-137</div>
+      </div>
+      <div style="background:rgba(0,18,0,.6);border:1px solid #1a3a1a;border-radius:8px;padding:16px 20px;font-size:12px;line-height:2;color:#5faf5f;">
+        This is a <span style="color:#39ff14">Gemini-powered Rick Sanchez chatbot</span> with a real-time animated face.<br>
+        To use it you need a free Google API key — takes about 90 seconds.<br>
+        I'll show you exactly where to get one. You're welcome. <span style="color:#39ff14">*burp*</span>
+      </div>`
+  },
+  {
+    tag: 'STEP 2 OF 5 · GET YOUR KEY',
+    speech: "Go to Google AI Studio. It's free. Even you can afford free. Click the link below — I'm not doing it for you.",
+    content: `
+      <div style="margin-bottom:18px;font-size:12px;color:#5faf5f;line-height:2;">
+        <span style="color:#39ff14;font-size:14px;">① </span>Open Google AI Studio in a new tab:
+      </div>
+      <a href="https://aistudio.google.com/apikey" target="_blank" style="
+        display:block;background:rgba(57,255,20,.07);border:1px solid #39ff14;
+        border-radius:8px;padding:14px 20px;color:#39ff14;text-decoration:none;
+        font-size:13px;letter-spacing:1px;text-align:center;margin-bottom:18px;
+        transition:background .2s;
+      " onmouseover="this.style.background='rgba(57,255,20,.15)'"
+         onmouseout="this.style.background='rgba(57,255,20,.07)'">
+        ↗ aistudio.google.com/apikey
+      </a>
+      <div style="font-size:12px;color:#5faf5f;line-height:2.1;">
+        <span style="color:#39ff14;font-size:14px;">② </span>Sign in with your Google account<br>
+        <span style="color:#39ff14;font-size:14px;">③ </span>Click <span style="color:#c0ffc0;font-family:'Permanent Marker',cursive">"Get API key"</span> in the left sidebar<br>
+        <span style="color:#39ff14;font-size:14px;">④ </span>Click <span style="color:#c0ffc0;font-family:'Permanent Marker',cursive">"Create API key"</span> → select or create a project<br>
+        <span style="color:#39ff14;font-size:14px;">⑤ </span>Copy the key when it appears
+      </div>`
+  },
+  {
+    tag: 'STEP 3 OF 5 · FREE TIER',
+    speech: "Yeah it's free. Don't look so surprised. Google gives you enough quota to have an actual conversation — unless you're planning to ask me your entire life's worth of dumb questions at once.",
+    content: `
+      <div style="font-size:12px;color:#5faf5f;line-height:1.8;margin-bottom:14px;">The free tier includes real quota on these models:</div>
+      <div style="display:grid;gap:8px;margin-bottom:14px;">
+        ${[
+          ['2.5 FLASH LITE','10 req/min · 20 req/day','Best for free usage — start here'],
+          ['2.5 FLASH',     '5 req/min · 20 req/day', 'Smarter, slightly slower'],
+          ['3 FLASH PREVIEW','5 req/min · 20 req/day','Latest generation preview'],
+        ].map(([m,q,d])=>`
+          <div style="background:rgba(0,18,0,.6);border:1px solid #1a3a1a;border-radius:6px;padding:10px 14px;display:flex;justify-content:space-between;align-items:center;gap:12px;">
+            <div>
+              <div style="color:#39ff14;font-size:11px;letter-spacing:1px;">${m}</div>
+              <div style="color:#3a6a3a;font-size:10px;margin-top:2px;">${d}</div>
+            </div>
+            <div style="color:#5faf5f;font-size:10px;letter-spacing:1px;white-space:nowrap;">${q}</div>
+          </div>`).join('')}
+      </div>
+      <div style="font-size:11px;color:#3a6a3a;line-height:1.8;">
+        Switch models anytime from the dropdown in the top-right corner of the chat.<br>
+        Need more quota? Enable billing on Google Cloud — fractions of a cent per message.
+      </div>`
+  },
+  {
+    tag: 'STEP 4 OF 5 · PASTE YOUR KEY',
+    speech: "Now paste it in the bar at the top of the chat. Hit CONNECT. The status dot goes green. That's literally it. *burp*",
+    content: `
+      <div style="font-size:12px;color:#5faf5f;line-height:1.9;margin-bottom:16px;">
+        Once you have your API key, paste it into the API bar:
+      </div>
+      <div style="background:rgba(0,8,0,.8);border:1px solid #1a3a1a;border-radius:8px;padding:12px 16px;display:flex;gap:10px;align-items:center;margin-bottom:18px;flex-wrap:wrap;">
+        <span style="font-size:9px;color:#3a6a3a;letter-spacing:2px;white-space:nowrap;">GOOGLE API</span>
+        <div style="flex:1;min-width:160px;background:transparent;border:1px solid #39ff14;border-radius:4px;padding:5px 10px;color:#3a6a3a;font-size:12px;box-shadow:0 0 8px rgba(57,255,20,.15);">
+          paste your key here
+        </div>
+        <div style="background:transparent;border:1px solid #1a3a1a;border-radius:4px;padding:5px 12px;color:#3a6a3a;font-size:11px;white-space:nowrap;">
+          CX ID (optional)
+        </div>
+        <div style="background:transparent;border:1px solid #39ff14;color:#39ff14;font-size:11px;padding:5px 14px;border-radius:4px;white-space:nowrap;">CONNECT</div>
+      </div>
+      <div style="font-size:12px;color:#5faf5f;line-height:2.1;">
+        <span style="color:#39ff14;">●</span> The <span style="color:#c0ffc0">CX ID</span> field is optional — enables Rick to search the web for current info<br>
+        <span style="color:#39ff14;">●</span> Your key stays in this browser tab only. Never stored anywhere.<br>
+        <span style="color:#39ff14;">●</span> Hit <span style="color:#39ff14">CONNECT</span> → status dot glows green → start talking
+      </div>`
+  },
+  {
+    tag: "STEP 5 OF 5 · YOU'RE READY",
+    speech: "Finally. Now stop reading tutorial slides like some kind of Morty and ask me something worth my considerable intellect.",
+    content: `
+      <div style="text-align:center;padding:8px 0 20px;">
+        <div style="font-size:40px;margin-bottom:8px;">⚗️</div>
+        <div style="font-family:'Permanent Marker',cursive;font-size:20px;color:#39ff14;letter-spacing:2px;margin-bottom:6px;">You're all set</div>
+        <div style="font-size:11px;color:#3a6a3a;letter-spacing:2px;">DIMENSION C-137 AWAITS</div>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;font-size:11px;color:#5faf5f;margin-bottom:4px;">
+        ${[
+          ['Ask hard questions','Rick rewards curiosity'],
+          ['Science & tech','His wheelhouse. Go deep.'],
+          ['Ask something dumb','Get roasted. Worth it.'],
+          ['Add a CX ID','Unlocks web search'],
+        ].map(([t,d])=>`
+          <div style="background:rgba(0,18,0,.6);border:1px solid #1a3a1a;border-radius:6px;padding:10px 12px;">
+            <div style="color:#39ff14;margin-bottom:3px;">${t}</div>
+            <div style="color:#3a6a3a;font-size:10px;">${d}</div>
+          </div>`).join('')}
+      </div>`
+  }
+];
+
+let tourStep = 0;
+
+function tourRender() {
+  const s = TOUR_STEPS[tourStep];
+  document.getElementById('tourTag').textContent = s.tag;
+  document.getElementById('tourSpeech').textContent = s.speech;
+  document.getElementById('tourContent').innerHTML = s.content;
+  document.getElementById('tourNextBtn').textContent = tourStep === TOUR_STEPS.length - 1 ? "LET'S GO →" : 'NEXT →';
+  document.getElementById('tourPrevBtn').style.visibility = tourStep === 0 ? 'hidden' : 'visible';
+  document.querySelectorAll('.tdot-step').forEach((d,i) => d.classList.toggle('active', i === tourStep));
+  const moods  = ['','thinking','smirk','talking','talking'];
+  const lines  = [
+    "*burp* — Welcome. Try not to embarrass yourself.",
+    "aistudio.google.com/apikey — go. Now.",
+    "Free tier. Don't spend it all in one place.",
+    "Paste. Connect. Done. Even Morty could do this.",
+    "Finally. Ask me something worth my time."
+  ];
+  const labels = ['NEUTRAL','COMPUTING','SMUG','EXPLAINING','READY'];
+  setMood(moods[tourStep]||'', lines[tourStep], labels[tourStep]);
+}
+
+function tourNext() {
+  if (tourStep < TOUR_STEPS.length - 1) { tourStep++; tourRender(); }
+  else tourSkip();
+}
+function tourPrev() {
+  if (tourStep > 0) { tourStep--; tourRender(); }
+}
+function tourSkip() {
+  const t = document.getElementById('tour');
+  t.style.transition = 'opacity .4s ease';
+  t.style.opacity = '0';
+  setTimeout(() => {
+    t.style.display = 'none';
+    setState('');
+    speech.textContent = "*burp* — Yeah yeah, I can hear you. What do you want?";
+  }, 400);
+}
+
+tourRender();
+</script>
+
+</body>
+</html>

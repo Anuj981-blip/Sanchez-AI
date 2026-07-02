@@ -1354,7 +1354,10 @@ function makeOnceCaller(fn, fallbackMs){
 }
 
 async function rickSpeak(text, onStart){
-  const fire = makeOnceCaller(onStart, 6000);
+  // fallback is a safety net only — Fish Audio can take 8-10s, so give it real headroom
+  // before force-revealing text ahead of the voice.
+  const fallbackMs = (voiceMode === 'fish') ? 15000 : 6000;
+  const fire = makeOnceCaller(onStart, fallbackMs);
   if(voiceMode === 'off' || voiceMode === 'input'){ fire(); return; }
   stopAudio();
   const clean = text
@@ -1367,7 +1370,25 @@ async function rickSpeak(text, onStart){
   else if(voiceMode === 'browser') speakBrowser(clean, fire);
 }
 
+// Unlocks audio playback on the very first user gesture (click/keydown/touch) so that
+// later async-triggered playback (after an await fetch) isn't blocked by autoplay policy.
+let audioUnlocked = false;
+function unlockAudio(){
+  if(audioUnlocked) return;
+  audioUnlocked = true;
+  try{
+    const a = new Audio();
+    a.play().catch(()=>{});
+    a.pause();
+  }catch(e){}
+}
+window.addEventListener('click', unlockAudio, { once:true });
+window.addEventListener('keydown', unlockAudio, { once:true });
+window.addEventListener('touchstart', unlockAudio, { once:true });
+
 async function speakFish(text, onStart){
+  const audio = new Audio();
+  currentAudio = audio;
   try{
     const res = await fetch(fishProxyUrl + '/tts', {
       method:'POST',
@@ -1383,13 +1404,19 @@ async function speakFish(text, onStart){
     if(!buf.byteLength){ setMood('angry','*burp* Empty audio from Fish. Check proxy logs.','VOICE ERR'); onStart(); return; }
     const blob = new Blob([buf],{type:'audio/mpeg'});
     const url  = URL.createObjectURL(blob);
-    const audio = new Audio(url);
-    currentAudio = audio;
+    audio.src = url;
     // reveal text exactly when playback actually begins, not when the fetch finishes
     audio.onplay  = ()=> onStart();
     audio.onended = ()=>{ URL.revokeObjectURL(url); if(currentAudio===audio) currentAudio=null; };
     audio.onerror = ()=>{ URL.revokeObjectURL(url); setMood('angry','*burp* Audio playback failed.','VOICE ERR'); onStart(); };
-    await audio.play().catch(e=>{ setMood('angry',`*burp* Playback blocked: ${e.message}`,'VOICE ERR'); onStart(); });
+    await audio.play().catch(e=>{
+      if(!audioUnlocked){
+        setMood('angry','*burp* Click anywhere on the page once, then try again — browser blocked autoplay.','VOICE ERR');
+      } else {
+        setMood('angry',`*burp* Playback blocked: ${e.message}`,'VOICE ERR');
+      }
+      onStart();
+    });
   } catch(e){ setMood('angry',`*burp* Proxy fetch failed: ${e.message}`,'VOICE ERR'); onStart(); }
 }
 

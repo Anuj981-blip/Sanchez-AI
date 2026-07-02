@@ -25,7 +25,7 @@ Yeah I built a chatbot. Big deal, everyone's built a chatbot. *This* one has a C
 
 ## What it actually does
 
-- **A face made entirely of borders and border-radius.** Pure CSS/HTML, zero images. It blinks unprompted, and its mouth animation is driven by real audio playback timing, not a canned loop — so lip movement roughly tracks what's actually coming out of the speaker.
+- **A face made entirely of borders and border-radius.** Pure CSS/HTML, zero images. It blinks unprompted, and its eyes and pickle rick transformation animation is driven by real emotion analysis, not a canned loop — so lip movement roughly tracks what's actually coming out of the speaker.
 - **A 7-slide intro** that opens with Rick's origin story — why he thinks every other AI on the market is garbage and why he built this one out of himself — before sliding into the actual setup walkthrough. Skippable, but it's the whole pitch in under a minute.
 - **Nine expressions**, picked automatically by reading Rick's own reply: `talking`, `angry`, `smirk`, `thinking`, `sleep`, `surprised`, `manic`, `disgust`, `exasperated`. He decides how annoyed to look at you; you don't get a vote.
 - **Gemini under the hood**, prompted to actually be Rick — brilliant and useful when your question deserves it, dismissive when it doesn't.

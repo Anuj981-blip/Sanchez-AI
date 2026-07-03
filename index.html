@@ -4,11 +4,12 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Rick.ai — Don't waste my time</title>
-<link rel="stylesheet" href="https://assets-bfx.pages.dev/style.css">
-<link rel="stylesheet" href="https://assets-bfx.pages.dev/vendor-art.css">
-<!-- css split off to cloudflare pages, keeps this repo tiny -->
+<link rel="stylesheet" href="style.css">
+<link rel="stylesheet" href="vendor-art.css">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
 </head>
-<body>
+<body class="dark-mode">
 
 <!-- hand-tuned noise filter, don't crank scale much past 3 or the lines get too jittery -->
 <svg class="sketch-filters">
@@ -21,292 +22,148 @@
 <div id="starsBg" class="stars-bg"></div>
 <div class="portal-glow"></div>
 
-<!-- intro splash -->
-<section id="introSplash" class="intro-splash" onclick="skipIntro()">
-  <div id="introParticles" class="intro-particle-layer"></div>
+<!-- ═══════════════════════ CHOOSE-YOUR-OWN-ADVENTURE STORY INTRO ═══════════════════════ -->
+<section id="pixelIntro" class="pixel-intro">
+  <div class="pixel-intro-stars" id="pixelStars"></div>
 
-  <div class="intro-content">
-
-    <!-- vendor-art.css owns everything inside .rm-scene -->
-    <div class="rm-scene intro-mascot" id="rmScene">
-      <div class="rm-container">
-        <div class="rm-rick-container">
-          <div class="rm-head-container">
-            <div class="rm-head">
-              <div class="rm-brow-container"><div class="rm-brow"></div></div>
-              <div class="rm-eyes-container">
-                <div class="rm-eye"><div class="rm-pupil"></div></div>
-                <div class="rm-eye"><div class="rm-pupil"></div></div>
-              </div>
-              <div class="rm-eyebags-container">
-                <div class="rm-eyebag"></div>
-                <div class="rm-eyebag"></div>
-              </div>
-              <div class="rm-nose"></div>
-              <div class="rm-mouth-container">
-                <div class="rm-mouth"></div>
-                <div class="rm-spittle"></div>
-                <div class="rm-spittle-arcs"></div>
-              </div>
-            </div>
-            <div class="rm-ear-container">
-              <div class="rm-ear"></div>
-              <div class="rm-ear"></div>
-            </div>
-            <div class="rm-hair-container"><div class="rm-hair"></div></div>
-            <div class="rm-neck"></div>
-          </div>
-          <div class="rm-body-container">
-            <div class="rm-body">
-              <div class="rm-shirt">
-                <div class="rm-flaps-container">
-                  <div class="rm-flap"></div>
-                  <div class="rm-flap rm-right"></div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-        <div class="rm-morty-container">
-          <div class="rm-head-container">
-            <div class="rm-head">
-              <div class="rm-brows-container">
-                <div class="rm-brow rm-left"></div>
-                <div class="rm-brow rm-right"></div>
-              </div>
-              <div class="rm-eyes-container">
-                <div class="rm-eye"><div class="rm-pupil"></div></div>
-                <div class="rm-eye"><div class="rm-pupil"></div></div>
-              </div>
-              <div class="rm-nose"></div>
-              <div class="rm-mouth-container"><div class="rm-mouth"></div></div>
-            </div>
-            <div class="rm-ear-container">
-              <div class="rm-ear"></div>
-              <div class="rm-ear"></div>
-            </div>
-            <div class="rm-hair-container"><div class="rm-hair"></div></div>
-          </div>
-          <div class="rm-body-container"><div class="rm-body"></div></div>
-        </div>
-      </div>
+  <div class="pixel-textbox pixel-textbox--story">
+    <div class="pixel-textbox-inner">
+      <span class="pixel-star">*</span>
+      <span id="pixelText" class="pixel-text"></span><span class="pixel-caret" id="pixelCaret">▌</span>
     </div>
+    <div class="pixel-advance" id="pixelAdvance">▼</div>
 
-    <div class="intro-portal-stage">
-      <div class="portal-ring"></div>
-      <div class="portal-core"></div>
-      <div class="portal-core-texture"></div>
-
-      <div id="introLogo" class="intro-logo">
-        <div class="intro-logo-title">RICK.AI</div>
-        <div class="intro-logo-subtitle">DIMENSION C-137 CALIBRATING</div>
-      </div>
-    </div>
-
+    <div class="pixel-choices" id="pixelChoices"></div>
   </div>
 
-  <div class="intro-skip-hint">click anywhere to skip</div>
+  <button class="pixel-skip" id="pixelSkip" onclick="skipPixelIntro()">skip [esc]</button>
 </section>
 
-<!-- onboarding tour, 7 steps total. bumping this needs matching changes in the JS step array -->
-<section id="tour" class="tour-overlay">
-  <div class="tour-grain"></div>
+<!-- white flash transition, sits above the intro -->
+<div class="story-flash" id="storyFlash"></div>
 
-  <div class="tour-frame">
+<!-- ═══════════════════════ MAIN APP — SINGLE HOME SCREEN ═══════════════════════ -->
+<div class="home" id="home">
 
-    <!-- hardcoded 7 dots instead of generating them, tour length basically never changes -->
-    <div class="tour-dots" id="tourDots">
-      <div class="tdot-step active" data-s="0"></div>
-      <div class="tdot-step" data-s="1"></div>
-      <div class="tdot-step" data-s="2"></div>
-      <div class="tdot-step" data-s="3"></div>
-      <div class="tdot-step" data-s="4"></div>
-      <div class="tdot-step" data-s="5"></div>
-      <div class="tdot-step" data-s="6"></div>
+  <header class="home-top">
+    <div class="model-picker home-model-picker">
+      <span class="model-picker-label">MODEL</span>
+      <select id="modelSelect" class="model-select">
+        <option value="gemini-2.5-flash" selected>2.5 FLASH (5 RPM free)</option>
+        <option value="gemini-2.5-flash-lite">2.5 FLASH LITE (10 RPM free)</option>
+        <option value="gemini-2.0-flash">2 FLASH (paid)</option>
+        <option value="gemini-2.0-flash-lite">2 FLASH LITE (paid)</option>
+        <option value="gemini-2.5-pro">2.5 PRO (paid)</option>
+        <option value="gemini-3-flash-preview">3 FLASH (5 RPM free)</option>
+        <option value="gemini-3.1-pro-preview">3.1 PRO (paid)</option>
+        <option value="gemini-3.1-flash-lite">3.1 FLASH LITE (15 RPM free)</option>
+        <option value="gemini-3.5-flash">3.5 FLASH (5 RPM free)</option>
+      </select>
     </div>
 
-    <div id="tourCard" class="tour-card">
-      <header class="tour-card-header">
-        <div class="tour-status-dot"></div>
-        <span id="tourTag" class="tour-tag">STEP 1 OF 7</span>
-        <span class="tour-tag tour-tag-right">RICK.AI SETUP</span>
-      </header>
-
-      <div class="tour-card-body">
-        <div class="tour-speaker-row">
-          <div class="tour-avatar">R</div>
-          <div class="tour-speech" id="tourSpeech">...</div>
-        </div>
-
-        <div id="tourContent" class="tour-step-content"></div>
-      </div>
-
-      <footer class="tour-card-footer">
-        <button onclick="tourPrev()" id="tourPrevBtn" class="tour-nav-btn">← BACK</button>
-        <button onclick="tourSkip()" class="tour-skip-btn">skip tour</button>
-        <button onclick="tourNext()" id="tourNextBtn" class="tour-nav-btn tour-nav-btn-primary">NEXT →</button>
-      </footer>
-    </div>
-
-  </div>
-</section>
-
-<!-- main app -->
-<div class="app">
-
-  <aside class="history-panel hud-corners">
-    <header class="history-header">
-      <button class="sidebar-logo" id="sidebarLogoBtn" onclick="toggleSidebar()" title="Toggle chats">
-        <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-          <circle cx="12" cy="12" r="1.6" fill="var(--portal)"/>
-          <ellipse cx="12" cy="12" rx="9" ry="3.6" stroke="var(--portal)" stroke-width="1.1" transform="rotate(0 12 12)"/>
-          <ellipse cx="12" cy="12" rx="9" ry="3.6" stroke="var(--portal-2)" stroke-width="1.1" transform="rotate(60 12 12)"/>
-          <ellipse cx="12" cy="12" rx="9" ry="3.6" stroke="var(--portal)" stroke-width="1.1" opacity=".6" transform="rotate(120 12 12)"/>
-        </svg>
-      </button>
-      <div class="history-collapsible">
-        <span class="history-title">CHATS</span>
-        <div class="history-header-actions">
-          <button class="new-chat-btn" id="darkToggleBtn" onclick="toggleDarkMode()" title="Toggle dark mode">☾</button>
-          <button class="new-chat-btn" id="newChatBtn" onclick="newChat()">+ NEW</button>
-        </div>
-      </div>
-    </header>
-    <nav class="history-list" id="historyList"></nav>
-  </aside>
-
-  <aside class="left-panel hud-corners">
-    <div class="panel-title">RICK SANCHEZ · C-137</div>
-
-    <div class="speech" id="speech">*burp* — Yeah yeah, I can hear you. What do you want?</div>
-
-    <!-- rick face (CodePen port, vendor-art.css) -->
-    <div class="rick-root" id="rickRoot" onclick="triggerPickle()" title="...click me, I dare you">
-      <div class="container" id="rickContainer">
-        <div class="head">
-          <div class="unibrow"></div>
-          <div class="eye left"></div>
-          <div class="eye right"></div>
-          <div class="nose"></div>
-          <div class="mouth"></div>
-          <div class="drool"></div>
-        </div>
-        <div class="head-border"></div>
-        <div class="ear ear left"></div>
-        <div class="ear ear right"></div>
-        <div class="hair">
-          <div></div><div></div><div></div><div></div>
-          <div></div><div></div><div></div><div></div>
-          <div></div><div></div><div></div><div></div>
-        </div>
-        <div class="hair-border">
-          <div></div><div></div><div></div><div></div>
-          <div></div><div></div><div></div><div></div>
-          <div></div><div></div><div></div><div></div>
-          <div class="neck"></div>
-          <div class="shirt"></div>
-          <div class="collar left"></div>
-          <div class="collar right"></div>
-          <div class="coat"></div>
-        </div>
-      </div>
-
-      <div class="pickle-egg" id="pickleEgg">
-        <div class="pr-canvas" id="prCanvas">
-          <div class="pr-pickle"></div>
-          <div class="pr-eye pr-eye-left"></div>
-          <div class="pr-eye pr-eye-right"></div>
-          <div class="pr-nose"></div>
-          <div class="pr-eyebrow"></div>
-          <div class="pr-mouth">
-            <div class="pr-mouth-left">
-              <div class="pr-top-teeth">
-                <div class="pr-tooth pr-short"></div>
-                <div class="pr-tooth"></div>
-                <div class="pr-tooth"></div>
-              </div>
-              <div class="pr-bottom-teeth">
-                <div class="pr-tooth pr-short"></div>
-                <div class="pr-tooth"></div>
-              </div>
-            </div>
-            <div class="pr-mouth-right">
-              <div class="pr-top-teeth">
-                <div class="pr-tooth"></div>
-                <div class="pr-tooth"></div>
-                <div class="pr-tooth pr-short"></div>
-              </div>
-              <div class="pr-tongue"></div>
-              <div class="pr-bottom-teeth">
-                <div class="pr-tooth"></div>
-                <div class="pr-tooth"></div>
-                <div class="pr-tooth pr-short"></div>
-              </div>
-            </div>
-          </div>
-          <div class="pr-spot pr-one"></div>
-          <div class="pr-spot pr-two"></div>
-          <div class="pr-spot pr-three"></div>
-          <div class="pr-spot pr-four"></div>
-          <div class="pr-spot pr-five"></div>
-          <div class="pr-spot pr-six"></div>
-        </div>
-      </div>
-    </div>
-
-    <div class="status-strip">
-      <div class="status-strip-left">
+    <div class="home-top-right">
+      <div class="home-status">
         <div class="dot" id="dot"></div>
         <span class="status-lbl" id="statusLbl">OFFLINE</span>
       </div>
-      <div class="mood-lbl" id="moodLbl">NEUTRAL</div>
-      <button id="voiceBtn" onclick="openVoicePanel()" title="Voice options" class="voice-toggle-btn">VOICE</button>
+      <button class="icon-btn" id="captionsToggleBtn" onclick="toggleCaptions()" title="Toggle captions">
+        <svg viewBox="0 0 24 24" fill="none"><rect x="3" y="5" width="18" height="14" rx="2" stroke="currentColor" stroke-width="1.6"/><path d="M7 15h4M13 15h4M7 11h10" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>
+      </button>
+      <button class="icon-btn" id="demoBtn" onclick="startFeatureTour()" title="Take the feature tour">
+        <svg viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="1.6"/><path d="M9.5 9.2a2.5 2.5 0 0 1 4.9.8c0 1.7-2.4 1.7-2.4 3.5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/><circle cx="12" cy="17" r="1" fill="currentColor"/></svg>
+      </button>
+      <button class="icon-btn" id="settingsBtn" onclick="toggleSettings()" title="Settings">
+        <svg viewBox="0 0 24 24" fill="none"><path d="M12 15.5a3.5 3.5 0 1 0 0-7 3.5 3.5 0 0 0 0 7z" stroke="currentColor" stroke-width="1.6"/><path d="M19.4 13.5a1.6 1.6 0 0 0 .32 1.76l.06.06a2 2 0 1 1-2.82 2.82l-.06-.06a1.6 1.6 0 0 0-1.76-.32 1.6 1.6 0 0 0-1 1.46V19.5a2 2 0 1 1-4 0v-.09a1.6 1.6 0 0 0-1-1.51 1.6 1.6 0 0 0-1.76.32l-.06.06a2 2 0 1 1-2.82-2.82l.06-.06a1.6 1.6 0 0 0 .32-1.76 1.6 1.6 0 0 0-1.46-1H4.5a2 2 0 1 1 0-4h.09a1.6 1.6 0 0 0 1.51-1 1.6 1.6 0 0 0-.32-1.76l-.06-.06a2 2 0 1 1 2.82-2.82l.06.06a1.6 1.6 0 0 0 1.76.32H10a1.6 1.6 0 0 0 1-1.46V4.5a2 2 0 1 1 4 0v.09a1.6 1.6 0 0 0 1 1.46 1.6 1.6 0 0 0 1.76-.32l.06-.06a2 2 0 1 1 2.82 2.82l-.06.06a1.6 1.6 0 0 0-.32 1.76V10a1.6 1.6 0 0 0 1.46 1h.09a2 2 0 1 1 0 4h-.09a1.6 1.6 0 0 0-1.46 1z" stroke="currentColor" stroke-width="1.3"/></svg>
+      </button>
     </div>
-  </aside>
+  </header>
 
-  <main class="right-panel">
-    <header class="chat-header">
-      <div>
-        <div class="chat-title">RICK.AI</div>
-        <div class="chat-sub">SMARTEST BEING IN THE UNIVERSE · DIMENSION C-137</div>
+  <main class="home-stage">
+    <div class="speech home-speech" id="speech">*burp* — Yeah yeah, I can hear you. What do you want?</div>
+
+    <div class="rick-circle-wrap">
+      <div class="rick-circle-ring"></div>
+      <div class="rick-circle-ring rick-circle-ring-2"></div>
+
+      <!-- rick face (CodePen port, vendor-art.css) — same markup, just scaled up via CSS -->
+      <div class="rick-root" id="rickRoot" onclick="triggerPickle()" title="...click me, I dare you">
+        <div class="container" id="rickContainer">
+          <div class="head">
+            <div class="unibrow"></div>
+            <div class="eye left"></div>
+            <div class="eye right"></div>
+            <div class="nose"></div>
+            <div class="mouth"></div>
+            <div class="drool"></div>
+          </div>
+          <div class="head-border"></div>
+          <div class="ear ear left"></div>
+          <div class="ear ear right"></div>
+          <div class="hair">
+            <div></div><div></div><div></div><div></div>
+            <div></div><div></div><div></div><div></div>
+            <div></div><div></div><div></div><div></div>
+          </div>
+          <div class="hair-border">
+            <div></div><div></div><div></div><div></div>
+            <div></div><div></div><div></div><div></div>
+            <div></div><div></div><div></div><div></div>
+            <div class="neck"></div>
+            <div class="shirt"></div>
+            <div class="collar left"></div>
+            <div class="collar right"></div>
+            <div class="coat"></div>
+          </div>
+        </div>
+
+        <div class="pickle-egg" id="pickleEgg">
+          <div class="pr-canvas" id="prCanvas">
+            <div class="pr-pickle"></div>
+            <div class="pr-eye pr-eye-left"></div>
+            <div class="pr-eye pr-eye-right"></div>
+            <div class="pr-nose"></div>
+            <div class="pr-eyebrow"></div>
+            <div class="pr-mouth">
+              <div class="pr-mouth-left">
+                <div class="pr-top-teeth">
+                  <div class="pr-tooth pr-short"></div>
+                  <div class="pr-tooth"></div>
+                  <div class="pr-tooth"></div>
+                </div>
+                <div class="pr-bottom-teeth">
+                  <div class="pr-tooth pr-short"></div>
+                  <div class="pr-tooth"></div>
+                </div>
+              </div>
+              <div class="pr-mouth-right">
+                <div class="pr-top-teeth">
+                  <div class="pr-tooth"></div>
+                  <div class="pr-tooth"></div>
+                  <div class="pr-tooth pr-short"></div>
+                </div>
+                <div class="pr-tongue"></div>
+                <div class="pr-bottom-teeth">
+                  <div class="pr-tooth"></div>
+                  <div class="pr-tooth"></div>
+                  <div class="pr-tooth pr-short"></div>
+                </div>
+              </div>
+            </div>
+            <div class="pr-spot pr-one"></div>
+            <div class="pr-spot pr-two"></div>
+            <div class="pr-spot pr-three"></div>
+            <div class="pr-spot pr-four"></div>
+            <div class="pr-spot pr-five"></div>
+            <div class="pr-spot pr-six"></div>
+          </div>
+        </div>
       </div>
-      <div class="model-picker">
-        <span class="model-picker-label">MODEL</span>
-        <!-- TODO: pull rate limits from google's api instead of hardcoding these labels, they change more than I'd like -->
-        <select id="modelSelect" class="model-select">
-          <option value="gemini-2.5-flash" selected>2.5 FLASH (5 RPM free)</option>
-          <option value="gemini-2.5-flash-lite">2.5 FLASH LITE (10 RPM free)</option>
-          <option value="gemini-2.0-flash">2 FLASH (paid)</option>
-          <option value="gemini-2.0-flash-lite">2 FLASH LITE (paid)</option>
-          <option value="gemini-2.5-pro">2.5 PRO (paid)</option>
-          <option value="gemini-3-flash-preview">3 FLASH (5 RPM free)</option>
-          <option value="gemini-3.1-pro-preview">3.1 PRO (paid)</option>
-          <option value="gemini-3.1-flash-lite">3.1 FLASH LITE (15 RPM free)</option>
-          <option value="gemini-3.5-flash">3.5 FLASH (5 RPM free)</option>
-        </select>
-      </div>
-    </header>
 
-    <!-- key never touches a server, just localStorage. see saveKey() in script.js -->
-    <form class="api-bar" onsubmit="return false;">
-      <span class="api-lbl">GOOGLE API</span>
-      <input type="password" class="api-input" id="apiInput" placeholder="AIza... (Gemini API key)"/>
-      <button type="button" class="api-btn" onclick="saveKey()">CONNECT</button>
-      <span class="api-status" id="apiStatus">NO KEY</span>
-    </form>
+      <div class="mood-lbl home-mood-lbl" id="moodLbl">NEUTRAL</div>
+    </div>
 
-    <section class="messages" id="msgs">
-      <div class="empty" id="empty">
-        <h2>*BURP*</h2>
-        <p>Oh great. Another dimension's worth of<br>
-        questions for the smartest being alive.<br><br>
-        Paste your API key and try not to<br>
-        embarrass yourself. No promises on my end.</p>
-      </div>
-    </section>
-    <button class="scroll-btn" id="scrollBtn">▼ NEW STUFF, GENIUS</button>
-
-    <form class="input-bar" onsubmit="return false;">
+    <!-- mic + typing bar -->
+    <form class="input-bar home-input-bar" onsubmit="return false;">
       <button type="button" class="mic-btn" id="micBtn" onclick="toggleMic()" title="Click to speak">
         <svg viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
           <path d="M12 15a3.5 3.5 0 0 0 3.5-3.5v-6a3.5 3.5 0 0 0-7 0v6A3.5 3.5 0 0 0 12 15z"/>
@@ -318,10 +175,70 @@
         onkeydown="handleKey(event)"></textarea>
       <button type="button" class="send-btn" id="sendBtn" onclick="send()" disabled>SEND</button>
     </form>
-    <div class="foot">your key stays in this tab · never hits our servers · Rick doesn't do privacy policies, he just doesn't save your stuff</div>
+    <div class="foot home-foot">your key stays in this tab · never hits our servers · Rick doesn't do privacy policies, he just doesn't save your stuff</div>
   </main>
 
+  <!-- ambient captions: each new line fades in beside Rick, types out, sits, fades away -->
+  <div class="caption-stack" id="captionStack"></div>
+
+  <!-- hidden data store — keeps full history/scroll logic working without showing a terminal -->
+  <div class="messages msgs-hidden" id="msgs">
+    <div class="empty" id="empty">
+      <h2>*BURP*</h2>
+      <p>Oh great. Another dimension's worth of<br>
+      questions for the smartest being alive.<br><br>
+      Paste your API key and try not to<br>
+      embarrass yourself. No promises on my end.</p>
+    </div>
+  </div>
+  <button class="scroll-btn" id="scrollBtn">▼ NEW STUFF, GENIUS</button>
+
 </div>
+
+<!-- ═══════════════════════ SETTINGS MODAL (everything else lives here) ═══════════════════════ -->
+<section id="settingsModal" class="settings-modal">
+  <div class="settings-backdrop" onclick="toggleSettings()"></div>
+  <div class="settings-frame hud-corners">
+    <header class="settings-header">
+      <div class="voice-panel-header-left">
+        <div class="voice-panel-status-dot"></div>
+        <span class="voice-panel-eyebrow">SETTINGS · C-137</span>
+      </div>
+      <button onclick="toggleSettings()" class="voice-panel-close" title="Close">✕</button>
+    </header>
+
+    <div class="settings-body">
+
+      <div class="settings-section">
+        <div class="settings-section-title">GOOGLE API KEY</div>
+        <form class="api-bar" onsubmit="return false;">
+          <input type="password" class="api-input" id="apiInput" placeholder="AIza... (Gemini API key)"/>
+          <button type="button" class="api-btn" onclick="saveKey()">CONNECT</button>
+          <span class="api-status" id="apiStatus">NO KEY</span>
+        </form>
+        <div class="settings-hint">Get a free key at <a href="https://aistudio.google.com/apikey" target="_blank" class="link">aistudio.google.com/apikey</a></div>
+      </div>
+
+      <div class="settings-section">
+        <div class="settings-section-title">VOICE</div>
+        <button id="voiceBtn" onclick="openVoicePanel()" title="Voice options" class="voice-toggle-btn settings-full-btn">VOICE OPTIONS →</button>
+      </div>
+
+      <div class="settings-section">
+        <div class="settings-section-title">CHATS</div>
+        <div class="settings-chats-actions">
+          <button class="new-chat-btn" id="newChatBtn" onclick="newChat()">+ NEW CHAT</button>
+        </div>
+        <nav class="history-list settings-history-list" id="historyList"></nav>
+      </div>
+
+    </div>
+
+    <footer class="voice-panel-footer">
+      Keys stay in this tab only · never stored anywhere
+    </footer>
+  </div>
+</section>
 
 <!-- voice panel. fish audio mode needs a worker proxy for CORS, see README, still a bit janky on mobile safari -->
 <section id="voicePanel" class="voice-panel">
@@ -400,7 +317,6 @@
   </div>
 </section>
 
-<!-- was inline, moved to cloudflare so the github repo only has the shell -->
-<script src="https://assets-bfx.pages.dev/script.js"></script>
+<script src="script.js"></script>
 </body>
 </html>

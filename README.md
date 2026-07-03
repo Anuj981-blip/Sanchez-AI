@@ -2,7 +2,7 @@
 
 You talk, a fake Rick Sanchez insults you back — in his own cloned voice,One HTML file. No backend except a 60-line proxy for the voice, and you don't even need that part.
 
-**[→ Open it and get roasted](#)** *(https://dapper-semifreddo-b63957.netlify.app)*
+**[→ Open it and get roasted](#)** *(https://anuj981-blip.github.io/Sanchez-AI/)*
 
 <img width="340" height="408" alt="Screenshot 2026-07-03 at 1 58 33 AM" src="https://github.com/user-attachments/assets/f31745e6-d9e0-4e20-9da3-815b6bd63e26" />
 

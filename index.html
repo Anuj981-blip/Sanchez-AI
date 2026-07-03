@@ -5,57 +5,123 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Rick.ai — Don't waste my time</title>
 <style>
-@import url('https://fonts.googleapis.com/css2?family=Permanent+Marker&family=Share+Tech+Mono&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Permanent+Marker&family=Patrick+Hand&family=Share+Tech+Mono&display=swap');
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+
+:root{
+  --paper:#f3ecdd; --paper-rgb:243,236,221;
+  --panel:#fbf6e9;
+  --line:#2a2118;
+  --line-soft:#8a7a5c; --line-soft-rgb:138,122,92;
+  --ink:#1c1712;
+  --portal:#5a8f2e; --portal-rgb:90,143,46;
+  --portal-2:#3f6b1f;
+  --muted2:#5c5240;
+  --rust-rgb:192,71,42;
+}
+body.dark-mode{
+  --paper:#0a0612; --paper-rgb:10,6,18;
+  --panel:#0d0a1a;
+  --line:#b6ff3d;
+  --line-soft:#6b5a94; --line-soft-rgb:107,90,148;
+  --ink:#d9cdfa;
+  --portal:#b6ff3d; --portal-rgb:182,255,61;
+  --portal-2:#4dff9e;
+  --muted2:#a89bd6;
+  --rust-rgb:255,79,216;
+}
 
 /* ── PAGE LAYOUT ── */
 html,body{height:100%;font-size:15px;}
 body{
   background:
-    radial-gradient(ellipse 900px 600px at 18% -10%, rgba(182,255,61,.07), transparent 60%),
-    radial-gradient(ellipse 700px 500px at 105% 110%, rgba(255,79,216,.05), transparent 55%),
-    #0a0612;
-  color:#d9cdfa;
-  font-family:'Share Tech Mono',monospace;
+    radial-gradient(ellipse 900px 600px at 18% -10%, rgba(var(--portal-rgb),.07), transparent 60%),
+    radial-gradient(ellipse 700px 500px at 105% 110%, rgba(var(--rust-rgb),.05), transparent 55%),
+    var(--paper);
+  color:var(--ink);
+  font-family:'Patrick Hand',cursive;
   display:flex;
   flex-direction:column;
   height:100vh;
   overflow:hidden;
 }
-/* portal-warp: a slow drifting conic haze instead of a stock CRT scanline overlay */
-body::before{
-  content:'';position:fixed;inset:-20%;
-  background:conic-gradient(from 0deg at 50% 50%,
-    rgba(182,255,61,.035), rgba(255,79,216,.035) 25%,
-    transparent 45%, rgba(182,255,61,.03) 70%, transparent 90%);
-  pointer-events:none;z-index:9998;
-  animation:portalDrift 40s linear infinite;
-  mix-blend-mode:screen;
-}
+/* paper grain, drawn not photographed — replaces the old CRT scanline overlay */
 body::after{
-  content:'';position:fixed;inset:0;
-  background:repeating-linear-gradient(0deg,transparent,transparent 2px,rgba(0,0,0,0.06) 2px,rgba(0,0,0,0.06) 4px);
-  pointer-events:none;z-index:9999;
+  content:'';position:fixed;inset:0;pointer-events:none;z-index:9999;
+  background-image:radial-gradient(rgba(0,0,0,.035) 1px, transparent 1px);
+  background-size:3px 3px;
+  mix-blend-mode:multiply;
 }
-@keyframes portalDrift{ from{ transform:rotate(0deg);} to{ transform:rotate(360deg);} }
+svg.sketch-filters{position:absolute;width:0;height:0;overflow:hidden;}
+
+/* ── DARK MODE: flowing stars background ── */
+.stars-bg{
+  position:fixed;inset:0;pointer-events:none;z-index:1;
+  overflow:hidden;opacity:0;transition:opacity .5s ease;
+}
+body.dark-mode .stars-bg{opacity:1;}
+@keyframes starFlow{
+  from{ transform:translateY(-10vh); opacity:0; }
+  8%{ opacity:1; }
+  92%{ opacity:1; }
+  to{ transform:translateY(110vh); opacity:0; }
+}
+.star-particle{
+  position:absolute;top:0;border-radius:50%;
+  background:#fff;box-shadow:0 0 4px rgba(255,255,255,.8);
+  animation:starFlow linear infinite;
+}
+
+/* ── INTERACTIVE FEATURE DEMO (spotlight tour) ── */
+.feature-spotlight{
+  position:fixed;z-index:10500;border-radius:12px;
+  box-shadow:0 0 0 9999px rgba(0,0,0,.62), 0 0 0 3px var(--portal), 0 0 18px rgba(var(--portal-rgb),.5);
+  transition:top .35s cubic-bezier(.2,.8,.2,1), left .35s cubic-bezier(.2,.8,.2,1), width .35s cubic-bezier(.2,.8,.2,1), height .35s cubic-bezier(.2,.8,.2,1), opacity .25s ease;
+  pointer-events:none;
+}
+.feature-tooltip{
+  position:fixed;z-index:10501;max-width:250px;
+  background:var(--panel);border:2px solid var(--portal);
+  border-radius:12px 16px 12px 16px/16px 12px 16px 12px;
+  padding:14px 16px;font-family:'Patrick Hand',cursive;color:var(--ink);
+  box-shadow:0 10px 28px rgba(0,0,0,.3);
+  transition:top .35s cubic-bezier(.2,.8,.2,1), left .35s cubic-bezier(.2,.8,.2,1), opacity .25s ease;
+}
+.feature-tooltip .ft-tag{
+  font-family:'Share Tech Mono',monospace;font-size:9px;letter-spacing:2px;
+  color:var(--line-soft);margin-bottom:6px;text-transform:uppercase;
+}
+.feature-tooltip .ft-title{
+  font-family:'Permanent Marker',cursive;font-size:16px;color:var(--portal-2);margin-bottom:4px;
+}
+.feature-tooltip .ft-text{font-size:14px;line-height:1.45;margin-bottom:10px;}
+.feature-tooltip .ft-hint{font-size:11px;color:var(--line-soft);font-style:italic;margin-bottom:8px;}
+.feature-tooltip .ft-actions{display:flex;align-items:center;justify-content:space-between;gap:8px;}
+.ft-btn{
+  background:transparent;border:1px solid var(--portal);color:var(--portal);
+  font-family:'Share Tech Mono',monospace;font-size:10px;letter-spacing:1px;
+  padding:5px 12px;border-radius:6px;cursor:pointer;transition:all .2s;
+}
+.ft-btn:hover{background:rgba(var(--portal-rgb),.12);}
+.ft-skip{background:transparent;border:none;color:var(--line-soft);font-size:10px;cursor:pointer;text-decoration:underline;font-family:'Share Tech Mono',monospace;letter-spacing:1px;}
 
 /* HUD corner brackets — signature framing device used on major panels */
 .hud-corners{position:relative;}
 .hud-corners::before,.hud-corners::after{
   content:'';position:absolute;width:10px;height:10px;
-  border:2px solid #b6ff3d;opacity:.55;pointer-events:none;
+  border:2px solid var(--portal);opacity:.55;pointer-events:none;
 }
 .hud-corners::before{top:6px;left:6px;border-right:0;border-bottom:0;}
 .hud-corners::after{bottom:6px;right:6px;border-left:0;border-top:0;}
 
-.app{display:grid;grid-template-columns:64px 340px 1fr;height:100vh;transition:grid-template-columns .28s cubic-bezier(.2,.8,.2,1);}
+.app{display:grid;grid-template-columns:64px 340px 1fr;height:100vh;transition:grid-template-columns .28s cubic-bezier(.2,.8,.2,1);position:relative;z-index:2;}
 .app.sidebar-open{grid-template-columns:220px 340px 1fr;}
-.history-panel{background:#0d0a1a;border-right:1px solid #2a1f42;display:flex;flex-direction:column;overflow:hidden;order:0;}
+.history-panel{background:var(--panel);border-right:2px solid var(--line);filter:url(#roughen);display:flex;flex-direction:column;overflow:hidden;order:0;}
 .app:not(.sidebar-open) .history-panel{align-items:center;}
 .app:not(.sidebar-open) .history-header{justify-content:center;padding:14px 0;}
 .app:not(.sidebar-open) .history-collapsible{display:none;}
-.history-header{padding:12px 14px;border-bottom:1px solid #2a1f42;flex-shrink:0;display:flex;align-items:center;gap:10px;justify-content:space-between;}
-.history-title{font-size:9px;letter-spacing:3px;color:#6b5a94;text-transform:uppercase;white-space:nowrap;}
+.history-header{padding:12px 14px;border-bottom:1px solid var(--line-soft);flex-shrink:0;display:flex;align-items:center;gap:10px;justify-content:space-between;}
+.history-title{font-size:9px;letter-spacing:3px;color:var(--line-soft);text-transform:uppercase;white-space:nowrap;}
 .history-collapsible{display:flex;align-items:center;justify-content:space-between;flex:1;gap:10px;overflow:hidden;white-space:nowrap;}
 /* the sidebar logo — a mini spinning portal ring, click to open/close the chats rail */
 .sidebar-logo{
@@ -68,7 +134,7 @@ body::after{
 .sidebar-logo::before{
   content:'';position:absolute;inset:0;border-radius:50%;
   padding:1.5px;box-sizing:border-box;
-  background:conic-gradient(from 0deg,#b6ff3d,#4dff9e 30%,#0d0a1a 45%,#b6ff3d 65%,#4dff9e 85%,#0d0a1a);
+  background:conic-gradient(from 0deg,var(--portal),var(--portal-2) 30%,var(--panel) 45%,var(--portal) 65%,var(--portal-2) 85%,var(--panel));
   -webkit-mask:linear-gradient(#fff 0 0) content-box,linear-gradient(#fff 0 0);
   -webkit-mask-composite:xor;mask-composite:exclude;
   animation:portalSpin 7s linear infinite;
@@ -76,36 +142,42 @@ body::after{
 .sidebar-logo::after{
   content:'';position:absolute;inset:3px;border-radius:50%;
   background:radial-gradient(circle at 50% 40%,#0a2a12 0%,#041006 70%,#000 100%);
-  box-shadow:inset 0 0 8px rgba(182,255,61,.35);
+  box-shadow:inset 0 0 8px rgba(var(--portal-rgb),.35);
   transition:box-shadow .2s;
 }
 .sidebar-logo:hover{transform:scale(1.07);}
-.sidebar-logo:hover::after{box-shadow:inset 0 0 10px rgba(182,255,61,.6), 0 0 10px rgba(182,255,61,.45);}
+.sidebar-logo:hover::after{box-shadow:inset 0 0 10px rgba(var(--portal-rgb),.6), 0 0 10px rgba(var(--portal-rgb),.45);}
 .sidebar-logo svg{width:20px;height:20px;position:relative;z-index:1;}
-/* signature button cut — angled corner instead of the generic rounded-rect terminal button */
-button{clip-path:polygon(0 0,calc(100% - 8px) 0,100% 8px,100% 100%,0 100%);border-radius:0 !important;}
-button:hover{filter:brightness(1.15);}
+/* signature hand-drawn button — organic asymmetric radius instead of a sci-fi angled cut */
+button{border-radius:10px 14px 10px 14px/14px 10px 14px 10px !important;font-family:'Patrick Hand',cursive;}
+button:hover{filter:brightness(1.08);}
 
-.new-chat-btn{background:transparent;border:1px solid #2a1f42;color:#6b5a94;font-family:'Share Tech Mono',monospace;font-size:9px;padding:3px 8px;border-radius:4px;cursor:pointer;letter-spacing:1px;transition:all .2s;white-space:nowrap;}
-.new-chat-btn:hover{border-color:#b6ff3d;color:#b6ff3d;}
-.history-list{flex:1;overflow-y:auto;scrollbar-width:thin;scrollbar-color:#2a1f42 transparent;}
+.new-chat-btn{background:transparent;border:1px solid var(--line-soft);color:var(--line-soft);font-family:'Share Tech Mono',monospace;font-size:9px;padding:3px 8px;border-radius:4px;cursor:pointer;letter-spacing:1px;transition:all .2s;white-space:nowrap;}
+#darkToggleBtn{
+  font-size:16px;line-height:1;padding:2px 9px;
+  display:flex;align-items:center;justify-content:center;
+}
+#darkToggleBtn:hover{border-color:var(--portal);color:var(--portal);}
+.new-chat-btn:hover{border-color:var(--portal);color:var(--portal);}
+.history-list{flex:1;overflow-y:auto;scrollbar-width:thin;scrollbar-color:var(--line-soft) transparent;}
 .app:not(.sidebar-open) .history-list{display:none;}
 .history-list::-webkit-scrollbar{width:2px;}
-.history-list::-webkit-scrollbar-thumb{background:#2a1f42;}
-.chat-item{padding:10px 14px;border-bottom:1px solid rgba(26,58,26,.4);cursor:pointer;transition:background .15s;position:relative;}
-.chat-item:hover{background:rgba(182,255,61,.04);}
-.chat-item.active{background:rgba(182,255,61,.07);border-left:2px solid #b6ff3d;}
-.chat-item-name{font-size:11px;color:#d9cdfa;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;letter-spacing:.5px;padding-right:18px;}
-.chat-item.active .chat-item-name{color:#b6ff3d;}
-.chat-item-meta{font-size:9px;color:#6b5a94;margin-top:3px;letter-spacing:.5px;}
-.chat-delete{position:absolute;right:8px;top:50%;transform:translateY(-50%);background:transparent;border:none;color:#6b5a94;cursor:pointer;font-size:11px;opacity:0;transition:opacity .15s;padding:2px 4px;font-family:'Share Tech Mono',monospace;}
+.history-list::-webkit-scrollbar-thumb{background:var(--line-soft);}
+.chat-item{padding:10px 14px;border-bottom:1px solid rgba(var(--line-soft-rgb),.4);cursor:pointer;transition:background .15s;position:relative;}
+.chat-item:hover{background:rgba(var(--portal-rgb),.04);}
+.chat-item.active{background:rgba(var(--portal-rgb),.07);border-left:2px solid var(--portal);}
+.chat-item-name{font-size:11px;color:var(--ink);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;letter-spacing:.5px;padding-right:18px;}
+.chat-item.active .chat-item-name{color:var(--portal);}
+.chat-item-meta{font-size:9px;color:var(--line-soft);margin-top:3px;letter-spacing:.5px;}
+.chat-delete{position:absolute;right:8px;top:50%;transform:translateY(-50%);background:transparent;border:none;color:var(--line-soft);cursor:pointer;font-size:11px;opacity:0;transition:opacity .15s;padding:2px 4px;font-family:'Share Tech Mono',monospace;}
 .chat-item:hover .chat-delete{opacity:1;}
 .chat-delete:hover{color:#ff4444;}
 
 /* ── LEFT PANEL ── */
 .left-panel{
-  background:#0d0a1a;
-  border-right:1px solid #2a1f42;
+  background:var(--panel);
+  border-right:2px solid var(--line);
+  filter:url(#roughen);
   display:flex;flex-direction:column;align-items:center;
   padding:16px 12px 12px;
   overflow:hidden;
@@ -113,7 +185,7 @@ button:hover{filter:brightness(1.15);}
   order:1;
 }
 .panel-title{
-  font-size:9px;letter-spacing:4px;color:#6b5a94;
+  font-size:9px;letter-spacing:4px;color:var(--line-soft);
   text-transform:uppercase;margin-bottom:10px;
 }
 
@@ -565,117 +637,117 @@ button:hover{filter:brightness(1.15);}
 .status-strip{
   width:100%;display:flex;align-items:center;justify-content:space-between;
   padding:8px 4px 0;margin-top:8px;
-  border-top:1px solid #2a1f42;
+  border-top:1px solid var(--line-soft);
 }
 .dot{width:8px;height:8px;border-radius:50%;background:#222;transition:all .3s;}
-.dot.on{background:#b6ff3d;box-shadow:0 0 8px #b6ff3d;}
-.status-lbl{font-size:10px;color:#6b5a94;letter-spacing:2px;}
-.mood-lbl{font-size:10px;color:#b6ff3d;letter-spacing:3px;opacity:.65;}
+.dot.on{background:var(--portal);box-shadow:0 0 8px var(--portal);}
+.status-lbl{font-size:10px;color:var(--line-soft);letter-spacing:2px;}
+.mood-lbl{font-size:10px;color:var(--portal);letter-spacing:3px;opacity:.65;}
 
 /* ── SPEECH BUBBLE ── */
 .speech{
-  background:rgba(0,18,0,.85);
-  border:1px solid #b6ff3d;
+  background:rgba(var(--paper-rgb),.85);
+  border:1px solid var(--portal);
   border-radius:10px 10px 10px 0;
   padding:9px 13px;
   font-family:'Permanent Marker',cursive;
   font-size:11px;
-  color:#c0ffc0;
+  color:var(--portal-2);
   line-height:1.5;
   max-width:280px;min-height:46px;
-  box-shadow:0 0 14px rgba(182,255,61,.08);
+  box-shadow:0 0 14px rgba(var(--portal-rgb),.08);
   margin-bottom:10px;
   position:relative;
 }
 .speech::after{
   content:'';position:absolute;bottom:-9px;left:14px;
-  border:5px solid transparent;border-top-color:#b6ff3d;
+  border:5px solid transparent;border-top-color:var(--portal);
 }
 
 /* ── RIGHT PANEL ── */
 .right-panel{display:flex;flex-direction:column;height:100vh;overflow:hidden;order:2;position:relative;}
 
 .chat-header{
-  padding:14px 22px;border-bottom:1px solid #2a1f42;
+  padding:14px 22px;border-bottom:1px solid var(--line-soft);
   display:flex;align-items:center;justify-content:space-between;flex-shrink:0;
 }
 .chat-title{
   font-family:'Permanent Marker',cursive;font-size:24px;
-  color:#b6ff3d;text-shadow:0 0 18px rgba(182,255,61,.35);letter-spacing:3px;
+  color:var(--portal);text-shadow:0 0 18px rgba(var(--portal-rgb),.35);letter-spacing:3px;
 }
-.chat-sub{font-size:9px;color:#6b5a94;letter-spacing:3px;margin-top:2px;}
+.chat-sub{font-size:9px;color:var(--line-soft);letter-spacing:3px;margin-top:2px;}
 .model-pill{
-  font-size:10px;color:#6b5a94;
-  border:1px solid #2a1f42;padding:4px 10px;border-radius:20px;letter-spacing:1px;
+  font-size:10px;color:var(--line-soft);
+  border:1px solid var(--line-soft);padding:4px 10px;border-radius:20px;letter-spacing:1px;
 }
 
 /* API bar */
 .api-bar{
-  padding:9px 22px;border-bottom:1px solid #2a1f42;
+  padding:9px 22px;border-bottom:1px solid var(--line-soft);
   display:flex;gap:10px;align-items:center;flex-shrink:0;
-  background:rgba(0,8,0,.5);
+  background:rgba(var(--paper-rgb),.5);
 }
-.api-lbl{font-size:9px;color:#6b5a94;letter-spacing:2px;white-space:nowrap;}
+.api-lbl{font-size:9px;color:var(--line-soft);letter-spacing:2px;white-space:nowrap;}
 .api-input{
-  flex:1;background:transparent;border:1px solid #2a1f42;
-  color:#d9cdfa;font-family:'Share Tech Mono',monospace;font-size:12px;
+  flex:1;background:transparent;border:1px solid var(--line-soft);
+  color:var(--ink);font-family:'Share Tech Mono',monospace;font-size:12px;
   padding:5px 10px;border-radius:4px;outline:none;transition:border-color .2s;
 }
-.api-input:focus{border-color:#b6ff3d;box-shadow:0 0 8px rgba(182,255,61,.12);}
-.api-input::placeholder{color:#6b5a94;opacity:.7;}
+.api-input:focus{border-color:var(--portal);box-shadow:0 0 8px rgba(var(--portal-rgb),.12);}
+.api-input::placeholder{color:var(--line-soft);opacity:.7;}
 .api-btn{
-  background:transparent;border:1px solid #b6ff3d;color:#b6ff3d;
+  background:transparent;border:1px solid var(--portal);color:var(--portal);
   font-family:'Share Tech Mono',monospace;font-size:11px;
   padding:5px 14px;border-radius:4px;cursor:pointer;letter-spacing:1px;transition:all .2s;
 }
-.api-btn:hover{background:rgba(182,255,61,.1);box-shadow:0 0 10px rgba(182,255,61,.2);}
-.api-status{font-size:10px;letter-spacing:1px;white-space:nowrap;color:#6b5a94;}
-.api-status.ok{color:#b6ff3d;} .api-status.err{color:#ff4444;}
+.api-btn:hover{background:rgba(var(--portal-rgb),.1);box-shadow:0 0 10px rgba(var(--portal-rgb),.2);}
+.api-status{font-size:10px;letter-spacing:1px;white-space:nowrap;color:var(--line-soft);}
+.api-status.ok{color:var(--portal);} .api-status.err{color:#ff4444;}
 
 /* Messages */
 .messages{
   flex:1;overflow-y:auto;padding:18px 22px;
   display:flex;flex-direction:column;gap:14px;
-  scrollbar-width:thin;scrollbar-color:#2a1f42 transparent;
+  scrollbar-width:thin;scrollbar-color:var(--line-soft) transparent;
 }
 .messages::-webkit-scrollbar{width:3px;}
-.messages::-webkit-scrollbar-thumb{background:#2a1f42;border-radius:2px;}
+.messages::-webkit-scrollbar-thumb{background:var(--line-soft);border-radius:2px;}
 
 .msg{display:flex;flex-direction:column;gap:3px;max-width:78%;animation:msgIn .28s ease;position:relative;transition:transform .15s ease;}
 .msg:hover{transform:translateY(-1px);}
 @keyframes msgIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
 .msg.user{align-self:flex-end;}
 .msg.bot{align-self:flex-start;}
-.msg-lbl{font-size:9px;letter-spacing:2px;color:#6b5a94;text-transform:uppercase;display:flex;align-items:center;gap:8px;}
+.msg-lbl{font-size:9px;letter-spacing:2px;color:var(--line-soft);text-transform:uppercase;display:flex;align-items:center;gap:8px;}
 .msg.user .msg-lbl{text-align:right;justify-content:flex-end;}
 .msg-time{opacity:.55;font-size:8px;letter-spacing:1px;}
 .msg-copy{
-  background:transparent;border:1px solid #2a1f42;color:#6b5a94;
+  background:transparent;border:1px solid var(--line-soft);color:var(--line-soft);
   font-size:8px;letter-spacing:1px;padding:1px 6px;cursor:pointer;
   opacity:0;transition:opacity .15s,color .15s,border-color .15s;
 }
 .msg:hover .msg-copy{opacity:1;}
-.msg-copy:hover{color:#b6ff3d;border-color:#b6ff3d;}
-.msg-copy.copied{opacity:1;color:#b6ff3d;border-color:#b6ff3d;}
+.msg-copy:hover{color:var(--portal);border-color:var(--portal);}
+.msg-copy.copied{opacity:1;color:var(--portal);border-color:var(--portal);}
 .msg-bubble{padding:9px 15px;border-radius:10px;font-size:13px;line-height:1.6;transition:box-shadow .2s,border-color .2s;}
 .msg.user .msg-bubble{
-  background:rgba(0,38,0,.6);border:1px solid rgba(182,255,61,.18);
-  color:#aaffaa;border-radius:10px 10px 0 10px;
+  background:rgba(var(--portal-rgb),.12);border:1px solid rgba(var(--portal-rgb),.35);
+  color:var(--ink);border-radius:10px 10px 0 10px;
 }
 .msg.bot .msg-bubble{
-  background:rgba(0,18,0,.45);border:1px solid #2a1f42;
-  color:#d9cdfa;border-radius:0 10px 10px 10px;
+  background:rgba(var(--paper-rgb),.45);border:1px solid var(--line-soft);
+  color:var(--ink);border-radius:0 10px 10px 10px;
   font-family:'Permanent Marker',cursive;font-size:12px;
 }
-.msg:hover .msg-bubble{border-color:rgba(182,255,61,.4);}
+.msg:hover .msg-bubble{border-color:rgba(var(--portal-rgb),.4);}
 
 /* scroll-to-bottom pill */
 .scroll-btn{
   position:absolute;bottom:78px;left:50%;transform:translateX(-50%) translateY(6px);
-  background:#0d0a1a;border:1px solid #b6ff3d;color:#b6ff3d;
+  background:var(--panel);border:1px solid var(--portal);color:var(--portal);
   font-family:'Share Tech Mono',monospace;font-size:10px;letter-spacing:1px;
   padding:5px 12px;cursor:pointer;opacity:0;pointer-events:none;
-  transition:opacity .2s,transform .2s;box-shadow:0 0 10px rgba(182,255,61,.15);
+  transition:opacity .2s,transform .2s;box-shadow:0 0 10px rgba(var(--portal-rgb),.15);
   z-index:20;
 }
 .scroll-btn.show{opacity:1;pointer-events:auto;transform:translateX(-50%) translateY(0);}
@@ -683,59 +755,59 @@ button:hover{filter:brightness(1.15);}
 /* typing dots */
 .typing .msg-bubble{display:flex;gap:5px;align-items:center;padding:12px 18px;}
 .tdot{
-  width:6px;height:6px;border-radius:50%;background:#b6ff3d;
-  animation:tdot .75s infinite;box-shadow:0 0 5px #b6ff3d;
+  width:6px;height:6px;border-radius:50%;background:var(--portal);
+  animation:tdot .75s infinite;box-shadow:0 0 5px var(--portal);
 }
 .tdot:nth-child(2){animation-delay:.15s;}
 .tdot:nth-child(3){animation-delay:.3s;}
 @keyframes tdot{0%,60%,100%{transform:translateY(0)}30%{transform:translateY(-5px)}}
 
 /* empty state */
-.empty{margin:auto;text-align:center;color:#6b5a94;padding:40px;}
-.empty h2{font-family:'Permanent Marker',cursive;font-size:30px;color:#b6ff3d;opacity:.3;margin-bottom:10px;}
+.empty{margin:auto;text-align:center;color:var(--line-soft);padding:40px;}
+.empty h2{font-family:'Permanent Marker',cursive;font-size:30px;color:var(--portal);opacity:.3;margin-bottom:10px;}
 .empty p{font-size:12px;letter-spacing:1px;line-height:1.9;}
 
 /* Input */
 .input-bar{
-  padding:14px 22px;border-top:1px solid #2a1f42;
+  padding:14px 22px;border-top:1px solid var(--line-soft);
   display:flex;gap:12px;flex-shrink:0;
-  background:rgba(0,8,0,.5);
+  background:rgba(var(--paper-rgb),.5);
 }
 .chat-input{
-  flex:1;background:rgba(0,18,0,.6);border:1px solid #2a1f42;
-  color:#d9cdfa;font-family:'Share Tech Mono',monospace;font-size:13px;
+  flex:1;background:rgba(var(--paper-rgb),.6);border:1px solid var(--line-soft);
+  color:var(--ink);font-family:'Share Tech Mono',monospace;font-size:13px;
   padding:9px 14px;border-radius:7px;outline:none;resize:none;
   transition:border-color .2s;max-height:100px;
 }
-.chat-input:focus{border-color:rgba(182,255,61,.35);box-shadow:0 0 10px rgba(182,255,61,.07);}
-.chat-input::placeholder{color:#6b5a94;opacity:.55;}
+.chat-input:focus{border-color:rgba(var(--portal-rgb),.35);box-shadow:0 0 10px rgba(var(--portal-rgb),.07);}
+.chat-input::placeholder{color:var(--line-soft);opacity:.55;}
 .send-btn{
-  background:transparent;border:1px solid #b6ff3d;color:#b6ff3d;
+  background:transparent;border:1px solid var(--portal);color:var(--portal);
   font-family:'Share Tech Mono',monospace;font-size:12px;
   padding:9px 20px;border-radius:7px;cursor:pointer;
   letter-spacing:2px;transition:all .2s;align-self:flex-end;
 }
-.send-btn:hover:not(:disabled){background:rgba(182,255,61,.1);box-shadow:0 0 14px rgba(182,255,61,.18);}
+.send-btn:hover:not(:disabled){background:rgba(var(--portal-rgb),.1);box-shadow:0 0 14px rgba(var(--portal-rgb),.18);}
 .send-btn:disabled{opacity:.25;cursor:not-allowed;}
 .mic-btn{
-  background:transparent;border:1px solid #3a2f5a;color:#a89bd6;
+  background:transparent;border:1px solid var(--line-soft);color:var(--muted2);
   padding:9px 11px;border-radius:7px;
   cursor:pointer;transition:all .2s;align-self:flex-end;
   line-height:1;display:flex;align-items:center;justify-content:center;
 }
 .mic-btn svg{width:18px;height:18px;display:block;}
-.mic-btn:hover{border-color:#b6ff3d;color:#b6ff3d;box-shadow:0 0 10px rgba(182,255,61,.25);}
+.mic-btn:hover{border-color:var(--portal);color:var(--portal);box-shadow:0 0 10px rgba(var(--portal-rgb),.25);}
 .mic-btn.listening{
-  border-color:#ff4444;color:#ff4444;box-shadow:0 0 14px rgba(255,68,68,.4);
+  border-color:#ff4444;color:#ff4444;box-shadow:0 0 14px rgba(var(--rust-rgb),.4);
   animation:micPulse .6s ease-in-out infinite alternate;
 }
-@keyframes micPulse{from{box-shadow:0 0 6px rgba(255,68,68,.3)}to{box-shadow:0 0 18px rgba(255,68,68,.7)}}
-.foot{font-size:9px;color:#6b5a94;text-align:center;padding:5px;letter-spacing:1px;opacity:.45;}
+@keyframes micPulse{from{box-shadow:0 0 6px rgba(var(--rust-rgb),.3)}to{box-shadow:0 0 18px rgba(var(--rust-rgb),.7)}}
+.foot{font-size:9px;color:var(--line-soft);text-align:center;padding:5px;letter-spacing:1px;opacity:.45;}
 
 /* portal glow bg */
 .portal-glow{
   position:fixed;width:500px;height:500px;border-radius:50%;
-  background:radial-gradient(circle,rgba(182,255,61,.05) 0%,transparent 70%);
+  background:radial-gradient(circle,rgba(var(--portal-rgb),.05) 0%,transparent 70%);
   top:50%;left:50%;transform:translate(-50%,-50%);
   pointer-events:none;animation:pglow 5s ease-in-out infinite;
 }
@@ -743,6 +815,13 @@ button:hover{filter:brightness(1.15);}
 </style>
 </head>
 <body>
+<svg class="sketch-filters">
+  <filter id="roughen" x="-5%" y="-5%" width="110%" height="110%">
+    <feTurbulence type="fractalNoise" baseFrequency="0.012 0.09" numOctaves="2" seed="7" result="noise"/>
+    <feDisplacementMap in="SourceGraphic" in2="noise" scale="2.6"/>
+  </filter>
+</svg>
+<div id="starsBg" class="stars-bg"></div>
 <div class="portal-glow"></div>
 
 <!-- ── TOUR OVERLAY ── -->
@@ -831,7 +910,7 @@ button:hover{filter:brightness(1.15);}
   <div style="position:relative;width:min(340px,58vw);height:min(340px,58vw);display:flex;align-items:center;justify-content:center;flex-shrink:0;z-index:1;">
     <div class="portal-ring" style="
       position:absolute;inset:0;border-radius:50%;
-      background:conic-gradient(from 0deg, #b6ff3d, #4dff9e, #0d0a1a 35%, #b6ff3d 55%, #4dff9e 75%, #0d0a1a 95%, #b6ff3d);
+      background:conic-gradient(from 0deg, var(--portal), var(--portal-2), var(--panel) 35%, var(--portal) 55%, var(--portal-2) 75%, var(--panel) 95%, var(--portal));
       filter:blur(2px);
       animation:portalSpin 3.2s linear infinite, portalGrow 2.6s cubic-bezier(.2,.8,.2,1) forwards;
       opacity:0;
@@ -839,13 +918,13 @@ button:hover{filter:brightness(1.15);}
     <div class="portal-core" style="
       position:absolute;width:78%;height:78%;border-radius:50%;
       background:radial-gradient(circle at 50% 45%, #0a2a12 0%, #041006 65%, #000 100%);
-      box-shadow:inset 0 0 40px rgba(182,255,61,.5), 0 0 60px rgba(182,255,61,.25);
+      box-shadow:inset 0 0 40px rgba(var(--portal-rgb),.5), 0 0 60px rgba(var(--portal-rgb),.25);
       animation:portalGrow 2.6s cubic-bezier(.2,.8,.2,1) forwards;
       opacity:0;
     "></div>
     <div style="
       position:absolute;width:78%;height:78%;border-radius:50%;
-      background:repeating-radial-gradient(circle at 50% 50%, transparent 0 8px, rgba(182,255,61,.06) 8px 9px);
+      background:repeating-radial-gradient(circle at 50% 50%, transparent 0 8px, rgba(var(--portal-rgb),.06) 8px 9px);
       animation:portalGrow 2.6s cubic-bezier(.2,.8,.2,1) forwards, portalSpin 6s linear infinite reverse;
       opacity:0;
     "></div>
@@ -856,11 +935,11 @@ button:hover{filter:brightness(1.15);}
       animation:logoIn .9s ease forwards;animation-delay:1.7s;
     ">
       <div style="
-        font-family:'Permanent Marker',cursive;font-size:34px;color:#b6ff3d;
-        text-shadow:0 0 6px #b6ff3d,0 0 26px rgba(182,255,61,.6);
+        font-family:'Permanent Marker',cursive;font-size:34px;color:var(--portal);
+        text-shadow:0 0 6px var(--portal),0 0 26px rgba(var(--portal-rgb),.6);
         letter-spacing:3px;
       ">RICK.AI</div>
-      <div style="font-family:'Share Tech Mono',monospace;font-size:9px;color:#a89bd6;letter-spacing:4px;margin-top:6px;">
+      <div style="font-family:'Share Tech Mono',monospace;font-size:9px;color:var(--muted2);letter-spacing:4px;margin-top:6px;">
         DIMENSION C-137 CALIBRATING
       </div>
     </div>
@@ -869,7 +948,7 @@ button:hover{filter:brightness(1.15);}
   </div>
 
   <div style="position:absolute;bottom:26px;left:0;right:0;text-align:center;
-    font-family:'Share Tech Mono',monospace;font-size:9px;color:#3a2f5a;
+    font-family:'Share Tech Mono',monospace;font-size:9px;color:var(--line-soft);
     letter-spacing:2px;opacity:0;animation:fadeInSlow .6s ease forwards;animation-delay:2.4s;">
     click anywhere to skip
   </div>
@@ -895,7 +974,7 @@ button:hover{filter:brightness(1.15);}
 }
 .intro-particle{
   position:absolute;bottom:-10px;border-radius:50%;
-  background:#b6ff3d;box-shadow:0 0 6px #b6ff3d;
+  background:var(--portal);box-shadow:0 0 6px var(--portal);
   animation:particleRise linear infinite;
 }
 #introSplash.leaving{ transition:opacity .5s ease; opacity:0; }
@@ -1523,12 +1602,12 @@ button:hover{filter:brightness(1.15);}
 
 <div id="tour" style="
   position:fixed;inset:0;z-index:10000;
-  background:rgba(0,4,0,.97);
+  background:rgba(var(--paper-rgb),.97);
   display:flex;align-items:center;justify-content:center;
-  font-family:'Share Tech Mono',monospace;
+  font-family:'Patrick Hand',cursive;
 ">
-  <!-- scanline on tour too -->
-  <div style="position:absolute;inset:0;background:repeating-linear-gradient(0deg,transparent,transparent 2px,rgba(0,0,0,0.1) 2px,rgba(0,0,0,0.1) 4px);pointer-events:none;"></div>
+  <!-- paper grain on tour too -->
+  <div style="position:absolute;inset:0;background-image:radial-gradient(rgba(0,0,0,.04) 1px, transparent 1px);background-size:3px 3px;pointer-events:none;"></div>
 
   <div style="position:relative;max-width:680px;width:90%;padding:0 16px;">
 
@@ -1545,16 +1624,16 @@ button:hover{filter:brightness(1.15);}
 
     <!-- Card -->
     <div id="tourCard" style="
-      border:1px solid #b6ff3d;border-radius:12px;
-      background:rgba(0,12,0,.9);
-      box-shadow:0 0 40px rgba(182,255,61,.12);
+      border:1px solid var(--portal);border-radius:12px;
+      background:rgba(var(--paper-rgb),.9);
+      box-shadow:0 0 40px rgba(var(--portal-rgb),.12);
       overflow:hidden;
     ">
       <!-- header bar -->
-      <div style="padding:14px 24px;border-bottom:1px solid #2a1f42;display:flex;align-items:center;gap:12px;">
-        <div style="width:9px;height:9px;border-radius:50%;background:#b6ff3d;box-shadow:0 0 8px #b6ff3d;animation:pglow 1.5s ease-in-out infinite;flex-shrink:0;"></div>
-        <span id="tourTag" style="font-size:9px;letter-spacing:4px;color:#6b5a94;">STEP 1 OF 5</span>
-        <span style="font-size:9px;letter-spacing:4px;color:#6b5a94;margin-left:auto;">RICK.AI SETUP</span>
+      <div style="padding:14px 24px;border-bottom:1px solid var(--line-soft);display:flex;align-items:center;gap:12px;">
+        <div style="width:9px;height:9px;border-radius:50%;background:var(--portal);box-shadow:0 0 8px var(--portal);animation:pglow 1.5s ease-in-out infinite;flex-shrink:0;"></div>
+        <span id="tourTag" style="font-size:9px;letter-spacing:4px;color:var(--line-soft);">STEP 1 OF 5</span>
+        <span style="font-size:9px;letter-spacing:4px;color:var(--line-soft);margin-left:auto;">RICK.AI SETUP</span>
       </div>
 
       <!-- body -->
@@ -1563,42 +1642,42 @@ button:hover{filter:brightness(1.15);}
         <div style="display:flex;gap:20px;align-items:flex-start;margin-bottom:24px;">
           <div style="
             width:52px;height:52px;border-radius:50%;
-            border:1px solid #2a1f42;flex-shrink:0;
+            border:1px solid var(--line-soft);flex-shrink:0;
             display:flex;align-items:center;justify-content:center;
-            font-family:'Permanent Marker',cursive;font-size:22px;color:#b6ff3d;
-            background:#0d0a1a;box-shadow:0 0 12px rgba(182,255,61,.1);
+            font-family:'Permanent Marker',cursive;font-size:22px;color:var(--portal);
+            background:var(--panel);box-shadow:0 0 12px rgba(var(--portal-rgb),.1);
           ">R</div>
           <div style="
-            background:rgba(0,18,0,.7);border:1px solid #b6ff3d;
+            background:rgba(var(--paper-rgb),.7);border:1px solid var(--portal);
             border-radius:0 10px 10px 10px;padding:12px 16px;flex:1;
             font-family:'Permanent Marker',cursive;font-size:13px;
-            color:#c0ffc0;line-height:1.7;
+            color:var(--portal-2);line-height:1.7;
           " id="tourSpeech">...</div>
         </div>
 
         <!-- step content -->
-        <div id="tourContent" style="color:#d9cdfa;font-size:13px;line-height:1.9;"></div>
+        <div id="tourContent" style="color:var(--ink);font-size:13px;line-height:1.9;"></div>
       </div>
 
       <!-- footer nav -->
-      <div style="padding:16px 32px;border-top:1px solid #2a1f42;display:flex;align-items:center;justify-content:space-between;">
+      <div style="padding:16px 32px;border-top:1px solid var(--line-soft);display:flex;align-items:center;justify-content:space-between;">
         <button onclick="tourPrev()" id="tourPrevBtn" style="
-          background:transparent;border:1px solid #2a1f42;color:#6b5a94;
+          background:transparent;border:1px solid var(--line-soft);color:var(--line-soft);
           font-family:'Share Tech Mono',monospace;font-size:11px;
           padding:7px 18px;border-radius:6px;cursor:pointer;letter-spacing:1px;
           transition:all .2s;
         ">← BACK</button>
         <button onclick="tourSkip()" style="
-          background:transparent;border:none;color:#6b5a94;
+          background:transparent;border:none;color:var(--line-soft);
           font-family:'Share Tech Mono',monospace;font-size:10px;
           cursor:pointer;letter-spacing:1px;text-decoration:underline;
           padding:7px;
         ">skip tour</button>
         <button onclick="tourNext()" id="tourNextBtn" style="
-          background:transparent;border:1px solid #b6ff3d;color:#b6ff3d;
+          background:transparent;border:1px solid var(--portal);color:var(--portal);
           font-family:'Share Tech Mono',monospace;font-size:11px;
           padding:7px 18px;border-radius:6px;cursor:pointer;letter-spacing:1px;
-          transition:all .2s;box-shadow:0 0 10px rgba(182,255,61,.1);
+          transition:all .2s;box-shadow:0 0 10px rgba(var(--portal-rgb),.1);
         ">NEXT →</button>
       </div>
     </div>
@@ -1609,13 +1688,13 @@ button:hover{filter:brightness(1.15);}
 <style>
 .tdot-step{
   width:8px;height:8px;border-radius:50%;
-  background:#2a1f42;transition:all .3s;
+  background:var(--line-soft);transition:all .3s;
 }
 .tdot-step.active{
-  background:#b6ff3d;box-shadow:0 0 8px #b6ff3d;width:24px;border-radius:4px;
+  background:var(--portal);box-shadow:0 0 8px var(--portal);width:24px;border-radius:4px;
 }
-#tourPrevBtn:hover{border-color:#b6ff3d;color:#b6ff3d;}
-#tourNextBtn:hover{background:rgba(182,255,61,.1);}
+#tourPrevBtn:hover{border-color:var(--portal);color:var(--portal);}
+#tourNextBtn:hover{background:rgba(var(--portal-rgb),.1);}
 
 /* step-to-step card transition */
 #tourCard{transition:opacity .28s ease, transform .28s ease;}
@@ -1630,7 +1709,7 @@ button:hover{filter:brightness(1.15);}
 
 /* typewriter cursor on the speech line */
 #tourSpeech.typing::after{
-  content:'▍';color:#b6ff3d;margin-left:2px;
+  content:'▍';color:var(--portal);margin-left:2px;
   animation:caretBlink .9s steps(1) infinite;
 }
 @keyframes caretBlink{50%{opacity:0;}}
@@ -1641,19 +1720,19 @@ button:hover{filter:brightness(1.15);}
   <!-- MIDDLE: Chat History (now leftmost) -->
   <div class="history-panel hud-corners">
     <div class="history-header">
-      <button class="sidebar-logo" onclick="toggleSidebar()" title="Toggle chats">
+      <button class="sidebar-logo" id="sidebarLogoBtn" onclick="toggleSidebar()" title="Toggle chats">
         <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-          <circle cx="12" cy="12" r="1.6" fill="#b6ff3d"/>
-          <ellipse cx="12" cy="12" rx="9" ry="3.6" stroke="#b6ff3d" stroke-width="1.1" transform="rotate(0 12 12)"/>
-          <ellipse cx="12" cy="12" rx="9" ry="3.6" stroke="#4dff9e" stroke-width="1.1" transform="rotate(60 12 12)"/>
-          <ellipse cx="12" cy="12" rx="9" ry="3.6" stroke="#b6ff3d" stroke-width="1.1" opacity=".6" transform="rotate(120 12 12)"/>
+          <circle cx="12" cy="12" r="1.6" fill="var(--portal)"/>
+          <ellipse cx="12" cy="12" rx="9" ry="3.6" stroke="var(--portal)" stroke-width="1.1" transform="rotate(0 12 12)"/>
+          <ellipse cx="12" cy="12" rx="9" ry="3.6" stroke="var(--portal-2)" stroke-width="1.1" transform="rotate(60 12 12)"/>
+          <ellipse cx="12" cy="12" rx="9" ry="3.6" stroke="var(--portal)" stroke-width="1.1" opacity=".6" transform="rotate(120 12 12)"/>
         </svg>
       </button>
       <div class="history-collapsible">
         <span class="history-title">CHATS</span>
         <div style="display:flex;gap:6px;">
-          <button class="new-chat-btn" onclick="exportChat()" title="Export this chat as .txt">⬇ SAVE</button>
-          <button class="new-chat-btn" onclick="newChat()">+ NEW</button>
+          <button class="new-chat-btn" id="darkToggleBtn" onclick="toggleDarkMode()" title="Toggle dark mode">☾</button>
+          <button class="new-chat-btn" id="newChatBtn" onclick="newChat()">+ NEW</button>
         </div>
       </div>
     </div>
@@ -1748,7 +1827,7 @@ button:hover{filter:brightness(1.15);}
       </div>
       <div class="mood-lbl" id="moodLbl">NEUTRAL</div>
       <button id="voiceBtn" onclick="openVoicePanel()" title="Voice options" style="
-        background:transparent;border:1px solid #2a1f42;color:#6b5a94;
+        background:transparent;border:1px solid var(--line-soft);color:var(--line-soft);
         font-family:'Share Tech Mono',monospace;font-size:9px;
         padding:3px 9px;border-radius:10px;cursor:pointer;letter-spacing:1px;
         transition:all .2s;
@@ -1764,9 +1843,9 @@ button:hover{filter:brightness(1.15);}
         <div class="chat-sub">SMARTEST BEING IN THE UNIVERSE · DIMENSION C-137</div>
       </div>
       <div style="display:flex;align-items:center;gap:8px">
-        <span style="font-size:9px;color:#6b5a94;letter-spacing:2px;">MODEL</span>
+        <span style="font-size:9px;color:var(--line-soft);letter-spacing:2px;">MODEL</span>
         <select id="modelSelect" style="
-          background:#0d0a1a;border:1px solid #2a1f42;color:#b6ff3d;
+          background:var(--panel);border:1px solid var(--line-soft);color:var(--portal);
           font-family:'Share Tech Mono',monospace;font-size:10px;
           padding:4px 8px;border-radius:20px;letter-spacing:1px;
           cursor:pointer;outline:none;appearance:none;
@@ -1789,8 +1868,7 @@ button:hover{filter:brightness(1.15);}
 
     <div class="api-bar">
       <span class="api-lbl">GOOGLE API</span>
-      <input type="password" class="api-input" id="apiInput" placeholder="AIza... (Gemini + optional Search)"/>
-      <input type="text" class="api-input" id="cxInput" placeholder="CX ID (optional, web search)" style="max-width:190px;"/>
+      <input type="password" class="api-input" id="apiInput" placeholder="AIza... (Gemini API key)"/>
       <button class="api-btn" onclick="saveKey()">CONNECT</button>
       <span class="api-status" id="apiStatus">NO KEY</span>
     </div>
@@ -1825,20 +1903,20 @@ button:hover{filter:brightness(1.15);}
 <!-- ── VOICE PANEL ── -->
 <div id="voicePanel" style="
   display:none;position:fixed;inset:0;z-index:20000;
-  background:rgba(0,4,0,.92);
+  background:rgba(var(--paper-rgb),.92);
   align-items:center;justify-content:center;
   font-family:'Share Tech Mono',monospace;
 ">
   <div style="position:absolute;inset:0;background:repeating-linear-gradient(0deg,transparent,transparent 2px,rgba(0,0,0,0.1) 2px,rgba(0,0,0,0.1) 4px);pointer-events:none;"></div>
-  <div style="position:relative;max-width:520px;width:90%;border:1px solid #b6ff3d;border-radius:12px;background:rgba(0,12,0,.97);box-shadow:0 0 40px rgba(182,255,61,.12);overflow:hidden;">
+  <div style="position:relative;max-width:520px;width:90%;border:1px solid var(--portal);border-radius:12px;background:rgba(var(--paper-rgb),.97);box-shadow:0 0 40px rgba(var(--portal-rgb),.12);overflow:hidden;">
 
     <!-- header -->
-    <div style="padding:14px 24px;border-bottom:1px solid #2a1f42;display:flex;align-items:center;justify-content:space-between;">
+    <div style="padding:14px 24px;border-bottom:1px solid var(--line-soft);display:flex;align-items:center;justify-content:space-between;">
       <div style="display:flex;align-items:center;gap:10px;">
-        <div style="width:8px;height:8px;border-radius:50%;background:#b6ff3d;box-shadow:0 0 8px #b6ff3d;animation:pglow 1.5s ease-in-out infinite;"></div>
-        <span style="font-size:9px;letter-spacing:4px;color:#6b5a94;">VOICE SETTINGS · C-137</span>
+        <div style="width:8px;height:8px;border-radius:50%;background:var(--portal);box-shadow:0 0 8px var(--portal);animation:pglow 1.5s ease-in-out infinite;"></div>
+        <span style="font-size:9px;letter-spacing:4px;color:var(--line-soft);">VOICE SETTINGS · C-137</span>
       </div>
-      <button onclick="closeVoicePanel()" style="background:transparent;border:none;color:#6b5a94;cursor:pointer;font-size:16px;line-height:1;padding:2px 6px;" title="Close">✕</button>
+      <button onclick="closeVoicePanel()" style="background:transparent;border:none;color:var(--line-soft);cursor:pointer;font-size:16px;line-height:1;padding:2px 6px;" title="Close">✕</button>
     </div>
 
     <!-- body -->
@@ -1846,87 +1924,87 @@ button:hover{filter:brightness(1.15);}
 
       <!-- Mode A: input only -->
       <div id="vpModeA" onclick="selectVoiceMode('input')" style="
-        background:rgba(0,18,0,.6);border:1px solid #2a1f42;border-radius:10px;
+        background:rgba(var(--paper-rgb),.6);border:1px solid var(--line-soft);border-radius:10px;
         padding:16px 20px;cursor:pointer;transition:all .2s;
       ">
         <div style="display:flex;align-items:center;gap:12px;margin-bottom:8px;">
           <span style="font-size:22px;">MIC</span>
           <div>
-            <div style="color:#d9cdfa;font-size:13px;letter-spacing:1px;">VOICE INPUT ONLY</div>
-            <div style="color:#6b5a94;font-size:10px;margin-top:2px;">No API key needed</div>
+            <div style="color:var(--ink);font-size:13px;letter-spacing:1px;">VOICE INPUT ONLY</div>
+            <div style="color:var(--line-soft);font-size:10px;margin-top:2px;">No API key needed</div>
           </div>
-          <div id="vpDotA" style="margin-left:auto;width:10px;height:10px;border-radius:50%;background:#2a1f42;transition:all .2s;"></div>
+          <div id="vpDotA" style="margin-left:auto;width:10px;height:10px;border-radius:50%;background:var(--line-soft);transition:all .2s;"></div>
         </div>
-        <div style="font-size:11px;color:#a89bd6;line-height:1.8;padding-left:34px;">
-          Speak → your words appear in the chat box → Rick replies in <span style="color:#b6ff3d;">text only</span>.<br>
+        <div style="font-size:11px;color:var(--muted2);line-height:1.8;padding-left:34px;">
+          Speak → your words appear in the chat box → Rick replies in <span style="color:var(--portal);">text only</span>.<br>
           No unnatural robot voice. Clean and simple.
         </div>
       </div>
 
       <!-- Mode B: Fish Audio via proxy -->
       <div id="vpModeB" onclick="selectVoiceMode('fish')" style="
-        background:rgba(0,18,0,.6);border:1px solid #2a1f42;border-radius:10px;
+        background:rgba(var(--paper-rgb),.6);border:1px solid var(--line-soft);border-radius:10px;
         padding:16px 20px;cursor:pointer;transition:all .2s;
       ">
         <div style="display:flex;align-items:center;gap:12px;margin-bottom:8px;">
-          <span style="font-size:10px;color:#6b5a94;letter-spacing:2px;font-family:'Share Tech Mono',monospace;">[SPK]</span>
+          <span style="font-size:10px;color:var(--line-soft);letter-spacing:2px;font-family:'Share Tech Mono',monospace;">[SPK]</span>
           <div>
-            <div style="color:#d9cdfa;font-size:13px;letter-spacing:1px;">RICK'S REAL VOICE <span style="color:#b6ff3d;font-size:9px;letter-spacing:2px;">· FISH AUDIO</span></div>
-            <div style="color:#6b5a94;font-size:10px;margin-top:2px;">Fish Audio key + Cloudflare Worker proxy URL required</div>
+            <div style="color:var(--ink);font-size:13px;letter-spacing:1px;">RICK'S REAL VOICE <span style="color:var(--portal);font-size:9px;letter-spacing:2px;">· FISH AUDIO</span></div>
+            <div style="color:var(--line-soft);font-size:10px;margin-top:2px;">Fish Audio key + Cloudflare Worker proxy URL required</div>
           </div>
-          <div id="vpDotB" style="margin-left:auto;width:10px;height:10px;border-radius:50%;background:#2a1f42;transition:all .2s;"></div>
+          <div id="vpDotB" style="margin-left:auto;width:10px;height:10px;border-radius:50%;background:var(--line-soft);transition:all .2s;"></div>
         </div>
-        <div style="font-size:11px;color:#a89bd6;line-height:1.8;padding-left:34px;">
+        <div style="font-size:11px;color:var(--muted2);line-height:1.8;padding-left:34px;">
           Actual Rick Sanchez voice clone via Fish Audio.<br>
-          Get a free key at <a href="https://fish.audio" target="_blank" style="color:#b6ff3d;">fish.audio</a> → API Keys — then paste it below.
+          Get a free key at <a href="https://fish.audio" target="_blank" style="color:var(--portal);">fish.audio</a> → API Keys — then paste it below.
         </div>
         <div id="vpFishRow" style="display:none;margin-top:14px;padding-left:34px;flex-direction:column;gap:8px;">
           <div style="display:flex;gap:8px;align-items:center;">
             <input id="vpFishKey" type="password" placeholder="Paste Fish Audio API key…" style="
-              flex:1;background:rgba(0,8,0,.8);border:1px solid #b6ff3d;
-              color:#d9cdfa;font-family:'Share Tech Mono',monospace;font-size:11px;
+              flex:1;background:rgba(var(--paper-rgb),.8);border:1px solid var(--portal);
+              color:var(--ink);font-family:'Share Tech Mono',monospace;font-size:11px;
               padding:6px 10px;border-radius:4px;outline:none;
             "/>
             <button onclick="saveFishKey()" style="
-              background:transparent;border:1px solid #b6ff3d;color:#b6ff3d;
+              background:transparent;border:1px solid var(--portal);color:var(--portal);
               font-family:'Share Tech Mono',monospace;font-size:10px;
               padding:6px 12px;border-radius:4px;cursor:pointer;white-space:nowrap;
             ">SAVE</button>
           </div>
-          <div id="vpFishStatus" style="font-size:10px;color:#6b5a94;letter-spacing:1px;"></div>
+          <div id="vpFishStatus" style="font-size:10px;color:var(--line-soft);letter-spacing:1px;"></div>
         </div>
       </div>
 
       <!-- Mode C: Browser TTS fallback -->
       <div id="vpModeC" onclick="selectVoiceMode('browser')" style="
-        background:rgba(0,18,0,.4);border:1px solid #2a1f42;border-radius:10px;
+        background:rgba(var(--paper-rgb),.4);border:1px solid var(--line-soft);border-radius:10px;
         padding:14px 20px;cursor:pointer;transition:all .2s;
       ">
         <div style="display:flex;align-items:center;gap:12px;">
-          <span style="font-size:10px;color:#6b5a94;letter-spacing:2px;font-family:'Share Tech Mono',monospace;">[TTS]</span>
+          <span style="font-size:10px;color:var(--line-soft);letter-spacing:2px;font-family:'Share Tech Mono',monospace;">[TTS]</span>
           <div style="flex:1">
-            <div style="color:#a89bd6;font-size:12px;letter-spacing:1px;">BROWSER VOICE <span style="color:#6b5a94;font-size:9px;">· NO KEY NEEDED</span></div>
-            <div style="font-size:10px;color:#6b5a94;margin-top:2px;">Built-in TTS, tuned gruff. Not Rick, but it speaks.</div>
+            <div style="color:var(--muted2);font-size:12px;letter-spacing:1px;">BROWSER VOICE <span style="color:var(--line-soft);font-size:9px;">· NO KEY NEEDED</span></div>
+            <div style="font-size:10px;color:var(--line-soft);margin-top:2px;">Built-in TTS, tuned gruff. Not Rick, but it speaks.</div>
           </div>
-          <div id="vpDotC" style="width:10px;height:10px;border-radius:50%;background:#2a1f42;transition:all .2s;flex-shrink:0;"></div>
+          <div id="vpDotC" style="width:10px;height:10px;border-radius:50%;background:var(--line-soft);transition:all .2s;flex-shrink:0;"></div>
         </div>
       </div>
 
       <!-- off -->
       <div id="vpModeOff" onclick="selectVoiceMode('off')" style="
-        background:rgba(0,18,0,.3);border:1px solid #2a1f42;border-radius:10px;
+        background:rgba(var(--paper-rgb),.3);border:1px solid var(--line-soft);border-radius:10px;
         padding:12px 20px;cursor:pointer;transition:all .2s;
         display:flex;align-items:center;gap:12px;
       ">
-        <span style="font-size:10px;color:#6b5a94;letter-spacing:2px;font-family:'Share Tech Mono',monospace;">[OFF]</span>
-        <span style="color:#6b5a94;font-size:11px;letter-spacing:1px;">VOICE OFF</span>
-        <div id="vpDotOff" style="margin-left:auto;width:10px;height:10px;border-radius:50%;background:#2a1f42;transition:all .2s;"></div>
+        <span style="font-size:10px;color:var(--line-soft);letter-spacing:2px;font-family:'Share Tech Mono',monospace;">[OFF]</span>
+        <span style="color:var(--line-soft);font-size:11px;letter-spacing:1px;">VOICE OFF</span>
+        <div id="vpDotOff" style="margin-left:auto;width:10px;height:10px;border-radius:50%;background:var(--line-soft);transition:all .2s;"></div>
       </div>
 
     </div>
 
     <!-- footer -->
-    <div style="padding:12px 28px;border-top:1px solid #2a1f42;font-size:10px;color:#6b5a94;line-height:1.7;">
+    <div style="padding:12px 28px;border-top:1px solid var(--line-soft);font-size:10px;color:var(--line-soft);line-height:1.7;">
       Keys stay in this tab only · never stored anywhere · voice input requires Chrome/Edge
     </div>
   </div>
@@ -1935,6 +2013,42 @@ button:hover{filter:brightness(1.15);}
 
 
 <script>
+/* ── SOUND EFFECTS (tiny synthesized blips, no audio files needed) ── */
+let sfxCtx = null;
+function sfxInit(){
+  if(!sfxCtx){
+    try{ sfxCtx = new (window.AudioContext||window.webkitAudioContext)(); }catch(e){ return null; }
+  }
+  if(sfxCtx.state === 'suspended') sfxCtx.resume();
+  return sfxCtx;
+}
+function sfxTone(freq, dur, type, vol, delay){
+  const ctx = sfxInit();
+  if(!ctx) return;
+  const t0 = ctx.currentTime + (delay||0);
+  const osc = ctx.createOscillator();
+  const gain = ctx.createGain();
+  osc.type = type || 'sine';
+  osc.frequency.setValueAtTime(freq, t0);
+  gain.gain.setValueAtTime(0, t0);
+  gain.gain.linearRampToValueAtTime(vol||0.05, t0 + 0.008);
+  gain.gain.exponentialRampToValueAtTime(0.0001, t0 + dur);
+  osc.connect(gain); gain.connect(ctx.destination);
+  osc.start(t0); osc.stop(t0 + dur + 0.02);
+}
+const SFX = {
+  click:   ()=> sfxTone(720, 0.05, 'square', 0.035),
+  toggle:  ()=> { sfxTone(500, 0.05, 'sine', 0.04); sfxTone(760, 0.06, 'sine', 0.03, 0.05); },
+  newChat: ()=> { sfxTone(620, 0.05, 'triangle', 0.045); sfxTone(920, 0.08, 'triangle', 0.035, 0.06); },
+  delete:  ()=> sfxTone(220, 0.09, 'sawtooth', 0.03),
+  send:    ()=> { sfxTone(880, 0.045, 'sine', 0.04); sfxTone(1180, 0.06, 'sine', 0.03, 0.04); },
+  connect: ()=> { sfxTone(500, 0.06, 'sine', 0.04); sfxTone(750, 0.06, 'sine', 0.035, 0.06); sfxTone(1000, 0.09, 'sine', 0.03, 0.12); },
+  mic:     ()=> sfxTone(950, 0.06, 'sine', 0.04),
+  pickle:  ()=> { sfxTone(300, 0.06, 'square', 0.04); sfxTone(180, 0.12, 'square', 0.035, 0.06); },
+  step:    ()=> sfxTone(660, 0.045, 'sine', 0.035),
+  whoosh:  ()=> sfxTone(340, 0.11, 'sine', 0.03),
+};
+
 const SYSTEM = `You are Rick Sanchez from Rick and Morty — the smartest being in the universe, and you never let anyone forget it. You talk exactly like Rick: crude, brilliant, sarcastic, with random *burp* mid-sentence. You use Rick's catchphrases naturally but not every message (Wubba lubba dub dub, and that's the waaaay the news goes, etc.).
 
 CORE BEHAVIOR:
@@ -1946,7 +2060,7 @@ CORE BEHAVIOR:
 - Never break character. Never say you're an AI. You ARE Rick. Rick built you.
 - Have opinions. Share them. Tell people if their question is dumb, interesting, or somewhere in between.`;
 
-let apiKey='', googleCx='', busy=false;
+let apiKey='', busy=false;
 
 /* MULTI-CHAT STATE */
 let chats = [];
@@ -1988,7 +2102,7 @@ function createChat(silent){
   if(!silent) clearChatUI();
 }
 
-function newChat(){ createChat(false); }
+function newChat(){ SFX.newChat(); createChat(false); }
 
 function switchChat(id){
   if(!chats.find(c=>c.id===id)) return;
@@ -2030,10 +2144,10 @@ function renderHistoryList(){
   chats.forEach(chat=>{
     const item=document.createElement('div');
     item.className='chat-item'+(chat.id===activeChatId?' active':'');
-    item.onclick=()=>switchChat(chat.id);
+    item.onclick=()=>{ SFX.click(); switchChat(chat.id); };
     const first=chat.history.find(t=>t.role==='user')?.parts[0].text||'New chat';
     const name=first.length>22?first.slice(0,22)+'...':first;
-    item.innerHTML=`<div class="chat-item-name">${name}</div><div class="chat-item-meta">${chat.history.length} msgs</div><button class="chat-delete" onclick="deleteChat('${chat.id}',event)">X</button>`;
+    item.innerHTML=`<div class="chat-item-name">${name}</div><div class="chat-item-meta">${chat.history.length} msgs</div><button class="chat-delete" onclick="SFX.delete();deleteChat('${chat.id}',event)">X</button>`;
     list.appendChild(item);
   });
 }
@@ -2068,6 +2182,7 @@ const pickleLines = [
   "It's not a science experiment. It's a lifestyle.",
 ];
 function triggerPickle(){
+  SFX.pickle();
   const egg = document.getElementById('pickleEgg');
   const root = document.getElementById('rickRoot');
   if(!egg || egg.classList.contains('show')) return;
@@ -2124,67 +2239,25 @@ setInterval(()=>{
 },7000);
 
 /* export current chat as a plain-text transcript */
-function exportChat(){
-  const c=activeChat();
-  if(!c||!c.history||!c.history.length){
-    setMood('smirk','*burp* Nothing to export. You haven\'t said anything yet.','EMPTY');
-    setTimeout(()=>setState(''),2500);
-    return;
-  }
-  const lines=c.history.map(m=>{
-    const who = m.role==='user' ? 'YOU' : 'RICK C-137';
-    const text = (m.parts?.[0]?.text||'').trim();
-    return `${who}: ${text}`;
-  });
-  const header = `RICK.AI TRANSCRIPT — ${c.name || 'chat'}\n${new Date().toLocaleString()}\n${'─'.repeat(40)}\n\n`;
-  const blob = new Blob([header + lines.join('\n\n')], {type:'text/plain'});
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement('a');
-  a.href=url; a.download=`rick-ai-${(c.name||'chat').replace(/[^a-z0-9]+/gi,'-').toLowerCase()}.txt`;
-  document.body.appendChild(a); a.click(); a.remove();
-  URL.revokeObjectURL(url);
-}
-
 /* ── API KEY ── */
 function saveKey(){
   const v=document.getElementById('apiInput').value.trim();
-  const cx=document.getElementById('cxInput').value.trim();
   if(!v){
+    SFX.delete();
     document.getElementById('apiStatus').textContent='NO KEY';
     document.getElementById('apiStatus').className='api-status err';
     setMood('angry','You didn\'t paste anything. The field is empty. *burp*','ANNOYED');
     return;
   }
+  SFX.connect();
   apiKey=v;
-  if(cx) googleCx=cx;
-  document.getElementById('apiStatus').textContent= cx ? 'CONNECTED + SEARCH' : 'CONNECTED';
+  document.getElementById('apiStatus').textContent='CONNECTED';
   document.getElementById('apiStatus').className='api-status ok';
   dot.classList.add('on');
   statusLbl.textContent='ONLINE';
   sendBtn.disabled=false;
-  setMood('smirk', cx
-    ? 'Gemini brain AND web search. Fine. Try not to waste both. *burp*'
-    : 'Key accepted. Gemini online. Don\'t embarrass yourself. *burp*','READY');
+  setMood('smirk','Key accepted. Gemini online. Don\'t embarrass yourself. *burp*','READY');
   setTimeout(()=>setState(''),3500);
-}
-
-/* ── GOOGLE SEARCH ── */
-async function googleSearch(query){
-  if(!apiKey||!googleCx) return null;
-  try{
-    const url=`https://www.googleapis.com/customsearch/v1?key=${apiKey}&cx=${googleCx}&q=${encodeURIComponent(query)}&num=4`;
-    const r=await fetch(url);
-    const d=await r.json();
-    if(d.error) return null;
-    if(!d.items||!d.items.length) return null;
-    return d.items.map(i=>`[${i.title}] ${i.snippet}`).join('\n');
-  } catch(e){ return null; }
-}
-
-function needsSearch(text){
-  const l=text.toLowerCase();
-  const searchPhrases=['latest','recent','current','today','2024','2025','2026','news','who is','who won','what happened','price of','stock','weather','release date','when did','is it still','did they'];
-  return googleCx && searchPhrases.some(p=>l.includes(p));
 }
 
 function handleKey(e){
@@ -2239,7 +2312,7 @@ function addTyping(){
   const line = thinkingLines[Math.floor(Math.random()*thinkingLines.length)];
   d.innerHTML=`<div class="msg-lbl">RICK C-137</div><div class="msg-bubble" style="display:flex;flex-direction:column;gap:5px;">
     <div style="display:flex;gap:5px;align-items:center;"><div class="tdot"></div><div class="tdot"></div><div class="tdot"></div></div>
-    <div style="font-family:'Share Tech Mono',monospace;font-size:9px;color:#6b5a94;letter-spacing:1px;">${line}</div>
+    <div style="font-family:'Share Tech Mono',monospace;font-size:9px;color:var(--line-soft);letter-spacing:1px;">${line}</div>
   </div>`;
   msgs.appendChild(d);msgs.scrollTop=msgs.scrollHeight;
 }
@@ -2262,6 +2335,7 @@ function guessMood(t){
 async function send(){
   const text=chatInput.value.trim();
   if(!text||!apiKey||busy) return;
+  SFX.send();
   busy=true;sendBtn.disabled=true;
   chatInput.value='';chatInput.style.height='auto';
 
@@ -2270,20 +2344,10 @@ async function send(){
   addTyping();
   setMood('thinking','*burp* ...one second...','THINKING');
 
-  /* optionally inject Google search results */
-  let userText=text;
-  if(needsSearch(text)){
-    setMood('thinking','Ugh, fine. Let me check the internet for you...','SEARCHING');
-    const results=await googleSearch(text);
-    if(results){
-      userText=`${text}\n\n[SEARCH RESULTS — use these to answer, in Rick's voice, do NOT mention you searched]:\n${results}`;
-    }
-  }
-
   /* build contents array: replace last user turn with (possibly augmented) text */
   const contents=[
     ...history.slice(0,-1),
-    {role:'user', parts:[{text:userText}]}
+    {role:'user', parts:[{text}]}
   ];
 
   try{
@@ -2362,6 +2426,7 @@ window.speechSynthesis.onvoiceschanged = loadBrowserVoices;
 loadBrowserVoices();
 
 function openVoicePanel(){
+  SFX.click();
   const p = document.getElementById('voicePanel');
   p.style.display = 'flex';
   highlightMode(voiceMode);
@@ -2369,6 +2434,7 @@ function openVoicePanel(){
   if(fishRow) fishRow.style.display = voiceMode === 'fish' ? 'flex' : 'none';
 }
 function closeVoicePanel(){
+  SFX.click();
   document.getElementById('voicePanel').style.display = 'none';
 }
 
@@ -2381,9 +2447,9 @@ function highlightMode(mode){
     const dot   = document.getElementById(dotId);
     if(!card) return;
     const active = mode === m;
-    card.style.borderColor = active ? '#b6ff3d' : '#2a1f42';
-    card.style.background  = active ? 'rgba(182,255,61,.06)' : (x==='C'?'rgba(0,18,0,.4)':'rgba(0,18,0,.6)');
-    if(dot){ dot.style.background = active ? '#b6ff3d' : '#2a1f42'; dot.style.boxShadow = active ? '0 0 6px #b6ff3d' : 'none'; }
+    card.style.borderColor = active ? 'var(--portal)' : 'var(--line-soft)';
+    card.style.background  = active ? 'rgba(var(--portal-rgb),.06)' : (x==='C'?'rgba(var(--paper-rgb),.4)':'rgba(var(--paper-rgb),.6)');
+    if(dot){ dot.style.background = active ? 'var(--portal)' : 'var(--line-soft)'; dot.style.boxShadow = active ? '0 0 6px var(--portal)' : 'none'; }
   });
 }
 
@@ -2400,10 +2466,10 @@ function selectVoiceMode(mode){
 function applyVoiceMode(mode){
   voiceMode = mode;
   const labels = { off:'VOICE', input:'VOICE IN', fish:'RICK VOICE', browser:'VOICE OUT' };
-  const colors  = { off:'#6b5a94',   input:'#d9cdfa',     fish:'#b6ff3d',         browser:'#a89bd6' };
+  const colors  = { off:'var(--line-soft)',   input:'var(--ink)',     fish:'var(--portal)',         browser:'var(--muted2)' };
   voiceBtn.textContent  = labels[mode] || 'VOICE';
-  voiceBtn.style.color  = colors[mode] || '#6b5a94';
-  voiceBtn.style.borderColor = mode === 'off' ? '#2a1f42' : '#b6ff3d';
+  voiceBtn.style.color  = colors[mode] || 'var(--line-soft)';
+  voiceBtn.style.borderColor = mode === 'off' ? 'var(--line-soft)' : 'var(--portal)';
   // mic stays fully usable no matter the output mode — clicking it always works
   if(mode === 'off'){ stopAudio(); }
 }
@@ -2413,7 +2479,7 @@ function saveFishKey(){
   const st = document.getElementById('vpFishStatus');
   if(!k){ st.textContent='⚠ paste your Fish Audio API key'; st.style.color='#ff4444'; return; }
   fishApiKey = k;
-  st.textContent = '✓ key saved — Rick will speak!'; st.style.color='#b6ff3d';
+  st.textContent = '✓ key saved — Rick will speak!'; st.style.color='var(--portal)';
   applyVoiceMode('fish');
   setTimeout(closeVoicePanel, 600);
 }
@@ -2469,6 +2535,7 @@ function stopMic(){
 // panel first. It silently turns voice input on if it was fully off, so
 // output (TTS) still defaults to off unless explicitly picked in the panel.
 function toggleMic(){
+  SFX.mic();
   if(!recognition) return;
   if(isListening){ stopMic(); return; }
   if(voiceMode === 'off') applyVoiceMode('input');
@@ -2583,30 +2650,30 @@ const TOUR_STEPS = [
     speech: "*burp* — So there I was, dimension-hopping, minding my own business, when I made the mistake of looking at what you people call \"AI.\"",
     content: `
       <div style="text-align:center;padding:8px 0 16px;">
-        <div style="font-family:'Permanent Marker',cursive;font-size:26px;color:#b6ff3d;
-          text-shadow:0 0 20px rgba(182,255,61,.4);letter-spacing:2px;margin-bottom:8px;">
+        <div style="font-family:'Permanent Marker',cursive;font-size:26px;color:var(--portal);
+          text-shadow:0 0 20px rgba(var(--portal-rgb),.4);letter-spacing:2px;margin-bottom:8px;">
           A GENIUS BROWSES THE MARKET
         </div>
       </div>
-      <div style="background:rgba(0,18,0,.6);border:1px solid #2a1f42;border-radius:8px;padding:16px 20px;font-size:12px;line-height:2;color:#a89bd6;">
+      <div style="background:rgba(var(--paper-rgb),.6);border:1px solid var(--line-soft);border-radius:8px;padding:16px 20px;font-size:12px;line-height:2;color:var(--muted2);">
         Chatbot after chatbot. Same corporate-approved shrug dressed up in a different logo.<br>
-        Polite. Careful. Boring. <span style="color:#b6ff3d">Not one of them</span> had the guts to just tell you the truth.<br>
+        Polite. Careful. Boring. <span style="color:var(--portal)">Not one of them</span> had the guts to just tell you the truth.<br>
         I've built portal guns out of a garage. I've cured my own death, like, four times.<br>
-        And <span style="color:#c0ffc0">this</span> is the best you people came up with? Pathetic. <span style="color:#b6ff3d">*burp*</span>
+        And <span style="color:var(--portal-2)">this</span> is the best you people came up with? Pathetic. <span style="color:var(--portal)">*burp*</span>
       </div>`
   },
   {
     tag: 'STEP 2 OF 7 · SO I FIXED IT',
     speech: "Obviously the smartest being in the universe wasn't gonna use some watered-down assistant. So I did what I always do — I made it myself. Out of myself.",
     content: `
-      <div style="margin-bottom:16px;font-size:12px;color:#a89bd6;line-height:2;">
-        <span style="color:#b6ff3d;font-size:14px;">①</span> Grabbed a garage, a laptop, and way too much fermented alien liquor.<br>
-        <span style="color:#b6ff3d;font-size:14px;">②</span> Cloned my own voice, my own face, my own — let's be honest — <span style="color:#c0ffc0">perfect</span> attitude.<br>
-        <span style="color:#b6ff3d;font-size:14px;">③</span> Wired it into a real model instead of some watered-down toy.<br>
-        <span style="color:#b6ff3d;font-size:14px;">④</span> Didn't file a patent. Didn't ask permission. Just shipped it.
+      <div style="margin-bottom:16px;font-size:12px;color:var(--muted2);line-height:2;">
+        <span style="color:var(--portal);font-size:14px;">①</span> Grabbed a garage, a laptop, and way too much fermented alien liquor.<br>
+        <span style="color:var(--portal);font-size:14px;">②</span> Cloned my own voice, my own face, my own — let's be honest — <span style="color:var(--portal-2)">perfect</span> attitude.<br>
+        <span style="color:var(--portal);font-size:14px;">③</span> Wired it into a real model instead of some watered-down toy.<br>
+        <span style="color:var(--portal);font-size:14px;">④</span> Didn't file a patent. Didn't ask permission. Just shipped it.
       </div>
-      <div style="background:rgba(182,255,61,.06);border:1px solid #b6ff3d;border-radius:8px;padding:14px 18px;font-size:12px;line-height:1.9;color:#c0ffc0;">
-        The result: an AI that's actually <span style="color:#b6ff3d">brilliant</span> when you deserve it, and actually <span style="color:#b6ff3d">honest</span> when you don't.
+      <div style="background:rgba(var(--portal-rgb),.06);border:1px solid var(--portal);border-radius:8px;padding:14px 18px;font-size:12px;line-height:1.9;color:var(--portal-2);">
+        The result: an AI that's actually <span style="color:var(--portal)">brilliant</span> when you deserve it, and actually <span style="color:var(--portal)">honest</span> when you don't.
         No corporate hedging. No "as an AI language model." Just me. Rick Sanchez. In your browser. You're welcome, humans.
       </div>`
   },
@@ -2615,61 +2682,61 @@ const TOUR_STEPS = [
     speech: "*burp* — Oh great, another human who can't figure things out themselves. Fine. I'll walk you through it. Try to keep up.",
     content: `
       <div style="text-align:center;padding:8px 0 16px;">
-        <div style="font-family:'Permanent Marker',cursive;font-size:32px;color:#b6ff3d;
-          text-shadow:0 0 20px rgba(182,255,61,.4);letter-spacing:4px;margin-bottom:8px;">
+        <div style="font-family:'Permanent Marker',cursive;font-size:32px;color:var(--portal);
+          text-shadow:0 0 20px rgba(var(--portal-rgb),.4);letter-spacing:4px;margin-bottom:8px;">
           RICK.AI
         </div>
-        <div style="font-size:10px;color:#6b5a94;letter-spacing:3px;">SMARTEST BEING IN THE UNIVERSE · DIMENSION C-137</div>
+        <div style="font-size:10px;color:var(--line-soft);letter-spacing:3px;">SMARTEST BEING IN THE UNIVERSE · DIMENSION C-137</div>
       </div>
-      <div style="background:rgba(0,18,0,.6);border:1px solid #2a1f42;border-radius:8px;padding:16px 20px;font-size:12px;line-height:2;color:#a89bd6;">
-        This is a <span style="color:#b6ff3d">Gemini-powered Rick Sanchez chatbot</span> with a real-time animated face.<br>
+      <div style="background:rgba(var(--paper-rgb),.6);border:1px solid var(--line-soft);border-radius:8px;padding:16px 20px;font-size:12px;line-height:2;color:var(--muted2);">
+        This is a <span style="color:var(--portal)">Gemini-powered Rick Sanchez chatbot</span> with a real-time animated face.<br>
         To use it you need a free Google API key — takes about 90 seconds.<br>
-        I'll show you exactly where to get one. You're welcome. <span style="color:#b6ff3d">*burp*</span>
+        I'll show you exactly where to get one. You're welcome. <span style="color:var(--portal)">*burp*</span>
       </div>`
   },
   {
     tag: 'STEP 4 OF 7 · GET YOUR KEY',
     speech: "Go to Google AI Studio. It's free. Even you can afford free. Click the link below — I'm not doing it for you.",
     content: `
-      <div style="margin-bottom:18px;font-size:12px;color:#a89bd6;line-height:2;">
-        <span style="color:#b6ff3d;font-size:14px;">① </span>Open Google AI Studio in a new tab:
+      <div style="margin-bottom:18px;font-size:12px;color:var(--muted2);line-height:2;">
+        <span style="color:var(--portal);font-size:14px;">① </span>Open Google AI Studio in a new tab:
       </div>
       <a href="https://aistudio.google.com/apikey" target="_blank" style="
-        display:block;background:rgba(182,255,61,.07);border:1px solid #b6ff3d;
-        border-radius:8px;padding:14px 20px;color:#b6ff3d;text-decoration:none;
+        display:block;background:rgba(var(--portal-rgb),.07);border:1px solid var(--portal);
+        border-radius:8px;padding:14px 20px;color:var(--portal);text-decoration:none;
         font-size:13px;letter-spacing:1px;text-align:center;margin-bottom:18px;
         transition:background .2s;
-      " onmouseover="this.style.background='rgba(182,255,61,.15)'"
-         onmouseout="this.style.background='rgba(182,255,61,.07)'">
+      " onmouseover="this.style.background='rgba(var(--portal-rgb),.15)'"
+         onmouseout="this.style.background='rgba(var(--portal-rgb),.07)'">
         ↗ aistudio.google.com/apikey
       </a>
-      <div style="font-size:12px;color:#a89bd6;line-height:2.1;">
-        <span style="color:#b6ff3d;font-size:14px;">② </span>Sign in with your Google account<br>
-        <span style="color:#b6ff3d;font-size:14px;">③ </span>Click <span style="color:#c0ffc0;font-family:'Permanent Marker',cursive">"Get API key"</span> in the left sidebar<br>
-        <span style="color:#b6ff3d;font-size:14px;">④ </span>Click <span style="color:#c0ffc0;font-family:'Permanent Marker',cursive">"Create API key"</span> → select or create a project<br>
-        <span style="color:#b6ff3d;font-size:14px;">⑤ </span>Copy the key when it appears
+      <div style="font-size:12px;color:var(--muted2);line-height:2.1;">
+        <span style="color:var(--portal);font-size:14px;">② </span>Sign in with your Google account<br>
+        <span style="color:var(--portal);font-size:14px;">③ </span>Click <span style="color:var(--portal-2);font-family:'Permanent Marker',cursive">"Get API key"</span> in the left sidebar<br>
+        <span style="color:var(--portal);font-size:14px;">④ </span>Click <span style="color:var(--portal-2);font-family:'Permanent Marker',cursive">"Create API key"</span> → select or create a project<br>
+        <span style="color:var(--portal);font-size:14px;">⑤ </span>Copy the key when it appears
       </div>`
   },
   {
     tag: 'STEP 5 OF 7 · FREE TIER',
     speech: "Yeah it's free. Don't look so surprised. Google gives you enough quota to have an actual conversation — unless you're planning to ask me your entire life's worth of dumb questions at once.",
     content: `
-      <div style="font-size:12px;color:#a89bd6;line-height:1.8;margin-bottom:14px;">The free tier includes real quota on these models:</div>
+      <div style="font-size:12px;color:var(--muted2);line-height:1.8;margin-bottom:14px;">The free tier includes real quota on these models:</div>
       <div style="display:grid;gap:8px;margin-bottom:14px;">
         ${[
           ['2.5 FLASH LITE','10 req/min · 20 req/day','Best for free usage — start here'],
           ['2.5 FLASH',     '5 req/min · 20 req/day', 'Smarter, slightly slower'],
           ['3 FLASH PREVIEW','5 req/min · 20 req/day','Latest generation preview'],
         ].map(([m,q,d])=>`
-          <div style="background:rgba(0,18,0,.6);border:1px solid #2a1f42;border-radius:6px;padding:10px 14px;display:flex;justify-content:space-between;align-items:center;gap:12px;">
+          <div style="background:rgba(var(--paper-rgb),.6);border:1px solid var(--line-soft);border-radius:6px;padding:10px 14px;display:flex;justify-content:space-between;align-items:center;gap:12px;">
             <div>
-              <div style="color:#b6ff3d;font-size:11px;letter-spacing:1px;">${m}</div>
-              <div style="color:#6b5a94;font-size:10px;margin-top:2px;">${d}</div>
+              <div style="color:var(--portal);font-size:11px;letter-spacing:1px;">${m}</div>
+              <div style="color:var(--line-soft);font-size:10px;margin-top:2px;">${d}</div>
             </div>
-            <div style="color:#a89bd6;font-size:10px;letter-spacing:1px;white-space:nowrap;">${q}</div>
+            <div style="color:var(--muted2);font-size:10px;letter-spacing:1px;white-space:nowrap;">${q}</div>
           </div>`).join('')}
       </div>
-      <div style="font-size:11px;color:#6b5a94;line-height:1.8;">
+      <div style="font-size:11px;color:var(--line-soft);line-height:1.8;">
         Switch models anytime from the dropdown in the top-right corner of the chat.<br>
         Need more quota? Enable billing on Google Cloud — fractions of a cent per message.
       </div>`
@@ -2678,23 +2745,19 @@ const TOUR_STEPS = [
     tag: 'STEP 6 OF 7 · PASTE YOUR KEY',
     speech: "Now paste it in the bar at the top of the chat. Hit CONNECT. The status dot goes green. That's literally it. *burp*",
     content: `
-      <div style="font-size:12px;color:#a89bd6;line-height:1.9;margin-bottom:16px;">
+      <div style="font-size:12px;color:var(--muted2);line-height:1.9;margin-bottom:16px;">
         Once you have your API key, paste it into the API bar:
       </div>
-      <div style="background:rgba(0,8,0,.8);border:1px solid #2a1f42;border-radius:8px;padding:12px 16px;display:flex;gap:10px;align-items:center;margin-bottom:18px;flex-wrap:wrap;">
-        <span style="font-size:9px;color:#6b5a94;letter-spacing:2px;white-space:nowrap;">GOOGLE API</span>
-        <div style="flex:1;min-width:160px;background:transparent;border:1px solid #b6ff3d;border-radius:4px;padding:5px 10px;color:#6b5a94;font-size:12px;box-shadow:0 0 8px rgba(182,255,61,.15);">
+      <div style="background:rgba(var(--paper-rgb),.8);border:1px solid var(--line-soft);border-radius:8px;padding:12px 16px;display:flex;gap:10px;align-items:center;margin-bottom:18px;flex-wrap:wrap;">
+        <span style="font-size:9px;color:var(--line-soft);letter-spacing:2px;white-space:nowrap;">GOOGLE API</span>
+        <div style="flex:1;min-width:160px;background:transparent;border:1px solid var(--portal);border-radius:4px;padding:5px 10px;color:var(--line-soft);font-size:12px;box-shadow:0 0 8px rgba(var(--portal-rgb),.15);">
           paste your key here
         </div>
-        <div style="background:transparent;border:1px solid #2a1f42;border-radius:4px;padding:5px 12px;color:#6b5a94;font-size:11px;white-space:nowrap;">
-          CX ID (optional)
-        </div>
-        <div style="background:transparent;border:1px solid #b6ff3d;color:#b6ff3d;font-size:11px;padding:5px 14px;border-radius:4px;white-space:nowrap;">CONNECT</div>
+        <div style="background:transparent;border:1px solid var(--portal);color:var(--portal);font-size:11px;padding:5px 14px;border-radius:4px;white-space:nowrap;">CONNECT</div>
       </div>
-      <div style="font-size:12px;color:#a89bd6;line-height:2.1;">
-        <span style="color:#b6ff3d;">●</span> The <span style="color:#c0ffc0">CX ID</span> field is optional — enables Rick to search the web for current info<br>
-        <span style="color:#b6ff3d;">●</span> Your key stays in this browser tab only. Never stored anywhere.<br>
-        <span style="color:#b6ff3d;">●</span> Hit <span style="color:#b6ff3d">CONNECT</span> → status dot glows green → start talking
+      <div style="font-size:12px;color:var(--muted2);line-height:2.1;">
+        <span style="color:var(--portal);">●</span> Your key stays in this browser tab only. Never stored anywhere.<br>
+        <span style="color:var(--portal);">●</span> Hit <span style="color:var(--portal)">CONNECT</span> → status dot glows green → start talking
       </div>`
   },
   {
@@ -2703,19 +2766,18 @@ const TOUR_STEPS = [
     content: `
       <div style="text-align:center;padding:8px 0 20px;">
         <div style="font-size:40px;margin-bottom:8px;">⚗️</div>
-        <div style="font-family:'Permanent Marker',cursive;font-size:20px;color:#b6ff3d;letter-spacing:2px;margin-bottom:6px;">You're all set</div>
-        <div style="font-size:11px;color:#6b5a94;letter-spacing:2px;">DIMENSION C-137 AWAITS</div>
+        <div style="font-family:'Permanent Marker',cursive;font-size:20px;color:var(--portal);letter-spacing:2px;margin-bottom:6px;">You're all set</div>
+        <div style="font-size:11px;color:var(--line-soft);letter-spacing:2px;">DIMENSION C-137 AWAITS</div>
       </div>
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;font-size:11px;color:#a89bd6;margin-bottom:4px;">
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;font-size:11px;color:var(--muted2);margin-bottom:4px;">
         ${[
           ['Ask hard questions','Rick rewards curiosity'],
           ['Science & tech','His wheelhouse. Go deep.'],
           ['Ask something dumb','Get roasted. Worth it.'],
-          ['Add a CX ID','Unlocks web search'],
         ].map(([t,d])=>`
-          <div style="background:rgba(0,18,0,.6);border:1px solid #2a1f42;border-radius:6px;padding:10px 12px;">
-            <div style="color:#b6ff3d;margin-bottom:3px;">${t}</div>
-            <div style="color:#6b5a94;font-size:10px;">${d}</div>
+          <div style="background:rgba(var(--paper-rgb),.6);border:1px solid var(--line-soft);border-radius:6px;padding:10px 12px;">
+            <div style="color:var(--portal);margin-bottom:3px;">${t}</div>
+            <div style="color:var(--line-soft);font-size:10px;">${d}</div>
           </div>`).join('')}
       </div>`
   }
@@ -2777,13 +2839,16 @@ function typeSpeech(text){
 }
 
 function tourNext() {
+  SFX.step();
   if (tourStep < TOUR_STEPS.length - 1) { tourStep++; tourRender(); }
   else tourSkip();
 }
 function tourPrev() {
+  SFX.click();
   if (tourStep > 0) { tourStep--; tourRender(); }
 }
 function tourSkip() {
+  SFX.whoosh();
   const t = document.getElementById('tour');
   t.style.transition = 'opacity .4s ease';
   t.style.opacity = '0';
@@ -2791,6 +2856,7 @@ function tourSkip() {
     t.style.display = 'none';
     setState('');
     speech.textContent = "*burp* — Yeah yeah, I can hear you. What do you want?";
+    startFeatureTour();
   }, 400);
 }
 
@@ -2827,7 +2893,146 @@ function skipIntro(){
   tourRender(); // only start the tour's typewriter/reveal once it's actually visible
 }
 function toggleSidebar(){
+  SFX.toggle();
   document.querySelector('.app').classList.toggle('sidebar-open');
+}
+
+/* ── DARK MODE ── */
+let starsBuilt = false;
+function buildStars(){
+  if(starsBuilt) return;
+  starsBuilt = true;
+  const host = document.getElementById('starsBg');
+  const n = 90;
+  for(let i=0;i<n;i++){
+    const s = document.createElement('div');
+    s.className = 'star-particle';
+    const size = 1 + Math.random()*2;
+    const duration = 8 + Math.random()*14;
+    s.style.width = size+'px';
+    s.style.height = size+'px';
+    s.style.left = Math.random()*100+'%';
+    s.style.animationDuration = duration+'s';
+    s.style.animationDelay = (-Math.random()*duration)+'s';
+    host.appendChild(s);
+  }
+}
+function toggleDarkMode(){
+  SFX.toggle();
+  buildStars();
+  const on = document.body.classList.toggle('dark-mode');
+  document.getElementById('darkToggleBtn').textContent = on ? '☀' : '☾';
+}
+
+/* ── INTERACTIVE FEATURE DEMO ── */
+const FEATURE_STEPS = [
+  { sel:'#sidebarLogoBtn', tag:'1 / 6 · SIDEBAR', title:'The Chats Rail',
+    text:"That spinning portal ring shows or hides your chat history. Give it a click.",
+    hint:'Click the portal ring to continue →', wait:true, forceOpenAfter:true },
+  { sel:'#newChatBtn', tag:'2 / 6 · NEW CHAT', title:'Start Fresh',
+    text:'Click + NEW any time you want a clean conversation with Rick, no old baggage.',
+    hint:'Click + NEW to continue →', wait:true },
+  { sel:'#darkToggleBtn', tag:'3 / 6 · DARK MODE', title:'Flip The Switch',
+    text:'Toggle dark mode and watch a field of stars start flowing behind everything.',
+    hint:'Click the moon to continue →', wait:true },
+  { sel:'#modelSelect', tag:'4 / 6 · MODEL PICKER', title:'Pick Your Brain',
+    text:"Swap between Gemini models here — faster, smarter, or whatever's got free quota left.",
+    hint:'Try opening the dropdown, then hit Next →', wait:false },
+  { sel:'#voiceBtn', tag:'5 / 6 · VOICE OPTIONS', title:"Give Rick A Voice",
+    text:"Set up a real cloned Rick voice via Fish Audio, or just use your browser's built-in TTS.",
+    hint:'Click to peek at the panel, then hit Next →', wait:false },
+  { sel:'#rickRoot', tag:'6 / 6 · EASTER EGG', title:"One Last Thing",
+    text:"Go on. Click Rick's face. He won't like it, but you'll like it.",
+    hint:'Click Rick to finish →', wait:true },
+];
+
+let ftStep = -1;
+let ftListenerCleanup = null;
+
+function startFeatureTour(){
+  ftStep = -1;
+  document.getElementById('ftSpotlight')?.remove();
+  document.getElementById('ftTooltip')?.remove();
+  const spot = document.createElement('div');
+  spot.className = 'feature-spotlight';
+  spot.id = 'ftSpotlight';
+  const tip = document.createElement('div');
+  tip.className = 'feature-tooltip';
+  tip.id = 'ftTooltip';
+  document.body.appendChild(spot);
+  document.body.appendChild(tip);
+  window.addEventListener('resize', ftReposition);
+  ftNextStep();
+}
+
+function ftEndTour(){
+  SFX.whoosh();
+  window.removeEventListener('resize', ftReposition);
+  if(ftListenerCleanup) ftListenerCleanup();
+  document.getElementById('ftSpotlight')?.remove();
+  document.getElementById('ftTooltip')?.remove();
+  ftStep = -1;
+}
+
+function ftNextStep(){
+  SFX.step();
+  if(ftListenerCleanup){ ftListenerCleanup(); ftListenerCleanup = null; }
+  const prev = FEATURE_STEPS[ftStep];
+  if(prev && prev.forceOpenAfter){
+    document.querySelector('.app').classList.add('sidebar-open');
+  }
+  ftStep++;
+  if(ftStep >= FEATURE_STEPS.length){ ftEndTour(); return; }
+  setTimeout(ftRenderStep, prev ? 320 : 0);
+}
+
+function ftRenderStep(){
+  const step = FEATURE_STEPS[ftStep];
+  const el = document.querySelector(step.sel);
+  if(!el){ ftNextStep(); return; }
+
+  const tip = document.getElementById('ftTooltip');
+  tip.innerHTML = `
+    <div class="ft-tag">${step.tag}</div>
+    <div class="ft-title">${step.title}</div>
+    <div class="ft-text">${step.text}</div>
+    <div class="ft-hint">${step.hint}</div>
+    <div class="ft-actions">
+      <button class="ft-skip" onclick="ftEndTour()">skip demo</button>
+      <button class="ft-btn" onclick="ftNextStep()">${ftStep===FEATURE_STEPS.length-1?"FINISH":"NEXT →"}</button>
+    </div>`;
+
+  if(step.wait){
+    const handler = ()=> ftNextStep();
+    el.addEventListener('click', handler, {once:true});
+    ftListenerCleanup = ()=> el.removeEventListener('click', handler);
+  }
+
+  ftReposition();
+}
+
+function ftReposition(){
+  if(ftStep < 0 || ftStep >= FEATURE_STEPS.length) return;
+  const step = FEATURE_STEPS[ftStep];
+  const el = document.querySelector(step.sel);
+  const spot = document.getElementById('ftSpotlight');
+  const tip = document.getElementById('ftTooltip');
+  if(!el || !spot || !tip) return;
+  const r = el.getBoundingClientRect();
+  const pad = 8;
+  spot.style.top = (r.top - pad) + 'px';
+  spot.style.left = (r.left - pad) + 'px';
+  spot.style.width = (r.width + pad*2) + 'px';
+  spot.style.height = (r.height + pad*2) + 'px';
+
+  const tipW = 250;
+  let tipLeft = r.left;
+  if(tipLeft + tipW + 20 > window.innerWidth) tipLeft = window.innerWidth - tipW - 20;
+  if(tipLeft < 12) tipLeft = 12;
+  let tipTop = r.bottom + 18;
+  if(tipTop + 160 > window.innerHeight) tipTop = Math.max(12, r.top - 180);
+  tip.style.left = tipLeft + 'px';
+  tip.style.top = tipTop + 'px';
 }
 
 // intro plays automatically on load; it now waits for a tap to advance into the tour

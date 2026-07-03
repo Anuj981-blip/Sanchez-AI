@@ -1,0 +1,144 @@
+@font-face {
+  font-family: "Ricks";
+  src: url("./font/rickfont.ttf");
+}
+
+* {
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  overflow: hidden;
+  margin-top: 0;
+}
+
+.nav {
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+  width: 100%;
+  height: 130px;
+  margin-bottom: 4px;
+  background: rgb(32, 178, 170, 0.7);
+}
+
+.nav img {
+  width: 120px;
+  height: 100px;
+  padding-left: 25px;
+}
+
+#logo {
+  width: 400px;
+  height: 110px;
+}
+
+#simple-ricks{
+  width: 250px;
+  height: 200px;
+  padding-left: -50px;
+}
+
+.container {
+  display: flex;
+  justify-content: space-between;
+}
+
+.left-column {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-around;
+}
+
+.image-controls {
+  display: flex;
+}
+
+#freak-rick {
+  padding-left: 10px;
+}
+
+.controls {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-around;
+}
+
+.button-box {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  margin: 10px;
+}
+
+#start-button,
+#pause-button,
+#restart-button {
+  width: 123px;
+  height: 60px;
+  border-radius: 10%;
+  color: white;
+  font-weight: 500;
+  font-size: 19px;
+  background: lightseagreen;
+  font-family: "Courier New", Courier, monospace;
+}
+
+#game-board {
+  background-image: url("../images/background-initial3.png");
+  margin-right: 20px;
+  margin-bottom: 20px;
+  border-radius: 2%;
+}
+
+.controls-div {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-around;
+  align-items: center;
+  height: 300px;
+  margin-top: -60px;
+}
+
+.controls-subdiv {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.controls-subdiv img {
+  margin-bottom: 20px;
+  margin-top: 80px;
+}
+
+.pickles {
+  display: flex;
+  justify-content: space-around;
+}
+
+#i-am-pickle-rick {
+  width: 50px;
+  height: 70px;
+  padding-left: 20px;
+  padding-bottom: 10px;
+}
+
+.controls-style {
+  font-family: Ricks;
+  font-size: 30px;
+  color: lightseagreen;
+  text-shadow: 0 0 3px #ff0000, 0 0 5px #0000ff;
+}
+
+#keyboard-arrows {
+  width: 110px;
+  height: 110px;
+}
+
+#spacebar {
+  width: 100px;
+  height: 50px;
+  padding-top: 20px;
+}

@@ -6,9 +6,11 @@
 <title>Rick.ai — Don't waste my time</title>
 <link rel="stylesheet" href="https://assets-bfx.pages.dev/style.css">
 <link rel="stylesheet" href="https://assets-bfx.pages.dev/vendor-art.css">
+<!-- css split off to cloudflare pages, keeps this repo tiny -->
 </head>
 <body>
 
+<!-- hand-tuned noise filter, don't crank scale much past 3 or the lines get too jittery -->
 <svg class="sketch-filters">
   <filter id="roughen" x="-5%" y="-5%" width="110%" height="110%">
     <feTurbulence type="fractalNoise" baseFrequency="0.012 0.09" numOctaves="2" seed="7" result="noise"/>
@@ -106,12 +108,13 @@
   <div class="intro-skip-hint">click anywhere to skip</div>
 </section>
 
-<!-- onboarding tour -->
+<!-- onboarding tour, 7 steps total. bumping this needs matching changes in the JS step array -->
 <section id="tour" class="tour-overlay">
   <div class="tour-grain"></div>
 
   <div class="tour-frame">
 
+    <!-- hardcoded 7 dots instead of generating them, tour length basically never changes -->
     <div class="tour-dots" id="tourDots">
       <div class="tdot-step active" data-s="0"></div>
       <div class="tdot-step" data-s="1"></div>
@@ -269,6 +272,7 @@
       </div>
       <div class="model-picker">
         <span class="model-picker-label">MODEL</span>
+        <!-- TODO: pull rate limits from google's api instead of hardcoding these labels, they change more than I'd like -->
         <select id="modelSelect" class="model-select">
           <option value="gemini-2.5-flash" selected>2.5 FLASH (5 RPM free)</option>
           <option value="gemini-2.5-flash-lite">2.5 FLASH LITE (10 RPM free)</option>
@@ -283,6 +287,7 @@
       </div>
     </header>
 
+    <!-- key never touches a server, just localStorage. see saveKey() in script.js -->
     <form class="api-bar" onsubmit="return false;">
       <span class="api-lbl">GOOGLE API</span>
       <input type="password" class="api-input" id="apiInput" placeholder="AIza... (Gemini API key)"/>
@@ -318,7 +323,7 @@
 
 </div>
 
-<!-- voice panel -->
+<!-- voice panel. fish audio mode needs a worker proxy for CORS, see README, still a bit janky on mobile safari -->
 <section id="voicePanel" class="voice-panel">
   <div class="voice-panel-scanlines"></div>
   <div class="voice-panel-frame">
@@ -394,7 +399,7 @@
     </footer>
   </div>
 </section>
-
 <script src="https://assets-bfx.pages.dev/script.js"></script>
 </body>
 </html>
+

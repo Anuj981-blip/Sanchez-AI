@@ -11,7 +11,6 @@ You speak, a Rick Sanchez look-alike abuses you in return using his own cloned v
 
 ## The story, (allegedly)
 
-<img width="1461" height="825" alt="Screenshot 2026-07-03 at 3 58 03 AM" src="https://github.com/user-attachments/assets/12c09221-3ea9-4d7b-b017-42e105a18db7" />
 
 Rick decided to purchase an AI. Looked through all the market — each chatbot in its unique logo, each of them was polite, cautious, and as dull as a Jerry. Not one of them was ready to tell the absolute truth.
 

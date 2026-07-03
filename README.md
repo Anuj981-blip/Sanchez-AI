@@ -1,8 +1,8 @@
 # Sanchez-AI
 
-You talk, a fake Rick Sanchez insults you back — in his own cloned voice,One HTML file. No backend except a 60-line proxy for the voice, and you don't even need that part.
+You speak, a Rick Sanchez look-alike abuses you in return using his own cloned voice,All in one HTML file.No server side required except the 60-line proxy for the voice, but even that isn't necessary.
 
-**[→ Open it and get roasted](#)** *(https://anuj981-blip.github.io/Sanchez-AI/)*
+**[→ Go and get roasted](#)** *(https://anuj981-blip.github.io/Sanchez-AI/)*
 
 <img width="340" height="408" alt="Screenshot 2026-07-03 at 1 58 33 AM" src="https://github.com/user-attachments/assets/f31745e6-d9e0-4e20-9da3-815b6bd63e26" />
 
@@ -13,37 +13,35 @@ You talk, a fake Rick Sanchez insults you back — in his own cloned voice,One H
 
 <img width="1461" height="825" alt="Screenshot 2026-07-03 at 3 58 03 AM" src="https://github.com/user-attachments/assets/12c09221-3ea9-4d7b-b017-42e105a18db7" />
 
-Rick went shopping for an AI. Browsed the whole market — every chatbot dressed up in a slightly different logo, every one of them polite, careful, and about as interesting as a Jerry. Not one had the nerve to just tell you the truth.
+Rick decided to purchase an AI. Looked through all the market — each chatbot in its unique logo, each of them was polite, cautious, and as dull as a Jerry. Not one of them was ready to tell the absolute truth.
 
-So he did what he always does when the universe disappoints him: built a better one himself, out of himself. Cloned his own voice, his own face, his own opinions about how dumb most questions are — and skipped every step a responsible person would've taken, like testing it or asking permission.
+Thus, Rick did what he usually does in case if the universe fails him — he created a new one himself, out of himself. Duplicated his voice, his face, his opinion about how stupid most of the questions are and bypassed all the necessary steps such as testing and permission to ask.
 
-What's left is this. Now you get to use it too. Try not to waste it.
+And here is the result of it. Now it's your turn to use it yourself. Try not to mess with it.
 
-*(Open the app and you'll get the full version, delivered by the man himself, before he walks you through getting a key.)*
+(Open the app and you will receive the full version of the bot, delivered by the author personally, followed by instructions on how to get the key.)
 
-Yeah I built a chatbot. Big deal, everyone's built a chatbot. *This* one has a CSS-only face — no images, no canvas, no video, just div soup and math — that blinks on its own, opens its mouth when it's actually speaking, and pulls a different expression depending on whether it thinks your question is fascinating or whether it thinks you're an idiot. Which, statistically, is more often the second one.
+Yeah, I created a chatbot. Who cares? Everyone creates a chatbot. It has a CSS-only face — without images, without canvas, without videos, just div soup and math that chooses facial expressions based on if it finds the question fascinating or if it finds you an idiot. And usually, it is the latter one.
 
 ## What it actually does
 
-- **A face made entirely of borders and border-radius.** Pure CSS/HTML, zero images. It blinks unprompted, and its eyes and pickle rick transformation animation is driven by real emotion analysis, not a canned loop — so lip movement roughly tracks what's actually coming out of the speaker.
-- **A 7-slide intro** that opens with Rick's origin story — why he thinks every other AI on the market is garbage and why he built this one out of himself — before sliding into the actual setup walkthrough. Skippable, but it's the whole pitch in under a minute.
-- **Nine expressions**, picked automatically by reading Rick's own reply: `talking`, `angry`, `smirk`, `thinking`, `sleep`, `surprised`, `manic`, `disgust`, `exasperated`. He decides how annoyed to look at you; you don't get a vote.
-- **Gemini under the hood**, prompted to actually be Rick — brilliant and useful when your question deserves it, dismissive when it doesn't.
-- **Optional live web results** via Google Custom Search, so he's not just guessing about anything time-sensitive.
-- **Three voice modes**: type-only, browser TTS pitched down to something Rick-adjacent (free, no key), or his real cloned voice through Fish Audio (needs a key + a tiny proxy, described below).
-- **Multiple chats**, saved to your browser, because apparently you want a *paper trail* of him being rude to you.
-- **A setup tour** for the one person on Stardance who's never touched a Gemini API key before.
+- **A face made up entirely of borders and border-radius.** No pictures required! Blinks on its own, and its eyes and transformation to pickle rick is triggered by real emotion detection, not some sort of set loop – so lip syncs to actual speech.
+- **7-slide introduction** starting with an explanation of Rick's origin – why he believes that all the other AIs on the market are rubbish and why he made this one out of himself – and then moves onto the actual introduction. Skip if you want, but the entire pitch in under a minute.
+- **Nine automatic faces** depending on what Rick detects in your message: `talking`, `angry`, `smirk`, `thinking`, `sleep`, `surprised`, `manic`, `disgust`, `exasperation`. Decides how irritated with you he wants to be; you have no say in the matter.
+- **Optional live results from the web** using Google Custom Search, so he doesn't make assumptions about any time-sensitive information.
+- **Multiple chats**, stored in your browser, because for whatever reason, you want proof that he's being rude to you.
+- **A guide for the sole person  who hasn't used a Gemini API key yet.**
 
-## Get it running
+## Start it up
 
-1. Open the HTML file. Chrome or Edge if you want voice input.
-2. No key yet? Tour walks you through grabbing a free one at [aistudio.google.com/apikey](https://aistudio.google.com/apikey) — thirty seconds, no card.
-3. Paste it in the box up top, hit **CONNECT**.
-4. Say something. Regret it.
+1. Launch the HTML page. Chrome or Edge if you need voice input.
+2. Haven't got your key yet? The tour will guide you through getting yourself a free one at [aistudio.google.com/apikey](https://aistudio.google.com/apikey), taking about half a minute with no card involved.
+3. Enter it in the little box above, press **CONNECT**.
+4. Speak some nonsense. Then immediately regret it.
 
-Your key lives in that browser tab and nowhere else — never stored, never sent anywhere but straight to Google.
+The API key is only stored inside your open browser tab and nowhere else.
 
-Three steps, one file, zero installs. If you were expecting a `git clone` and a `.env`, this isn't that kind of project.
+Three steps, one page, zero installations. If you expected there to be a `git clone` and an `.env` file in here, this ain't that sort of codebase.
 
 ## Picking a brain
 
@@ -62,23 +60,23 @@ Swap models mid-conversation. No reconnect, no drama.
 
 ## Giving him a real voice
 
-Click **VOICE** on the left.
+Tap **VOICE** on the left.
 
-- **Voice in only** — your mic, speech-to-text, no key. Works out of the box.
-- **His actual cloned voice** — needs a free [Fish Audio](https://fish.audio) key. Fish Audio's API is server-only and blocks direct browser calls, so there's a ~60-line Cloudflare Worker sitting in between: browser hits the Worker on a domain that isn't Fish Audio's, Worker forwards your key server-side, streams the mp3 back with open CORS. Free tier on Cloudflare's dashboard, deploys in a couple minutes.
-- **Browser TTS** — built-in synthesis, pitched and slowed toward Rick-ish. No key, noticeably less Rick.
+- **Voice in only** – just your mic, speech-to-text recognition without a key. This one comes right out of the box.
+- **His actual cloned voice** – this one needs you to have a free [Fish Audio](https://fish.audio) key. Fish Audio’s API can be accessed from the server but doesn’t allow direct calls from the browser, which is why there is a ~60-line Cloudflare Worker in-between: browser sends requests to the Worker that resides on a non-Fish Audio domain; the Worker forwards your key server-side and streams mp3 back with CORS enabled. Free plan on Cloudflare console, quick setup in a few minutes.
+- **Browser TTS** – native synthesis with pitch and tempo adjusted to resemble Rick’s voice better. No key needed, sounds slightly less like Rick compared to the two above.
 
-The mouth is timed to when the audio *actually* starts and stops, not a guess — so even on a slow network the face doesn't start flapping before there's any sound to go with it.
+Face movement is synchronized with the voice, not predicted, so in case of a slow connection the face won’t start flapping before the first note gets played.
 
 ## Why it's one file
 
-Because the whole point was: no install, no build, no "clone this and run `npm i`." You open an HTML file in a browser and it works. That constraint shaped everything — the face is CSS instead of sprites, state lives in `localStorage` instead of a database, and the only server-side code that exists at all is the Fish Audio proxy, which is optional and about as small as a proxy gets.
+And all because the entire idea was to avoid installation, construction, and the need to "clone it and run npm i." You open up an HTML file in your browser and it runs. This requirement determined everything else – the face is made of CSS, not sprites; the state is stored in `localStorage`, not a database; there is absolutely no server-side logic, aside from the Fish Audio proxy, which is an optional feature.
 
 ## The fine print
 
-- Both free tiers *will* run out on you. Gemini gets busy or 429s you; Fish Audio can cut a sentence off mid-word once you hit its ceiling. Not a bug, just what "free" costs.
-- Voice input needs a Chromium browser (`webkitSpeechRecognition` isn't standard yet).
-- Everything's per-browser via `localStorage` — no accounts, no sync, no cloud.
-- Search grounding needs its own Google Custom Search Engine ID on top of the Gemini key.
-
+- Neither of the free plans *will* run out on you. Gemini starts lagging and 429-ing, while Fish Audio is perfectly able to truncate a sentence somewhere in the middle when it hits its quota. Just how "free" is.
+- Voice commands require a Chromium-based browser (`webkitSpeechRecognition` API hasn’t been standardized yet).
+- All settings browser-specific using `localStorage` — no accounts, no sync, no clouds.
+- Searching requires a Google Custom Search Engine ID in addition to the Gemini one.
+  
 Built for Stardance. Get schwifty.
